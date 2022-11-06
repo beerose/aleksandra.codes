@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { ArrowLink } from "../lib/ArrowLink";
 import { Featured } from "../lib/Featured";
 import { Link } from "../lib/Link";
 import type { PostFrontmatter } from "../types";
@@ -61,11 +62,7 @@ posts.sort((a, b) => {
           })
         }
       </ul>
-      <div class="my-2 ml-1">
-        <Link class="text-xs text-gray-600 my-4" href="writing"
-          >Go to /writing to see more →</Link
-        >
-      </div>
+      <ArrowLink title="Go to /speaking to see more" href="speaking" />
     </div>
     <div>
       <p class="mb-3 font-semibold text-sm text-gray-500 uppercase">
@@ -96,14 +93,7 @@ posts.sort((a, b) => {
           })
         }
       </ul>
-      <div
-        class="my-2 ml-1 hover:translate-x-1 hover:underline underline-offset-2 decoration-1 decoration-gray-400 duration-100"
-      >
-        <a
-          class={"whitespace-nowrap rounded-sm before:rounded-sm transition-colors relative text-xs text-gray-600 my-4 no-underline "}
-          href="speaking">Go to /speaking to see more →</a
-        >
-      </div>
+      <ArrowLink title="Go to /writing to see more" href="writing" />
     </div>
   </main>
   <style>

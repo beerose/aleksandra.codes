@@ -51,15 +51,14 @@ const { title, activePage } = Astro.props;
           >SPEAKING</Link
         >
       </div>
-      <header class="">
+      <header class="flex justify-between my-2 mx-1 items-center">
         <slot name="header-content">
-          <Link href="/">← back</Link>
+          <Link class="text-sm" href="/">← back</Link>
         </slot>
+        {activePage !== "about" && <Commands client:load />}
       </header>
-      <GrainOverlay opacity={1} />
-      <slot name="links" />
-      {activePage !== "about" && <Commands client:load />}
       <slot />
+      <GrainOverlay opacity={1} />
     </div>
   </body>
 </html>

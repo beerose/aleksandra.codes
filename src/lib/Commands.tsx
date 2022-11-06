@@ -272,7 +272,7 @@ function CommandItem(props: CommandItemProps) {
 
 function GroupHeading(props: { children: JSX.Element }) {
   return (
-    <span class="text-xs p-2 font-semibold text-gray-400 dark:text-gray-500 uppercase leading-none tracking-wider">
+    <span class="text-sm p-2 font-semibold text-gray-400 dark:text-gray-500 uppercase leading-none tracking-wider">
       {props.children}
     </span>
   );

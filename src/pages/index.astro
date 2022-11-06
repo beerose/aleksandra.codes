@@ -2,7 +2,6 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { ArrowLink } from "../lib/ArrowLink";
 import { Featured } from "../lib/Featured";
-import { Link } from "../lib/Link";
 import type { PostFrontmatter } from "../types";
 
 const posts = (
@@ -26,11 +25,17 @@ posts.sort((a, b) => {
   <main class="space-y-6">
     <div
       slot="links"
-      class="flex flex-col sm:flex-row space-y-1 sm:space-y-0 py-3 pb-10 text-xs italic w-full justify-between px-1"
+      class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 py-3 pb-10 text-xs italic w-full justify-between px-1"
     >
-      <div class="space-y-1">
-        <div>@aleksandrasays</div>
-        <div>@beerose</div>
+      <div class="space-y-2 flex flex-col">
+        <a
+          class="hover:underline underline-offset-4 decoration-1 decoration-gray-500 hover:decoration-wavy"
+          href="https://twitter.com/aleksandrasays">@aleksandrasays</a
+        >
+        <a
+          class="hover:underline underline-offset-4 decoration-1 decoration-gray-500 hover:decoration-wavy"
+          href="https://github.com/beerose">@beerose</a
+        >
       </div>
       <div>Fullstack developer</div>
       <div>Wrocław, Poland</div>

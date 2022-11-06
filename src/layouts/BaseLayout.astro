@@ -34,16 +34,19 @@ const { title, activePage } = Astro.props;
       >
         <Link
           href="/"
+          noUnderline
           class={activePage === "about" ? "font-semibold text-gray-600" : ""}
           >ABOUT</Link
         >
         <Link
           href="writing"
+          noUnderline
           class={activePage === "writing" ? "font-semibold text-gray-600" : ""}
           >WRITING</Link
         >
         <Link
           href="speaking"
+          noUnderline
           class={activePage === "speaking" ? "font-semibold text-gray-600" : ""}
           >SPEAKING</Link
         >

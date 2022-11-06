@@ -1,7 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { FeaturedCard } from "../lib/FeaturedCard";
-import { FeaturedSpeakingCard } from "../lib/FeaturedSpeakingCard";
+import { Featured } from "../lib/Featured";
 import { Link } from "../lib/Link";
 import type { PostFrontmatter } from "../types";
 
@@ -45,7 +44,7 @@ posts.sort((a, b) => {
             const date = new Date(frontmatter.date);
             return (
               <li class="">
-                <FeaturedCard
+                <Featured
                   title={frontmatter.title}
                   date={date}
                   href={frontmatter.path}
@@ -54,7 +53,8 @@ posts.sort((a, b) => {
                     Sed euismod, nisl nec aliquam aliquam, nunc nisl aliquet
                     `}
                   tags={frontmatter.tags?.split(",") || []}
-                  readLength={frontmatter.readingTime.text}
+                  length={frontmatter.readingTime.text}
+                  type="post"
                 />
               </li>
             );
@@ -77,11 +77,19 @@ posts.sort((a, b) => {
             const date = new Date(frontmatter.date);
             return (
               <li class="">
-                <FeaturedSpeakingCard
+                <Featured
                   title={frontmatter.title}
                   date={date}
                   href={frontmatter.path}
                   tags={frontmatter.tags?.split(",") || []}
+                  length={frontmatter.readingTime.text}
+                  type="speaking"
+                  eventType="conference"
+                  location="Wrocław, Poland"
+                  description={`\
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Sed euismod, nisl nec aliquam aliquam, nunc nisl aliquet
+                    `}
                 />
               </li>
             );

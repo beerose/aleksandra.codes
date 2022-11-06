@@ -26,3 +26,9 @@ html {
 body {
   @apply text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-900 p-4 md:p-8 relative min-h-screen;
 }
+
+.noise {
+  /* ... */
+  background: linear-gradient(to right, blue, transparent),
+    url(https://grainy-gradients.vercel.app/noise.svg);
+}

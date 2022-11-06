@@ -35,11 +35,11 @@ export function Featured({date, title, length, href, description, tags, ...rest}
       {description && <p class="mt-2 text-sm">{description}</p>}
       {'links' in rest && <div>{rest.links}</div>}
       <div class="flex flex-row space-x-2 mt-3">
-      {tags.map((tag) => (
-        <span class="text-xs tracking-wide text-gray-700 border border-gray-500 px-1">
-          {tag}
-        </span>
-      ))}
+        {tags.map((tag) => (
+          <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300 border border-gray-500 dark:border-gray-500 px-1">
+            {tag}
+          </span>
+        ))}
       </div>
     </Card>
   );

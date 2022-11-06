@@ -18,7 +18,7 @@ posts.sort((a, b) => {
 <BaseLayout title="aleksandra.codes" activePage="about">
   <h1
     slot="header-content"
-    class="text-gray-600 dark:text-gray-500 w-full text-[11vw] text-center border-b border-gray-400 py-6 text-ad"
+    class="text-gray-600 dark:text-gray-400 w-full text-[11vw] text-center border-b border-gray-400 dark:border-gray-500 py-6 text-ad"
   >
     aleksandra.codes
   </h1>
@@ -29,11 +29,11 @@ posts.sort((a, b) => {
     >
       <div class="space-y-2 flex flex-col">
         <a
-          class="hover:underline underline-offset-4 decoration-1 decoration-gray-500 hover:decoration-wavy"
+          class="hover:underline underline-offset-4 decoration-1 decoration-gray-500 dark:decoration-gray-400 hover:decoration-wavy"
           href="https://twitter.com/aleksandrasays">@aleksandrasays</a
         >
         <a
-          class="hover:underline underline-offset-4 decoration-1 decoration-gray-500 hover:decoration-wavy"
+          class="hover:underline underline-offset-4 decoration-1 decoration-gray-500 dark:decoration-gray-400 hover:decoration-wavy"
           href="https://github.com/beerose">@beerose</a
         >
       </div>
@@ -41,7 +41,9 @@ posts.sort((a, b) => {
       <div>Wrocław, Poland</div>
     </div>
     <div>
-      <p class="mb-3 font-semibold text-sm text-gray-500 uppercase">
+      <p
+        class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
+      >
         Featured blogposts
       </p>
       <ul class="grid grid-cols-2 gap-6 sm:grid-cols-3">
@@ -70,7 +72,9 @@ posts.sort((a, b) => {
       <ArrowLink title="Go to /speaking to see more" href="speaking" />
     </div>
     <div>
-      <p class="mb-3 font-semibold text-sm text-gray-500 uppercase">
+      <p
+        class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
+      >
         Featured talks
       </p>
       <ul class="grid grid-cols-2 gap-6 sm:grid-cols-3">

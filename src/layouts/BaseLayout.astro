@@ -30,32 +30,35 @@ const { title, activePage } = Astro.props;
   <body>
     <div class="mx-auto flex flex-col justify-between">
       <div
-        class="flex justify-between w-full border-b border-gray-400 text-sm px-1 text-gray-400"
+        class="flex justify-between w-full border-b border-gray-400 dark:border-gray-500 text-sm px-1 text-gray-400 dark:text-gray-500"
       >
         <Link
           href="/"
           noUnderline
-          class={activePage === "about" ? "font-semibold text-gray-600" : ""}
-          >ABOUT</Link
+          class={activePage === "about"
+            ? "font-semibold text-gray-600 dark:text-gray-300"
+            : ""}>ABOUT</Link
         >
         <Link
           href="writing"
           noUnderline
-          class={activePage === "writing" ? "font-semibold text-gray-600" : ""}
-          >WRITING</Link
+          class={activePage === "writing"
+            ? "font-semibold text-gray-600 dark:text-gray-300"
+            : ""}>WRITING</Link
         >
         <Link
           href="speaking"
           noUnderline
-          class={activePage === "speaking" ? "font-semibold text-gray-600" : ""}
-          >SPEAKING</Link
+          class={activePage === "speaking"
+            ? "font-semibold text-gray-600 dark:text-gray-300"
+            : ""}>SPEAKING</Link
         >
       </div>
-      <header class="flex justify-between my-2 mx-1 items-center">
+      <header class="flex justify-between mx-1 items-center">
         <slot name="header-content">
           <Link class="text-sm" href="/">← back</Link>
         </slot>
-        {activePage !== "about" && <Commands client:load />}
+        <Commands hide={activePage === "about"} client:load />
       </header>
       <slot />
       <GrainOverlay opacity={1} />

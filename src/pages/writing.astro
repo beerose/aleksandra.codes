@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { Featured } from "../lib/Featured";
 import { formatDate } from "../lib/formatDate";
 import { Link } from "../lib/Link";
 import type { PostFrontmatter } from "../types";
@@ -14,32 +15,83 @@ posts.sort((a, b) => {
 ---
 
 <BaseLayout title="aleksandra.codes — writing" activePage="writing">
-  <ul>
-    {
-      posts.map(({ frontmatter }) => {
-        const date = new Date(frontmatter.date);
-        return (
-          <li>
-            <Link
-              href={frontmatter.path}
-              class="flex flex-row gap-2 justify-between"
-              noUnderline
-            >
-              <h2 class="text-gray-800 dark:text-gray-300 font-sans">
-                {frontmatter.title}
-              </h2>
-              <time
-                datetime={date.toISOString()}
-                class="text-gray-600 dark:text-gray-400"
-              >
-                {formatDate(date)}
-              </time>
-            </Link>
-          </li>
-        );
-      })
-    }
-  </ul>
+  <div class="mt-2 flex flex-col-reverse md:flex-row md:space-y-0 md:space-x-5">
+    <div class="w-full mt-8 md:mt-0">
+      <p
+        class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
+      >
+        All posts
+      </p>
+      <ul>
+        {
+          [...posts, ...posts].map(({ frontmatter }) => {
+            const date = new Date(frontmatter.date);
+            return (
+              <li>
+                <Link
+                  href={frontmatter.path}
+                  class="flex flex-row gap-2 justify-between"
+                  noUnderline
+                >
+                  <div>
+                    <h2 class="text-gray-800 dark:text-gray-300 font-sans">
+                      {frontmatter.title}
+                    </h2>
+                    <div class="flex space-x-1 text-gray-600 dark:text-gray-400 text-xs">
+                      <time datetime={date.toISOString()}>
+                        {formatDate(date)}
+                      </time>
+                      <span>·</span>
+                      <p>{frontmatter.readingTime.text}</p>
+                    </div>
+                    <div class="flex flex-row space-x-2 items-center my-1">
+                      {frontmatter.tags?.split(",").map((tag) => (
+                        <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300 border border-gray-500 dark:border-gray-500 px-1">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+    <div>
+      <p
+        class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
+      >
+        Featured posts
+      </p>
+      <ul class="grid grid-cols-1 xs:grid-cols-2 gap-2 md:grid-cols-1">
+        {
+          posts
+            .filter((p) => !!p.frontmatter.tags)
+            .map(({ frontmatter }) => {
+              const date = new Date(frontmatter.date);
+              return (
+                <li class="">
+                  <Featured
+                    title={frontmatter.title}
+                    date={date}
+                    href={frontmatter.path}
+                    description={`\
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Sed euismod, nisl nec aliquam aliquam, nunc nisl aliquet
+                `}
+                    tags={frontmatter.tags?.split(",") || []}
+                    length={frontmatter.readingTime.text}
+                    type="post"
+                  />
+                </li>
+              );
+            })
+        }
+      </ul>
+    </div>
+  </div>
   <style>
     ul:hover li:not(:hover) :where(h2, time) {
       @apply text-gray-600 dark:text-gray-500 transition-colors;

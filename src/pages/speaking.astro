@@ -14,15 +14,15 @@ posts.sort((a, b) => {
 });
 ---
 
-<BaseLayout title="aleksandra.codes — writing" activePage="writing">
+<BaseLayout title="aleksandra.codes — speaking" activePage="writing">
   <div class="mt-2 flex flex-col-reverse md:flex-row md:space-y-0 md:space-x-5">
     <div class="w-full mt-8 md:mt-0">
       <p
         class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
-        All posts
+        All talks
       </p>
-      <ul class="all-posts">
+      <ul>
         {
           [...posts, ...posts].map(({ frontmatter }) => {
             const date = new Date(frontmatter.date);
@@ -63,16 +63,16 @@ posts.sort((a, b) => {
       <p
         class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
-        Featured posts
+        Talks I'm most proud of
       </p>
-      <ul class="featured grid grid-cols-1 xs:grid-cols-2 gap-2 md:grid-cols-1">
+      <ul class="grid grid-cols-1 xs:grid-cols-2 gap-2 md:grid-cols-1">
         {
           posts
             .filter((p) => !!p.frontmatter.tags)
             .map(({ frontmatter }) => {
               const date = new Date(frontmatter.date);
               return (
-                <li class="post">
+                <li class="">
                   <Featured
                     title={frontmatter.title}
                     date={date}
@@ -93,17 +93,8 @@ posts.sort((a, b) => {
     </div>
   </div>
   <style>
-    .all-posts:hover li:not(:hover) {
-      span,
-      h2,
-      p,
-      time {
-        @apply text-gray-400 dark:text-gray-500 dark:border-gray-700 border-gray-300 transition-colors;
-      }
-    }
-
-    .featured:hover li:not(:hover) {
-      @apply opacity-50 transition-opacity duration-500;
+    ul:hover li:not(:hover) :where(h2, time) {
+      @apply text-gray-600 dark:text-gray-500 transition-colors;
     }
   </style>
 </BaseLayout>

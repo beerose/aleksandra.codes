@@ -18,11 +18,11 @@ posts.sort((a, b) => {
 <BaseLayout title="aleksandra.codes" activePage="about">
   <h1
     slot="header-content"
-    class="text-gray-600 dark:text-gray-400 w-full text-[11vw] text-center border-b border-gray-400 dark:border-gray-500 py-6 text-ad"
+    class="text-gray-600 dark:text-gray-400 w-full text-[11vw] text-center py-6 text-ad"
   >
     aleksandra.codes
   </h1>
-  <main class="space-y-6">
+  <main class="space-y-6 border-t border-gray-400 dark:border-gray-500">
     <div
       slot="links"
       class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 py-3 pb-10 text-xs italic w-full justify-between px-1"
@@ -46,7 +46,7 @@ posts.sort((a, b) => {
       >
         Featured blogposts
       </p>
-      <ul class="grid grid-cols-2 gap-6 sm:grid-cols-3">
+      <ul class="featured grid grid-cols-2 gap-6 sm:grid-cols-3">
         {
           posts.map(({ frontmatter }) => {
             const date = new Date(frontmatter.date);
@@ -69,7 +69,7 @@ posts.sort((a, b) => {
           })
         }
       </ul>
-      <ArrowLink title="Go to /speaking to see more" href="speaking" />
+      <ArrowLink title="Go to /writing to see more" href="writing" />
     </div>
     <div>
       <p
@@ -77,7 +77,7 @@ posts.sort((a, b) => {
       >
         Featured talks
       </p>
-      <ul class="grid grid-cols-2 gap-6 sm:grid-cols-3">
+      <ul class="featured-talks grid grid-cols-2 gap-6 sm:grid-cols-3">
         {
           posts.map(({ frontmatter }) => {
             const date = new Date(frontmatter.date);
@@ -102,15 +102,16 @@ posts.sort((a, b) => {
           })
         }
       </ul>
-      <ArrowLink title="Go to /writing to see more" href="writing" />
+      <ArrowLink title="Go to /speaking to see more" href="speaking" />
     </div>
   </main>
   <style>
-    ul:hover li:not(:hover) :where(h2, time) {
-      @apply text-gray-600 transition-colors;
-      :global(.dark) & {
-        @apply text-gray-500;
-      }
+    .featured:hover li:not(:hover) {
+      @apply opacity-50 transition-opacity duration-500;
+    }
+
+    .featured-talks:hover li:not(:hover) {
+      @apply opacity-50 transition-opacity duration-500;
     }
   </style>
 </BaseLayout>

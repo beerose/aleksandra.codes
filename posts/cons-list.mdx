@@ -1,0 +1,381 @@
+---
+title: "Persistent data structures thanks to recursive type aliases"
+tags: typescript
+excerpt: "The article is based on the talk I gave at #8 Wrocław TypeScript meetup. I'll show some handy and blazingly fast persistent data structure."
+date: 2019-11-01
+---
+
+It’s well known that mutability is evil and often troublesome. But, it’s also a fact that mutable data structures are, in some cases, more straightforward to implement and have better performance. Sometimes, you can go with it and be completely fine, but other times immutability is required. Let’s focus on arrays for now. What would you do if you want to append or prepend an item to the list in an immutable way? A shallow copy? A deep copy (god forbid)? These operations are expensive. They have greater asymptotic time complexity — O(n), and what we want is O(1). In this article, I’m going to show a simple data structure that achieves that.
+
+Do I get your attention now? So, let's start!
+
+## Persistent vs immutable data structure 🔎
+
+Firstly, I need to confess. For quite a lot of time, I thought that a persistent structure is just an immutable structure. Pretty lame.
+Then I got to know that the data structure is persistent when it preserves previous versions of itself when it's modified. It's like it never forgets who it was. They are, in fact, effectively immutable, but it doesn't work the other way around. Immutable data structures don't have to be necessarily persistent.
+
+You can read more about it [here](https://en.wikipedia.org/wiki/Persistent_data_structure).
+
+## Meet Cons List
+
+And here it is. Star of the show 👏
+
+Firstly, let's focus on what _cons_ means. So... it's a function. What's more, it's the fundamental function in many programming languages. Especially in Lisp dialects. It takes two objects or pointers to the objects x and y and **cons**tructs object in the memory holding x and y. When it comes to cons lists, it takes a value, and the cons list and constructs brand new object out of it, which is also cons list. You may have seen this before:
+
+- **1::[2]**: ML, Scala, F# and Elm
+
+- **1:[2]**: Haskell
+
+- **(cons 1 2)**: Lisp and it's dialects
+
+The above are the **cons**tructors for the list data structure. _cons list_ is also called a _linked list_, which I guess, is a more recognizable name.
+
+We can visualize _cons list_ in the following way:
+
+<div class="gatsby-highlight" data-language="sh">
+  <pre style="
+    overflow: -moz-scrollbars-vertical;
+    overflow-x: scroll;
+    margin-top: 0;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 1em;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.2em;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+    color: black !important; background: white !important;"
+  >
+    <code>
+┌────────────┐     ┌────────────┐     ┌────────────┐
+│  1  | tail │   ┌─│  2  | tail │   ┌─│  3  | null │
+└────────│───┘   │ └────────│───┘   │ └────────────┘
+         └───────┘          └───────┘
+a linked list of (1, 2, 3)
+</code></pre></div>
+
+### How is it persistent?
+
+There were a few words about persistent data structures, so you may wonder if cons list is persistent. Yes, it is! Let's see how.
+
+Let's say we have a cons list — **xs**, and we want to cons an element to it. It results in a brand new list **ys**, and what you can notice is that items from **xs** are now shared between **xs** and **ys**. Thus the list **xs** hasn't been modified, and it's a part of the new list **ys**.
+
+<div class="gatsby-highlight" data-language="sh">
+  <pre style="
+    overflow: -moz-scrollbars-vertical;
+    overflow-x: scroll;
+    margin-top: 0;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 1em;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.2em;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+    color: black !important; background: white !important;"
+  >
+    <code>
+   xs                           ys
+┌──│──┐                      ┌──│──┐
+│  3  │                      │  4  │
+└──│──┘                      └──│──┘
+┌──│──┐                     xs  │
+│  2  │    cons 4 xs →       └─┌┘
+└──│──┘                     ┌──│──┐
+┌──│──┐                     │  3  │
+│  1  │                     └──│──┘
+└─────┘                     ┌──│──┐
+                            │  2  │
+                            └──│──┘
+                            ┌──│──┐
+                            │  1  │
+                            └─────┘
+    </code>
+  </pre>
+</div>
+
+### How it looks in TypeScript 3.7
+
+I can write the type of cons list in the following way and it perfectly works thanks to recursive type aliases introduced in TypeScript 3.7.
+
+```ts
+export type ConsList<T> = null | readonly [T, ConsList<T>];
+```
+
+Before 3.7, I would get the following error:
+
+> Type alias 'ConsList' circularly references itself. ts(2456)
+
+Long story short, type aliases needed to be eagerly built, so you couldn't have on the right side the same thing as on the left side because the compiler would try to substitute the former with the later and then the later with the former and so on... You can read more about it on [TypeScript 3.7 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-3-7-rc/#more-recursive-type-aliases).
+
+### Functions operating on ConsList
+
+Okay, so we already have some overview of what _cons list_ is. Now it's time to see what we can do with it and how to make it useful. _cons list_ may come as an immutable replacement for Array. That means we can expect it to have some of its functionalities. Let's add some!
+
+- Prepend element to list
+
+```ts
+function cons<T>(h: T, t: ConsList<T>): ConsList<T> {
+  return [h, t];
+}
+```
+
+- Extract head and tail from the list
+
+```ts
+function head<T>(xs: ConsList<T>): T {
+  if (!xs) {
+    throw new Error("can't take head of empty ConsList");
+  }
+  return xs[0];
+}
+
+function tail<T>(xs: ConsList<T>): ConsList<T> {
+  if (!xs) {
+    throw new Error("can't take tail of empty ConsList");
+  }
+  return xs[1];
+}
+```
+
+- Map over it.
+
+> Note: _cons list_ with _map_ is no longer persistent. It's just immutable. To make it persistent, we would need to memorize previous versions. I'll skip it for now.
+
+```ts
+function map<A, B>(xs: ConsList<A>, f: (a: A) => B): ConsList<B> {
+  let res: ConsList<B> = null;
+  while (xs) {
+    const [head, tail] = xs;
+    res = [f(head), res];
+    xs = tail;
+  }
+  return reverse(res);
+}
+```
+
+- Reduce it
+
+```ts
+function reduce<T, R = T>(
+  xs: ConsList<T>,
+  reducer: (acc: R, val: T) => R,
+  initialValue: R
+): R {
+  while (xs) {
+    const [head, tail] = xs;
+    initialValue = reducer(initialValue, head);
+    xs = tail;
+  }
+  return initialValue;
+}
+```
+
+- Construct a new _cons list_ from Array and vice versa
+
+```ts
+const of = <T>(...xs: T[]): ConsList<T> => {
+  let res: ConsList<T> = null;
+  for (let i = xs.length - 1; i >= 0; --i) {
+    res = cons(xs[i], res);
+  }
+  return res;
+};
+
+function toArray<T>(xs: ConsList<T>) {
+  return reduce<T, T[]>(
+    xs,
+    (a, v) => {
+      a.push(v);
+      return a;
+    },
+    []
+  );
+}
+```
+
+- Reverse it
+
+```ts
+function reverse<T>(xs: ConsList<T>): ConsList<T> {
+  return reduce(xs, (acc, v) => cons(v, acc), null as ConsList<T>);
+}
+```
+
+- Concat two _cons lists_
+
+```ts
+function concat<T>(xs: ConsList<T>, ys: ConsList<T>): ConsList<T> {
+  return xs ? cons(head(xs), concat(tail(xs), ys)) : ys;
+}
+```
+
+So far, so good. I'll stop now. It's pretty powerful already 💪
+
+## Real-life use cases 🛠
+
+As you might have noticed, the _cons list_ gives us rapid access to the first element of the list. That means we can prepend to the list and take the first element from it extremely fast. As a matter of fact, a stack (or _last-in-first-out queue_) is the data structure that is based on these two operations. Push to the stack is just doing _cons_ on the _cons list_, and pop is extracting the head. In common stack nomenclature it would go like that:
+
+<div class="gatsby-highlight" data-language="sh">
+  <pre style="
+    margin: 0;
+    padding-left: 10px;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 1em;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.2em;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+    color: black !important; background: white !important;"
+  >
+    <code>
+const push = cons;
+const pop = tail;
+const peek = head;
+    </code>
+  </pre>
+</div>
+
+Great! We have stack done effortlessly. Without any modifications and without any new code. That one was easy, now it is time for something more complex. First-in-first-out queue. The structure when we are taking elements from the front and pushing to the end. So, we need rapid access to both the first and last element of the list. It's pretty straightforward with mutations and pointers. We would only need to maintain two pointers for the first and the last item. But we don't have mutations. We have our _cons list_ instead!
+
+<div style="display: flex; justify-content: center; width: 100%">
+  <div style="text-align: center; width: 600px">
+    <img src="/content/cons-list/queue.png"/>
+  </div>
+</div>
+
+There was this smart guy named Chris Okasaki, who came up with a clever way how to implement an effective, immutable FIFO quque, using a pair of two _cons lists_ **(front, back)**. They are representing, respectively, the front and the back of the queue. But the **back** is reversed, so the head of this list is the last element of the queue.
+
+```ts
+type Queue<T> = {
+  front: ConsList<T>;
+  back: ConsList<T>;
+};
+```
+
+Key points of this structure:
+
+- When we want to push an item to the queue, we need to prepend it to the **back**
+- When we want to pop an item, we need to extract the head from **front**
+
+<div style="display: flex; justify-content: center; width: 100%">
+  <div style="text-align: center; width: 800px">
+    <img src="/content/cons-list/broken-queue.png"/>
+  </div>
+</div>
+
+When we keep pushing elements to the queue, they all will drift into the back list. Let's say we pushed one after another numbers from 1 to 5. That means our structure would look somehow like this:
+
+```ts
+{ front: null, back: [5, [4, [3, [2, [1, null]]]]]}
+```
+
+The front list is empty. So how can we take an element out of it? That's the best part. We do a rotation. That means we take the **back** list, reverse it, attach it as the new front and make **back** empty.
+
+<div style="display: flex; justify-content: center; width: 100%">
+  <div style="text-align: center; width: 800px">
+    <img src="/content/cons-list/rotate.png"/>
+  </div>
+</div>
+
+Here's the whole implementation:
+
+```ts
+const empty = <T>(): Queue<T> => ({
+  front: null,
+  back: null,
+});
+
+const isEmpty = (queue: Queue<unknown>) => (queue.front || queue.back) === null;
+
+const enqueue = <T>(x: T, { front, back }: Queue<T>) => ({
+  front,
+  back: ConsList.cons(x, back),
+});
+
+const dequeue = <T>(queue: Queue<T>): [T | null, Queue<T>] => {
+  const { front, back } = queue;
+  if (front) {
+    const [value, newFront] = front;
+    return [value, { back, front: newFront }];
+  }
+
+  if (back) {
+    return dequeue({
+      back: null,
+      front: ConsList.reverse(back),
+    });
+  }
+
+  return [null, queue];
+};
+```
+
+### When not to use cons list
+
+- It’s not a replacement to Array.
+- It’s not a random access list (thus I didn’t even implement it), so if you want fast random access then better use Array.
+
+## Benchmarks ⌛️
+
+You may wonder if using _cons lists_ pays off somehow. In fact, it does! I did some benchmarks comparing operations on Array and on _cons list_ and the results are thrilling! [Here's the gist with benchmarks.](https://gist.github.com/beerose/5602b648c80dcdd14def856290652471)
+
+### Mutable operations vs cons
+
+| Opeation &nbsp&nbsp&nbsp          |       ops/s |
+| :-------------------------------- | ----------: |
+| array.unshift(50) &nbsp&nbsp&nbsp |   99953.939 |
+| array.push(50) &nbsp&nbsp&nbsp    |   70675.276 |
+| cons(50, list) &nbsp&nbsp&nbsp    | 5822999.798 |
+
+### Immutable operation vs cons
+
+| Operation &nbsp&nbsp&nbsp     |       ops/s |
+| :---------------------------- | ----------: |
+| [50, ...array]&nbsp&nbsp&nbsp |   12680.588 |
+| cons(50, list)&nbsp&nbsp&nbsp | 5485947.933 |
+
+### _Array.prototype_.map vs map
+
+| Operation                             |    ops/s |
+| :------------------------------------ | -------: |
+| array.map(x => x \* 2)&nbsp&nbsp&nbsp | 4389.837 |
+| map(list, x => x \* 2)&nbsp&nbsp&nbsp |  662.805 |
+
+---
+
+I hope the above benchmarks speak for themselves. It's kind of funny because I expected a _cons list_ map to be a little bit slower, but it surprisingly fast. If you know why let me know 😛
+
+## Resources 📚
+
+[Changelog](https://devblogs.microsoft.com/typescript/announcing-typescript-3-7-rc/#more-recursive-type-aliases)
+
+[Persistent data structures](<(https://en.wikipedia.org/wiki/Persistent_data_structure)>)
+
+[Cons](https://en.wikipedia.org/wiki/Cons)

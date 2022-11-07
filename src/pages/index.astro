@@ -6,7 +6,7 @@ import type { PostFrontmatter } from "../types";
 
 const posts = (
   await Astro.glob<PostFrontmatter>("../../posts/**/*.mdx")
-).filter((p) => !!p.frontmatter.tags);
+).filter((p) => !!p.frontmatter.featured);
 posts.sort((a, b) => {
   return (
     new Date(a.frontmatter.date).getTime() -
@@ -56,10 +56,7 @@ posts.sort((a, b) => {
                   title={frontmatter.title}
                   date={date}
                   href={frontmatter.path}
-                  description={`\
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Sed euismod, nisl nec aliquam aliquam, nunc nisl aliquet
-                    `}
+                  description={frontmatter.excerpt}
                   tags={frontmatter.tags?.split(",") || []}
                   length={frontmatter.readingTime.text}
                   type="post"

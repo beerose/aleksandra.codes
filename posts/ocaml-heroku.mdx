@@ -1,0 +1,82 @@
+---
+title: "Deploying OCaml server on Heroku"
+excerpt: "After some serious Google searches on that topic I decided to gather all the information I found in one place. This quick tutorial will cover how to write OCaml server and how to deploy it on Heroku."
+tags: ocaml
+date: 2018-01-13
+---
+
+After some serious Google searches on that topic I decided to gather all the information I found in one place. This quick tutorial will cover how to write OCaml server and how to deploy it on Heroku.
+
+### Create Heroku app
+
+If you haven’t already, sign up for a Heroku account [here](http://heroku.com/). Then, install Heroku’s CLI tool via the instructions [here](https://devcenter.heroku.com/articles/heroku-cli#download-and-install). And then, let’s create our Heroku app:
+
+    heroku create magnetic-mad-kangaroo
+
+You can come up with some other fancy name, if not here’s a [helper](https://www.textfixer.com/tools/random-words.php).
+
+You just got a fresh url to the app and you can see a temporary Heroku landing page after you head to the url.
+
+### Create OCaml server
+
+The code below is the proof of concept of how the OCaml server should look like.
+
+```ocaml
+open Lwt
+open Cohttp
+open Cohttp_lwt_unix
+
+let server =
+  let callback _conn req body =
+    body |> Cohttp_lwt.Body.to_string >|= (fun body ->
+    Printf.sprintf "Hello! %s" body)
+    >>= (fun body ->Server.respond_string ~status:`OK ~body ())
+  in
+  Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())
+
+let () = ignore (Lwt_main.run server)
+```
+
+We’re using:
+
+- [Cohttp](https://github.com/mirage/ocaml-cohttp) — an OCaml library for HTTP clients and servers.
+
+- [Lwt](https://ocsigen.org/lwt/3.1.0/manual/) — helper for handling IO operations
+
+- [Cohttp lwt unix](https://github.com/mirage/ocaml-cohttp) — HTTP client and server using the Lwt_unix interfaces
+
+And can compile it and start the server with:
+
+    ocamlbuild -pkg cohttp-lwt-unix main.native
+
+    ./main.native
+
+[Cohttp lwt unix](https://github.com/mirage/ocaml-cohttp) package requires OCaml version ≥ 4.03 but you can easily switch between versions with opam switch _version_ . To list all avaliable compilers you can type opam switch list --all .
+
+But.. since Heroku is using Linux it’s not going to work if you compiled you code on another operating system. And since I’m not aware of any OCaml cross-compilers when target platform is Linux, I recommend using [Vagrant](https://www.vagrantup.com/) or [Docker](https://www.docker.com/) for compiling OCaml server in order to not spend all night doing it as I just did.
+
+### Deploy on Heroku
+
+One way of deploying app on Heroku is to push to a remote repository. But in our case it will fail as Heroku will try to detect what kind of project this is and it found out that OCaml isn’t any of the default languages. For other languages, ex. Ruby it would look for a Gemfile and then invokes the correct buildpack, a script that installs the dependencies and can take extra steps, like preprocess some code and so on. In case of OCaml we will generate a binary and deploy it, using null buildpack , which means that the only thing Heroku would have to do after it receives an executable file will be running it.
+
+    heroku buildpacks:set [http://github.com/ryandotsmith/null-buildpack.git](http://github.com/ryandotsmith/null-buildpack.git) --app magnetic-mad-kangaroo
+
+The last step is to build and deploy our app on Heroku with [heroku-builds](https://github.com/heroku/heroku-builds).
+
+To install it we have to type:
+
+    heroku plugins:install heroku-builds
+
+We also need to create Procfile so that Heroku will know what it has to run.
+
+    web: ./main.native
+
+And finally we can deploy our app:
+
+    heroku builds:create --app magnetic-mad-kangaroo
+
+Then we can make some test to confirm it works:
+
+    curl -X GET [https://magnetic-mad-kangaroo.herokuapp.com/](https://magnetic-mad-kangaroo.herokuapp.com/)
+
+If you come across any issues, you can always run heroku logs to troubleshoot.

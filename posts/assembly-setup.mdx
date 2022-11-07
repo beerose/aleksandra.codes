@@ -1,0 +1,76 @@
+---
+title: "Setup for sane assembly programming"
+tags: others
+excerpt: "There are some days that seem to leads to no good. One of these days has come to me when I needed to do some serious assembly programming."
+date: 2018-03-18
+---
+
+There are some days that seem to leads to no good. One of these days has come to me when I needed to do some serious assembly programming. No fun anymore. No joy from making stuff work or writing code enjoying the time. I came to the phase that it’s quite bearable, brought some colours into my asm adventure and for fear of forgetting the steps I’ve done I’m going to write them down.
+
+## Docker
+
+I needed to compile my assembly code on linux due to some differences connected with section text. Very important in my case, but not so important in general. Anyway, I needed to setup docker to compile, run and debug my code.
+
+One of the most important things you need when writing in C/C++ or assembly is debugger. That’s why I needed docker image with gdb , which is awesome (as for low level languages debugger). I took it from [docker hub](https://hub.docker.com/r/baygeldin/gdb-examples/).
+
+The following command allows to run bash with gdb image:
+
+    docker run -it baygeldin/gdb-examples bash
+
+Gdb works, I’m almost where I wanted to be. The next thing I found mandatory was mounting host directory into the docker container somehow. It can be done by adding one additional parameter to the previous command.
+
+    docker run -v $(pwd):/my-osom-dir -it baygeldin/gdb-examples bash
+
+Wonderful! I’m in bash, I have access to my host directory, what can go wrong? Let’s find out. I have some piece of code below — ordinary _hello world_ program.
+
+    .section .text
+    .globl main
+
+    main:
+      movl $4, %eax
+      movl $1, %ebx
+      movl $msg, %ecx
+      movl $len, %edx
+      int $0x80
+      xorl %eax, %eax
+      ret
+
+    msg:
+      .ascii   "Hello world!\n"
+      len = . - msg
+
+It can be compiled with:
+
+    gcc -m64 -g hello_world.s -o hello_world
+
+And then executed in gdb:
+
+    gdb hello_world
+
+At this phase I wanted to place some breakpoints and see how it works. It doesn’t work. Gdb in docker container does not hit the breakpoints that were set. It is because gdb depends on a _non_-_randomized_ address space for _lots_ of things, including setting breakpoints. The container needs some extra privileges and it can be obtain by setting --privileged flag. So the final version of the command running the docker is:
+
+    docker run -v $(pwd):/my-osom-dir --privileged -it baygeldin/gdb-examples bash
+
+## Gdb
+
+Gdb is quite okey as it is. It debugs, it has many options, what do anyone expect from assembly debugger? Honestly, I didn’t. Nevertheless, at some point I found it triggering to type info registers over and over again. So after poking around in the internet for a while I found [this awesome ._gdbinit_ config](https://github.com/cyrus-and/gdb-dashboard). And this is how the previous _hello world_ program looks in gdb debugger:
+
+![](https://cdn-images-1.medium.com/max/2764/1*7axQWHPDU5LqUjs5Msd2VQ.png)
+
+Looks quite nice, doesn’t it?
+
+There is also a couple of useful gdb commands:
+
+- r|run|start — run the program
+
+- b|breakpoint — place a breakpoint in the place given as the firs parameter, for example b main
+
+- n|next — step to line given as parameter without entering subroutines, without a parameter it steps to next line
+
+- s|step — same as n , but enters the subroutines
+
+- l|list — prints source of the program
+
+- p|print — prints some variable and stores it in the local variable, can be also used for setting values for some variables, for example p my_var = 7
+
+- set — setting variable values

@@ -14,6 +14,9 @@ export interface PostFrontmatter {
   date: string;
   tags: string;
 
+  excerpt: string;
+  featured?: boolean;
+
   /**
    * @computed by defaultLayoutPlugin
    */

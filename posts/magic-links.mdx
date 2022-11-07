@@ -1,0 +1,67 @@
+---
+title: "Sending Magic Links with Nodejs"
+tags: nodejs
+excerpt: The most popular method of logging in to an application is by providing a username and a password, but that may come with some cons for users...
+date: 2018-12-20
+---
+
+The most popular method of logging in to an application is by providing a username and a password, but that may come with some cons for users. Even though there are many password managers it takes time to use them. Not much but still. And not everyone uses them. Some apps have frustrating and complex password rules, so coming up with a new password may be a tough task. The passwordless system makes quite a good alternative to the common login and password authentication. It is used by, among others, Slack and FramerX as a magic link that is sent to the user to enable his authentication in the app. The flow in a passwordless system goes that way:
+
+1. The user visits the app, where is a form for an email address
+
+1. The user provides an email address and clicks some confirm button
+
+1. The magic login link is sent to the user email
+
+1. User clicks the link and is redirected to the app, already logged in
+
+And after that, the magic link is no longer valid.
+
+Steps below will cover some basic setup for implementing passwordless flow in NodeJS.
+
+### Create an [express](https://expressjs.com/) app
+
+First, we need to create a simple express app and add some endpoints. The code below is a setup for an express server with helpers for [parsing incoming request](https://github.com/expressjs/body-parser), [logging](https://github.com/sirrodgepodge/morgan-body) and [enabling cors](https://github.com/expressjs/cors). We need to add two routes that later on we attach handlers to. They are /login and /account . The first one will be responsible for sending magic links to users and the second one for authenticating the users.
+![server.ts](https://cdn-images-1.medium.com/max/3324/1*HF0NSuV7Wi2DJ2-rY77A_Q.png)
+
+### Setup nodemailer
+
+We’ll be using nodemailer for sending emails, but first, we need to setup it. There are some things needed: email address, email password, SMTP server host and SMTP server port. We also need some email template that we’ll be sending to the users along with the magic link. The template may be a simple string or a html snippet.
+
+![](https://cdn-images-1.medium.com/max/3220/1*00-H2VzPBTk70VXCiZx90Q.png)
+
+### Generate tokens
+
+For this, we’ll be using [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken#readme) package that will basically do everything for us. Our token will consist of just two properties: email and expiration time.
+
+![token.ts](https://cdn-images-1.medium.com/max/2852/1*2HZ2sacBrBm2rn15rve8-g.png)
+
+### Sending an email
+
+Now we need to add a login handler where we first validate a request to check if it contains a user email, then we generate a new token for this particular user and finally use transporter that was set up above to send an email.
+
+![](https://cdn-images-1.medium.com/max/3860/1*qq5C6BNTTMjm0F26BoCf0g.png)
+
+### User authentication
+
+Having logged user we need to authorize his/her requests to our server. What exactly we need to do is:
+
+1. Check if there is authorization header in the request
+
+1. Verify if the authorization header is a bearer token
+
+1. Try to decode this token
+
+1. Check if the token has all the required fields, which in our case are: email and expiration
+
+1. Compare expiration date and time to the current to assure that token hasn’t expired
+
+1. Finally, verify if there exists a user with the email as extracted from the token
+
+![](https://cdn-images-1.medium.com/max/3424/1*IBunwFzTXuiwH4ysbwWoxg.png)
+
+### Conclusion
+
+I’ve presented basic setup for passwordless login on top of the normal auth flow. The biggest benefit I see is the fact that if users can get into some product faster and easier, they’ll be more satisfied.
+
+On the other hand, even that it may be easier to get into a product than in the standard login password systems, it may be harder to come back to it. Every time the user wants to log in, he needs to wait for an email, check an inbox and click the link. It may become frustrating, so if there are short session timeout periods or the app expects users to log in frequently the passwordless flow may not be the best choice.

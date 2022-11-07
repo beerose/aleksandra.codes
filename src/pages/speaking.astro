@@ -5,8 +5,8 @@ import { formatDate } from "../lib/formatDate";
 import { Link } from "../lib/Link";
 import type { PostFrontmatter } from "../types";
 
-const posts = await Astro.glob<PostFrontmatter>("../../posts/**/*.mdx");
-posts.sort((a, b) => {
+const talks = await Astro.glob<PostFrontmatter>("../../talks/*.mdx");
+talks.sort((a, b) => {
   return (
     new Date(a.frontmatter.date).getTime() -
     new Date(b.frontmatter.date).getTime()
@@ -24,7 +24,7 @@ posts.sort((a, b) => {
       </p>
       <ul>
         {
-          [...posts, ...posts].map(({ frontmatter }) => {
+          talks.map(({ frontmatter }) => {
             const date = new Date(frontmatter.date);
             return (
               <li>
@@ -67,7 +67,7 @@ posts.sort((a, b) => {
       </p>
       <ul class="grid grid-cols-1 xs:grid-cols-2 gap-2 md:grid-cols-1">
         {
-          posts
+          talks
             .filter((p) => !!p.frontmatter.tags)
             .map(({ frontmatter }) => {
               const date = new Date(frontmatter.date);

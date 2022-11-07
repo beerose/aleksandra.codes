@@ -1,0 +1,214 @@
+---
+title: "Developing VS Code extensions"
+tags: vscode
+excerpt: This article is based on the talk I gave at the 1st Wrocław TypeScript Meetup.
+date: 2019-02-08
+---
+
+This article is based on the talk I gave at [#1 Wrocław TypeScript Meetup](https://www.meetup.com/WrocTypeScript/events/257160526/?eventId=257160526&).
+
+## TL;DR
+
+If you want to skip the guide and go straight to the code, [check out the repo](http://github.com/beerose/no-profanity). Otherwise, read on!
+
+## What is VS Code?
+
+I hope that most of you at least heard about VS Code. For those who didn’t — VS Code is a lightweight, cross-platform development environment created by Microsoft, that runs on Electron. VS Code describes itself as just a code editor but with various extensions that the user can install it comes near to being a fully integrated development environment (IDE).
+
+At the core of VS Code lays an API that provides an extensible model that is relatively easy for developers to build on. Almost every part can be customized and extended through the Extension API. VS Code was built with a guiding principle to make it easily developed by its user and many of the core features are also build as extensions.
+
+Extension API is a really formidable thing. List of things that you can achieve using it is impressive. You can, for example, change the look, colors, add custom components to the UI, support new languages, insert your own app into the VS Code thanks to webviews, support debugging, add a new docked panel on the left bar and much, much more.
+
+## Why build an extension?
+
+### Just for fun 🤹‍♀️
+
+There’s a lot you can do with Extension API to play and experiment with how VS Code looks and works. Was there something that kept triggering you? You can change it. Something that was missing? You can add it. And on top of that, you can play a little with TypeScript and there’s no such thing as too much TypeScript fun.
+
+### Learning 📚
+
+There’s always a bit of knowledge that comes with writing code. So by creating an extension not only will you learn how VS code works but also you will gain some overall programming skills.
+
+### Fame ⭐
+
+You can create an extension that everyone will love and end up giving something back to the community. And there’s a lot of GitHub stars coming along with that.
+
+## How to create an extension?
+
+To generate an extension there are two tools needed — [yeoman](https://yeoman.io/), that helps to kickstart a new project, and [vscode-generator-code](https://github.com/Microsoft/vscode-generator-code), which is a generator build with _yeoman_ by VS Code team. The generator scaffolds a project ready for development. I’m assuming that you have _npm_ already installed. And VS Code. Although, I once saw someone creating a VS Code extension in Notepad++, so maybe VS Code is not a mandatory thing 🙃.
+
+Anyway, typing `yo` code in the terminal, it will open some nice looking generator that will ask a couple of questions.
+
+![yo code!](https://cdn-images-1.medium.com/max/2280/1*YREFIV9QhobNV89ebreLuw.png)
+
+And these things are:
+
+- **What type of extension is it going to be?** In this article, I will only describe the first kind — _TypeScript extension_.
+
+- **What will be the name of it?** Use your imagination. I will go with test. Literally no imagination, sorry 🤭.
+
+- **What will be the identifier?** Can be the same as the name.
+
+- **What’s the description?** It can be filled later on.
+
+- **What’s the publisher name?** You can type anything for now. Your handle for example. I’ll provide a decent explanation later in the article.
+
+- **Should it initialize a git repository?** Why not.
+
+## What’s inside of the extension?
+
+Let’s go through the project structure and see what was generated.
+
+![Generated files structure](https://cdn-images-1.medium.com/max/2756/1*T7rmpFawQ_DBluyu_HvWmQ.png)
+
+I’ll focus on two things in there: **package.json** and **src** directory. So starting with a **package.json** you can see that there are two sections:
+
+- Information needed by VS Code to create an extension — at the top
+
+- Information needed by **npm** to download proper dependencies and build the project — at the bottom
+
+![](https://cdn-images-1.medium.com/max/3340/1*SDWO-NZoyBfLiyiVAjcZ5Q.png)
+
+A couple of these fields are quite self-explanatory like _name, description, publisher _— they were provided while generating a project.
+
+Let’s take a look at these fields that were not set in the generator:
+
+- **main:** tells what’s the extension entry point, where to find it
+
+- **engines:** states which versions of VS Code the extension will support
+
+- **categories:** allows to set the type of the extension. It can be one of the following:
+
+  _Languages, Snippets, Linters, Themes, Debuggers, Formatters, Keymaps, Other_
+
+- **contributes:** things specified in there will be exposed to the user configuration entries, for example, new commands that will be added to the command palette or new keybindings
+
+- **activationEvents:** specifies when the activation event happens — when the extension will be loaded to VS Code. In contrast to some other IDEs that require a lot of time and annoyance to start, VS Code starts almost immediately, like in a couple of seconds, even if you have hundreds of extensions installed. That’s because VS Code loads the extensions in a lazy way — only if they are needed. So if you specify the activation event as onCommand it will be loaded after the first usage. But if you want the extension to be loaded from the beginning you have to set it to \* . It contributes to the goal of having VS Code as lightweight as possible.
+
+As we went through **package.json**, let’s take a look at src/extension.ts now.
+
+![](https://cdn-images-1.medium.com/max/3340/1*glXFSLxhKxmvzYMaREDfmg.png)
+
+Notice _vscode.command.registerCommand_. This function will provide an implementation for the command that was declared in **package.json**. It takes two arguments, the first is the name of the command to register. The second parameter is a function that will be executed when the command is run. So, what will happen if the user will try to run _Say Hello_ :
+
+- If it’s the first time of running this command — the **activate** function has not been executed since VS Code was launched — then **activate** is called
+
+- The **activate** function will register the command
+
+- If the command the user called is already registered then that command itself is executed
+
+The role of **deactivate** is to do some clean up before the extension becomes deactivated.
+
+In src/ there’s also test/ directory, but I will skip a detailed explanation in this article because the VS Code extensions tests are another big topic.
+
+To see if it’s all working properly you can click **F5**. It will open the _Extension Development Host_ where your extension is already installed. Now you can find **Say Hello** in the command palette, run it and expect _Hello World_ message to be shown.
+
+## A little bit more complex example
+
+_Hello World_ example was cool, but nothing really happened here 😴. So, I’ve come up with some more or less real-life extension. It’s still very simple, but I’ll use more of VS Code Extensions API.
+
+So, first, what will be the extension about? Some of us may have this problem when after hours of debugging some not so decent words sneak into the console logs. It may be quite a shame to accidentally commit them and let everybody in your team see your real nature. So, the extension will be censoring all the bad words from the console logs 🤬.
+
+Let’s run yo code again.
+
+Ok, so how can I purify the console logs? Well, first things first, I have to know what’s a bad word and what’s not. And there’s a library for that! 🙌
+
+I’ll use [nodejs-profanity-util](https://github.com/KanoComputing/nodejs-profanity-util) that will both detect and censor all profanities. So what I only need to care about is how to extract the console logs and how to apply some changes to the document in VS Code.
+
+I’ll create a function purifyLogs that will consist of the whole extension implementation. So, let’s start!
+
+VS Code Extension API gives me access to the currently active editor so that I can get to the content of the associated text document.
+
+![](https://cdn-images-1.medium.com/max/2424/1*bJUd5XhxqpSFIv28hAVQAA.png)
+
+Then I need to get some information about the file and the logs. I have a function that in a nutshell, for each console log, returns an object consisting of the number of bad words, the purified version, and the **vscode.Range**, which has two attributes: _start_ and _end_ position of the console log. The signature of this function is as follows:
+
+![](https://cdn-images-1.medium.com/max/2400/1*wxCLHqnJLY6Q5V2-QLczYA.png)
+
+I’m also creating an instance of the vscode.WorkspaceEdit class which will allow me to do some textual changes in the document. Having information about logs and theWorkspaceEdit instance I can replace bad words with their purified substitutes for each log that is not courteous.
+
+![](https://cdn-images-1.medium.com/max/2400/1*J91aEB8jAE73tLs1Jpbg1A.png)
+
+To display some extra information about the number of censored words, I’ll also count them.
+
+![](https://cdn-images-1.medium.com/max/2368/1*bj6z-OJdyygZtSdAsTaNmQ.png)
+
+In the end, I’m applying the changes made to the document. Once it’s executed I’m displaying the proper message to the user and saving the document.
+
+![](https://cdn-images-1.medium.com/max/2396/1*yENsCS3hHYXnCOGv9xFFjw.png)
+
+Then, of course, I need to register this with registerCommand.
+
+![](https://cdn-images-1.medium.com/max/2396/1*agClUQllA-YUkKYtplW07g.png)
+
+And the last but not least – update the **package.json**.
+
+![](https://cdn-images-1.medium.com/max/2360/1*MuLzoe4rG69XXpKvdZ2oWA.png)
+
+Let’s see how it works!
+
+![](https://cdn-images-1.medium.com/max/5732/1*6SvV-O5w2MacD6EWUjpA-Q.gif)
+
+Yay, seems to work! 🎉
+
+You can check out the whole implementation in the [repo](http://github.com/beerose/no-profanity).
+
+## Publishing the extension
+
+Okay, so there’s a working extension, but now I’d like people to start using it. Especially, since I know some that may benefit from this 🙊
+
+There are two ways of sharing the extension. But in either way, you need to install vsce tool first:
+
+    npm install -g vsce
+
+It will, among the other things, perform some checks and one of them is to make sure there’s a proper **README.md**. It at least needs to differ somehow from the generated one. Don’t forget to edit it.
+
+### Creating a **VSIX** deployment package
+
+This is the first way of sharing your extension. VSIX package it’s a _.vsix_ file that contains one or more Visual Studio extensions. Once you have it you can send this package to whoever you want.
+
+    vsce package
+
+The command above will create a _.vsix_ file in the current directory. Then you can find **Extensions: Install from VSIX** in the command palette and provide a newly created file.
+
+### Publishing an extension to the VS Code marketplace.
+
+The first thing needed to do is to create a new publisher – an identity who can publish extensions to the Visual Studio Code Marketplace. To do it you need to have something called a personal access token (PAT) from [Azure DevOps](https://azure.microsoft.com/en-us/services/devops/). If you don’t have an account in there, create one. It’s free. Once you have one and you’re on your organization page, find your avatar (or acronym) in the top right corner and go to the **Security** page. Notice the big blue button with a **New Token** label and click it. It will open a modal where are basically three things you need to do:
+
+1. Provide a name for the token
+
+1. Choose **All accessible organizations** in the **Organizations** dropdown
+
+1. In the **Scopes** section find **Marketplace** and check all the checkboxes
+
+![](https://cdn-images-1.medium.com/max/2548/1*caHCxN3LVW4M-Dj8Q-S-bA.png)
+
+Click _Create_. Don’t forget to copy a newly created token, you’re not going to see it anymore. To create a publisher you need to type the following command in the terminal:
+
+    vsce create-publisher _publisher-name_
+
+Now, using the same tool, the extension can be easily published:
+
+    vsce publish -p _token_
+
+If you don’t want to provide a token every time you can make vsce remember it. After executing the command below it will ask for a token, but then it will be remembered.
+
+    vsce login
+
+## Wrapping up
+
+**VS Code is great 🎉** It’s lightweight, fully customizable and makes a nice playground to do cool stuff.
+
+**Building an extension is easy** 🔨 As you’ve seen there’s no big knowledge required to do an extension. You can achieve really cool stuff in a couple lines of code.
+
+**There’s plenty of reasons to build one** ⭐️ Who doesn’t want to create something cool that will make things easier for other developers?
+
+If you want to take a look at the whole project the code is available [here](https://github.com/beerose/no-profanity) and you can also find it in the [marketplace](https://marketplace.visualstudio.com/items?itemName=aleksandra.no-profanity).
+
+## References
+
+[Docs with examples](https://code.visualstudio.com/api/references/vscode-api)
+
+[Other awesome docs](https://vscode.readthedocs.io/en/latest/)
+
+Extensions [samples](https://github.com/Microsoft/vscode-extension-samples) on GitHub

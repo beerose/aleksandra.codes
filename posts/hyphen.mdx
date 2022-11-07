@@ -1,0 +1,46 @@
+---
+title: "Today I learned: Hyphen is a delimiter"
+path: "/hyphen-is-a-delimiter"
+tags: databases, mysql
+excerpt: It’s going to be a short and brief note about one nonobvious (at least for me) full-text search related thing in MySQL.
+date: 2018-10-11
+---
+
+It’s going to be a short and brief note about one nonobvious (at least for me) full-text search related thing in MySQL. So, starting with some prerequirements, imagine that you have a database containing some users data. It will at least contain a name and a surname. It’s MySQL database and you have **fulltext index** on the surname column. It’s of course filled with tons of users. In many cases, these users have a double-barrelled surname. Now let’s say that you have to find all the people with the surname _Jones-Smith_. You want to use Natural Language Mode (the default one) since in Boolean Mode `+` and `-` are special characters that tell if the word has to be present or absent in the text.
+
+```sql
+SELECT
+    *
+FROM
+    users
+WHERE
+    MATCH(surename) AGAINST ("Jones-Smith");
+```
+
+And.. you got all your people. Great. But you also got hundreds of rows with people with surnames like _Jones, Smith, Williams-Smith, Smith-Brown, Wilson-Jones, Jones-Jones, Smith-Doe, etc_. Kind of awkward, isn’t it?
+
+When MySQL creates an index for some column it uses a very simple parser to split the text into words. And hyphen is one of the delimiters. That’s a bit of an oversimplification, but it works somehow like this: check if _Jones_ **_or_** _Smith_ appear in the surname column. Notice the **or** operator. You can think of this indexed surname column as of rows of arrays filled with words extracted from the original surname. So for sure, the result will be positive for each row containing either _Jones_ or _Smith_. Or both.
+
+What is also important is the fact that by default the minimum word length, that is extracted from text and is matched in the query is 3. It is specified by `ft_min_word_len` in _mysqld_. So if you have a surname like _Jo-Do_ it won’t be matched with neither _Jo-Do_, _Jo_ nor _Do._
+
+## **Workarounds**
+
+Let’s say that you really need to extract all the _Jones-Smiths_ from your database and you cannot have anyone else in your result set. It would be a good thing to be able to treat hyphen as a word character. And it can be achieved in the following ways:
+
+- With MySQL source modification by adding a hyphen to one of the _true_word_char()_ or _misc_word_char()_ macros. And recompiling MySQL.
+
+> Recompiling? I don’t like it.
+
+- By modifying a character set file. The _true_word_char()_ macro uses a _character type_ table to distinguish between letters and other characters. You can edit the contents of the \<ctype\>\<map\> array in one of the character set XML files to specify that hyphen is a letter. See the [docs](https://dev.mysql.com/doc/refman/8.0/en/character-arrays.html).
+
+> Kind of better.
+
+- By adding a new collation for the character set used by the indexed columns, and alter the columns to use that collation. See the [docs](https://dev.mysql.com/doc/refman/8.0/en/full-text-adding-collation.html).
+
+Sounds much better. But there comes my favorite h̶a̶c̶k̶ workaround:
+
+- Wrap your string in additional quotation marks. 🙊
+
+## Bug or feature?
+
+I cannot say if it’s a bug or a feature. In the example above this MySQL behavior is obviously a bug. And in many other cases, it’s also going to look like a bug. But there’re often hyphens between words in many texts — I personally tend to write this way, without any additional delimiters — so I guess I kind of see the use case in treating hyphen as a delimiter.

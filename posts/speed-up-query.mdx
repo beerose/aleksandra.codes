@@ -1,0 +1,57 @@
+---
+title: "How I speed up a query 1000 times"
+tags: databases, mysql
+excerpt: Catchy title, isn’t it? 🙃
+date: 2019-01-17
+---
+
+Catchy title, isn’t it? 🙃
+
+In this article, I want to present a solution I applied some time ago, that drastically improved queries performance. Please notice that it won’t be a guide _how to do something_, but only one of the probably many ways of achieving better execution times; it may be even considered as a kind of hacky, nevertheless it worked so that I want to share it.
+
+You probably know this kind of feature in web apps where you can type some text into the input and filter by whatever you want; by stuff that might be not even related in the terms of filtering by. For example — _name_ and _surname_ — I consider it related because it typically lay somewhere next to each other in the database (at least I would imagine so). But filtering by name, surname, and _event_id_ someone attended five years ago — it sounds like a harder thing to be handled on the backend.
+
+The problem I had and needed to solve was with having a database table with about ten columns consisting of several million rows and a frontend app displaying this table where the client expected to be able to filter by the content of almost every column. And it had to be a full-text search. We were using MySQL but the solution I’ll present also applies to other database systems. The fragment of the query looked somehow like this:
+
+```sql
+    SELECT * FROM x
+    WHERE
+    ...
+    MATCH a AGAINST "input" OR
+    MATCH b AGAINST "input" OR
+    MATCH c AGAINST "input" OR
+    MATCH d AGAINST "input" OR
+    MATCH e AGAINST "input" OR
+    MATCH f AGAINST "input" OR
+    ...
+```
+
+Of course for that huge amount of data, it was really slow. For every filtering, this big query had to be executed twice — for extracting the data and for counting the data. There were many request timeouts and omnipresent disappointment of the filtering feature.
+
+What made a trick was introducing yet another column:
+
+```sql
+    ALTER TABLE x
+        ADD search_params text GENERATED ALWAYS AS (
+    concat_ws(',', a, b, c, d, e, f)) STORED;
+```
+
+Then dropping every full-text key from remaining columns and adding one to search_params column.
+
+It allowed simplifying the query to use only one MATCH AGAINST:
+
+```sql
+    SELECT * FROM x
+    WHERE
+    ...
+    MATCH search_params AGAINST "input" OR
+    ...
+```
+
+The results were impressive:
+
+> Query execution time before: 1.39911400 ms
+
+> Query execution time after: 0.00153200 ms
+
+I spent some time staring at those numbers, they made this kind of impression on me. And what’s more important — I gained some rest — no more client complaints about slow filtering. 🙈

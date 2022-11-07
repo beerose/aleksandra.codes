@@ -1,0 +1,105 @@
+---
+title: "Dealing with MySQL nulls and unique constraint"
+tags: databases, mysql
+excerpt: If you have a database system with soft deletes and unique indexes you might have faced some problems. Imagine that a user deleted some record and wants to add another one with the same unique value. He can’t do that since unique constraint would be violated...
+date: 2019-03-29
+---
+
+# What’s the problem?
+
+If you have a database system with soft deletes and unique indexes you might have faced some problems. Imagine that a user deleted some record and wants to add another one with the same unique value. He can’t do that since unique constraint would be violated. As a developer, you may understand what just happened, but let’s picture a frustrated user that wants to add another contact to his address book, but an app keeps telling him that it already exists. It would be kind of:
+
+<div style="text-align: center; max-width: 100%;">
+    <img alt="Weird" src="https://media.giphy.com/media/b3ETeleegHXG0/giphy.gif" style="max-width: 100%"/>
+</div>
+
+Unique constraints are important. I hope it’s obvious. You don’t want to check if some record exists every time a user adds something through your app. Firstly making two queries instead of one sounds like a bad idea, secondly, let’s allow the database to do its job. Not to mention that you can face some problems with asynchronous processes that would want to insert the same record at the same time.
+
+## How to solve the problem?
+
+Let’s say you have some database table consisting of articles. And there can be only one article with a given name, so you have a unique constraint on `articles.name` and because of _reasons_ you don’t want to do hard deletes. What you want is to have soft deletes to keep all the data in the database and a user that is only supposed to see non-deleted articles and that is allowed to add another one with the same name as an article that was already deleted. In other words, you don’t care about the unique index for deleted records — you can have as many as possible deleted articles with the same name. But you do care that unique constraint should not be violated for not deleted ones.
+
+### Some intuitive solution
+
+The first solution that would come to my mind is to add a _deleted_at_ column with type _TIMESTAMP_ and extend a constraint to `(name, deleted_at)`. Let’s try it!
+
+```sql
+    ALTER TABLE articles
+        ADD deleted_at TIMESTAMP NULL DEFAULT NULL,
+        DROP INDEX name,
+        ADD CONSTRAINT UNIQUE (name, deleted_at);
+```
+
+And then let’s try to add a record and then soft delete it:
+
+```sql
+    INSERT INTO articles (id, name, author, text)
+        VALUES ("How to finish university?", "Jon Doe", "");
+
+    UPDATE articles SET deleted_at = now() WHERE name = "How to finish university?";
+```
+
+Great! Worked. Let’s see if I can add the same record again.
+
+I can! Actually, I can do it many times. Inserting the same article again and again. Oops 🙊 The unique constraint doesn't work anymore.
+
+Why is that? It’s because for all not deleted articles we have a unique constraint on `(<name>, NULL)` and for MySQL every null is unique. With this solution we can, in fact, have many items with the same unique key soft deleted but we also end up with our main goal of having articles names unique not working. Too bad.
+
+To deal with this problem I have three working solutions.
+
+### Solution #1
+
+In the first solution I’m going to add a new column similar as earlier but this time I will store the time of deletion in Unix format. So that with a unique constraint on `(name, deleted_at_unix)` I’m allowed to still have unique articles names since all not deleted record would have the column _deleted_at_unix_ set to 0 and `(<name>, 0)` is a unique value.
+
+```sql
+    ALTER TABLE articles
+        ADD deleted_at_unix int (10) DEFAULT 0;
+
+    ALTER TABLE articles
+        DROP INDEX name,
+        ADD CONSTRAINT UNIQUE (name, deleted_at_unix);
+```
+
+So, every time I want to soft-delete an item I set _`delete_at_unix_ as current Unix time.
+
+### Solution #2
+
+Now I’m going back to my not working solution and I’ll try to fix it. I’ll use _TIMESTAMP_ for a _deleted_at_ column again but then I’ll add some magic. Be cautious.
+
+```sql
+    ALTER TABLE articles
+        ADD COLUMN deleted_at TIMESTAMP NULL DEFAULT NULL,
+        DROP INDEX name;
+```
+
+The difference is that I won’t create a unique constraint on `(name, deleted_at)` as previously but I’ll add yet another column. It’ll be a virtual column with value either **NULL** in case if the article was deleted or **1** if not.
+
+```sql
+    ALTER TABLE articles
+        ADD not_archived int (1) GENERATED ALWAYS AS (IF(deleted_at IS NULL,  1, NULL)) VIRTUAL;
+```
+
+And the unique constraint will be for `(name, not_archived)`:
+
+```sql
+    ALTER TABLE articles
+        ADD CONSTRAINT UNIQUE (name, not_archived);
+```
+
+Similar as in the **0#** solution (not working one) to delete a record I need to fill _deleted_at_ column with the current timestamp.
+
+### Solution #3
+
+The third solution is kind of similar to the second but now I think about each record as it can be in two states — active or not.
+
+```sql
+    ALTER TABLE articles
+        ADD COLUMN active BIT NULL DEFAULT 1,
+        ADD CONSTRAINT UNIQUE (name, active);
+```
+
+In this case, all not deleted articles would have _active_ column set to **1**. _But, deleted ones won’t be set to 0_. In order to soft delete a record, I need to set _active_ column to **NULL**. Thanks to this and due to the fact that nulls are unique in MySQL I will be able to have many deleted articles with the same name.
+
+## Wrapping up
+
+If I was about to choose one of these solutions I’d say I prefer the **#1 solution** (with Unix time) the most. But I guess it’s good to have some alternatives, be able to compare them and choose the one that fits the most to your system.

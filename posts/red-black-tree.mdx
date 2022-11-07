@@ -1,0 +1,138 @@
+---
+title: "Colour it please as Red-Black Trees"
+tags: algorithms
+excerpt: "We have something like binary search trees. Really simple data structure. But we have also plenty of different tree-like structures: splays, AVLs, red-black trees and so on. Why is that? Why are BSTs not enough?"
+date: 2018-05-29
+---
+
+We have something like binary search trees. Really simple data structure. But we have also plenty of different tree-like structures: splays, AVLs, red-black trees and so on. Why is that? Why are BSTs not enough? Namely, the reason is that they can grow uneven beyond our control. So, in the worst case, the time complexity for search may be linear, which by and large make no point for using tree data structure. For sure we won’t be satisfied with the BST looking like that:
+
+![Some ugly BST 😕](https://cdn-images-1.medium.com/max/3576/1*4xmhrHBaF9rlA4k9ZBsO6A.png)_Some ugly BST 😕_
+
+And any attempts for preventing it may be expensive and unpractical. Only imagine how great it would be to have a tree with the assurance that its height remains as O(log n) after any sequence of deletions and insertions. That’s why for time complexity satisfaction we need something that takes care of itself and makes itself evenly distributed. Let me introduce Red-Black Trees.
+
+![](https://cdn-images-1.medium.com/max/2408/1*ixRzTzKYU1uS0MxjWvVUcw.png)
+
+In Red-Black Tree, we assume that the leaves don’t store any additional information besides that they’re leaves. And from property number 2 they are all black. An example of Red-Black-Tree:
+
+![](https://cdn-images-1.medium.com/max/2888/1*f132oUxE8bGH3n8C4uz4zg.png)
+
+## The height of the Red-Black Tree
+
+As mentioned earlier what we care the most about in trees data structures is the height of the tree. The bigger it is the longer search query is going to take. So to ascertain if these two-colour trees are really a good idea we want to state the maximum height that a tree can obtain.
+
+![](https://cdn-images-1.medium.com/max/2412/1*NnZMUHvSZ8rbd9CP74a1pQ.png)
+
+In case you wonder why is that there comes the explanation. But let’s enter some useful fact beforehand.
+
+![](https://cdn-images-1.medium.com/max/3128/1*G8-yehCMQp8UuYZ_4hMH0g.png)
+
+The maximum height of the tree is just the number of nodes in the longest path from the tree root to the leaf. But from _property number 4_ we know that each path from the root to the leaf must contain the same number of black nodes. That implies that the number of the black nodes is restricted by the length of the shortest path from the root to the leaf (this means that the shortest path contain only black nodes).
+
+Assume the shortest path from the root to the leaf has height k. Then we have:
+
+- There are k+1 nodes in the path at height k
+
+- There is a _complete_ binary subtree of height k (this is the shortest path, right?)
+
+Let’s look a the example for the shortest path at height 2:
+
+![](https://cdn-images-1.medium.com/max/2832/1*FAAXiYIK9KVZi3Eooh0WMA.png)
+
+Suppose this complete binary subtree has n nodes, then using the fact that n=2^(k+1)−1, the number of nodes in the path from the root to leaf is: **k+1= log ⁡(n+1)** and this is the maximum number of black nodes in any path from the root to leaf.
+
+Okay, that’s something but that’s not what we wanted yet. We need to establish the number of nodes in the longest path from the root to leaf. We know that this path will contain log(n+1) black nodes, but how many red ones? From property number 3 we have that a red node must have black node children. This restricts the maximum number of red nodes to being placed between the black nodes:
+
+![](https://cdn-images-1.medium.com/max/2648/1*r74pPgZEFfWzX6Ea4vohhQ.png)
+
+So the length of the longest path is:
+
+**max number of black nodes + max number of red nodes = 2log(n+1)**
+
+\#proved
+
+## Insertion
+
+In Red-Black Trees after inserting an element two types of actions are used to assure balancing and bring back violated properties:
+
+![](https://cdn-images-1.medium.com/max/2624/1*srRMuJOXDCXmcA1AM9VlIg.png)
+
+The insert strategy consists of two steps. The first is inserting an element like in the ordinary binary search tree, marked as red. It may violate _property number 3_, which tells that each red node must have black node children. That’s when the second step comes, in which we need to use the previously introduced actions (recolouring and rotations). Here we have to check for the colour of the inserted node’s uncle. Take a look at the picture describing a relationships between nodes in the tree.
+
+![](https://cdn-images-1.medium.com/max/2964/1*CoVUCgKiXxPVRfauYpIM-A.png)
+
+Okay, so suppose we inserted a node X, which violated Red-Black Tree properties. Time for recover. We have four possible scenarios:
+
+**I. Inserted element X is a root.** As we insert new elements marked as red and from the _property number 2_ we know that the root must be black, the solution here is to change colour of X from red to black.
+
+![](https://cdn-images-1.medium.com/max/3304/1*Tx0SJ0dwQUWVwlOZqvvqLQ.png)
+
+**II. X’s uncle is red.** The solution for this case regards changing the colours of X’s father and uncle to black and X’s grandfather to red. Then it calls recovering procedure on X’s grandfather (If X would be a child of C the solution would be analogous).
+
+![](https://cdn-images-1.medium.com/max/3404/1*3DLQSl0XaSIHUdPkpVDNSg.png)
+
+**III. X’s uncle is black (triangle).** Now we are performing a single rotation on X’s father and as the result we’re going to obtain case **IV**. After rotation we call recovering procedure on X’s father (the one before rotation — node C in the picture below).
+
+![](https://cdn-images-1.medium.com/max/4084/1*f5ZENgC3ZBtSi38KXZ5Neg.png)
+
+**IV. X’s uncle is black (line).** This case solution assume two steps. The first is changing the colours of X’s grandfather to red, and X’s father to black. Then in the second step we perform rotation of X’s grandfather. After that we call recovering procedure on X’s father.
+
+![](https://cdn-images-1.medium.com/max/3932/1*lludEOj5HbItINRkc4S9Hg.png)
+
+## Deletion
+
+Like Insertion, recolouring and rotations are used to maintain the Red-Black properties. In insert operation, we needed to check colour of uncle to decide the appropriate case. In delete operation, on the other hand, **_we check colour of sibling_**. Another difference between insert and delete operations is the property which is violated afterward. In insertion, it was _property number 3_ (red nodes have black children). In deletion, the main violated property is _property number 4_ (the one about the same number of black nodes in any path from some node to leaf). Deletion of a black node may cause deletion of a black node from some root-to-leaf path.
+
+The deletion strategy comes that way: standard BST delete and Red-Black properties recovering. There is also something like **double black** that needs some explanation.So, when a black node is deleted and replaced by a black child, the child is marked as double black as we want to pass deleted black colour. The main task then becomes to convert this double black to single black.
+
+Before we start analysing Red-Black properties recovery, let’s recall deleting a node from binary search tree. There are three possible cases for deleting node X:
+
+**I. X is a leaf.** It’s the simplest one. We just need to remove it.
+
+![](https://cdn-images-1.medium.com/max/2748/1*OHfgcvWvIdrQtdoa5jJ2Yg.png)
+
+**II. X has one child.** More complicated. We need to copy the child to the X’s father and delete the child.
+
+![](https://cdn-images-1.medium.com/max/2876/1*sO-gL9D1u8e0uOllA5CTuA.png)
+
+**III. X has two children.** A little bit more complicated. Now we want to find inorder successor of the node (the smallest node in the right subtree) and then copy its contents to the X’s father recursively call delete operation for X’s successor in X’s right subtree.
+
+![](https://cdn-images-1.medium.com/max/2768/1*Ph-oe6cytrci-l6KvTr7Sg.png)
+
+Now we can go to recovering part. Let X be the node to be deleted and Y be the node that replaces X in the tree. Like in post insert recovery we have some cases. Two, namely. And a lot of subcases…
+
+**I.** **Either X or Y is red.** They can’t be both red as there cannot be two consecutive red nodes in Red-Black tree. We mark the replaced child as black, which make no change in number of black nodes in any path that contain newly marked node.
+
+![No replacement case](https://cdn-images-1.medium.com/max/3304/1*1fMO4AAxLfcNVu69DUv_Xg.png)_No replacement case_
+
+**II. Both X and Y are black.** Firstly we need to colour Y as double black. Now our task reduces to convert this double black to single black. Note that If X is leaf, then Y is NULL and colour of NULL is considered as black. So the deletion of a black leaf also causes a double black. So while we still have a double black on some node and that node is not the root (in case of root we can just remove the double black) we are going to perform recovery on following subcases:
+
+**a)** **Sibling S is black and at least one of sibling’s children is red** - we need to perform rotation on the sibling. Let R be the red child of S. This subcase can be divided in four subsubcases depending upon positions of S and R. In each of them some actions will be performed, which I’m going to describe on pictures.
+
+**a.1 Right-right case:** S is right child of its parent and R is right child of S.
+
+![](https://cdn-images-1.medium.com/max/4280/1*7HVUzPqpZFrYzNh0d2syRQ.png)
+
+**a.2 Right-left Case:** S is right child of its parent and R is left child of S.
+
+![](https://cdn-images-1.medium.com/max/4164/1*0GifeBa57h9lsHrv6ezeJg.png)
+
+**a.3 Left-left case:** S is left child of its parent and R is left child of S. The actions taken in that case are analogous to the right-right case.
+
+**a.4 Left-right case:** S is left child of its parent and R is right child of S. The actions taken in that case are analogous to the right-left case.
+
+**b) Sibling is black and its both children are black.** The solution is to perform recolouring, and then recur for the parent if parent is black. If parent was red, then we don’t need to recur for it, we can simply make it black (red + double black = single black).
+
+![](https://cdn-images-1.medium.com/max/4284/1*gUlUd_dqybSFJPelKIqScg.png)
+
+**c) Sibling is red:** Here we are going to perform a rotation to move X’s sibling up and recolour X’s sibling and parent. This mainly converts the tree to black sibling case (by rotation) and leads to case **a)** or **b)**. This divided in two subsubcases.
+
+**c.1** **Right case:** S is right child of its parent. Here we left rotate the X’s father.
+
+![](https://cdn-images-1.medium.com/max/3864/1*UV-9hh5ZicXSSJnTVvKapw.png)
+
+**c.2 Left case:** S is left child of its parent. This is mirror of right right case shown in picture above.
+
+## Real world applications of Red-Black Trees
+
+So, we’ve just got some Red-Black theory, but one may ask is this really useful? In fact, it pretty is. They are common in the Linux kernel. For example in a process scheduler or for keeping track of the virtual memory segments for a process. They are also used in map, multimap, multiset from C++ STL and java.util.TreeMap , java.util.TreeSet from Java. Besides they are use in K-mean clustering algorithm for reducing time complexity. What’s more MySQL uses Red-Black Trees for indexes on tables. That makes some significant usages, doesn’t it?

@@ -1,0 +1,179 @@
+---
+title: "Elixir with a drop of gRPC"
+tags: elixir
+excerpt: "Some time ago I found Elixir implementation of gRPC and wanted to give it a try. This article will briefly cover the basic setup for implementing gRPC services in Elixir."
+date: 2018-08-29
+---
+
+Some time ago I found [this Elixir implementation of gRPC](https://github.com/tony612/grpc-elixir) and wanted to give it a try. This article will briefly cover the basic setup for implementing gRPC services in Elixir. However it won’t cover what is gRPC. Actually, I started writing a little bit about it but I found myself drown into all this stuff around like http/2, protobuf , etc… So when I had like 3-minutes-read-long text about message framing in TCP and almost started to draw these frames for better explanation I reminded myself that it was supposed to be short and brief and maybe even somehow effortless. Perhaps I finish it another time, in another article. But I make no promise. For those who are not familiar with gRPC I recommend read about it beforehand. I find [this](https://nordicapis.com/exploring-the-grpc-framework-for-building-microservices/) article very qualitative.
+
+## Getting started
+
+Firstly we have to create new Elixir project. Like always. Nothing extraordinary. I choose the name **chatty**, because it’s going to be a chat. And.. it’s going to be a chat, because chat is always a good idea for some kind of tutorial article.
+
+```sh
+$ mix new chatty
+```
+
+In the next step we have to edit our mix.exs file to add some dependencies.
+
+```elixir
+defp deps do
+  [
+    {:cowboy, [env: :prod, git: "https://github.com/ninenines/cowboy.git", tag: "2.2.0",override: true, manager: :make]},
+    {:ranch, [env: :prod, git: "https://github.com/ninenines/ranch.git", override: true,manager: :make]},
+    {:grpc, github: "tony612/grpc-elixir"},
+  ]
+end
+```
+
+Why we need **grpc** should be quite obvious. But what about the rest? **Cowboy** is a HTTP server, which is used by **grpc** in the version 2.2 — the older one. That’s the case for this override. And **ranch** is a socket acceptor pool for TCP protocols.
+
+_Step number 3._ Another small change in our mix.exs file:
+
+```elixir
+def application do
+  [
+    mod: {ChattyApp, []},
+    applications: [:grpc]
+  ]
+end
+```
+
+The application function lets us say what is required to start our app. Which other applications or locally registered processes need to be started beforehand and which module represents the starting point of the app. What we need to start is **grpc** process and our starting point will be called **ChattyApp**.
+
+Now we can create a proto file describing our chat app. There’re going to be two simple endpoints — one for sending messages and another for fetching them. I’m starting to think if it’s not more like some message board rather than a chat…
+
+```protobuf
+syntax = "proto3";
+
+package chatty;
+
+service ChatService {
+  rpc SendMessage (SendMessageRequest) returns (SendMessageReply) {}
+  rpc FetchMessages (FetchMessagesRequest) returns (FetchMessagesReply) {}
+}
+
+message SendMessageRequest {
+  ChatMessage chat_message = 1;
+}
+
+message SendMessageReply {}
+
+message FetchMessagesRequest {}
+
+message FetchMessagesReply {
+    repeated ChatMessage messages = 1;
+}
+
+message ChatMessage {
+  string sender = 1;
+  string text = 2;
+}
+```
+
+If you’re not familiar with **protobuf**, [there are the docs](https://developers.google.com/protocol-buffers/?hl=pl). Keeping the service definition in the simplest possible form there we have SendMessage and FetchMessages rpc methods along with simple request and reply messages. Having this we can generate the Elixir code using **protoc**. If you don’t have it, [here](https://github.com/protocolbuffers/protobuf/blob/master/src/README.md)’s the installation guide. On MacOS you can install it with brew: brew install protobuf. We’re also going to need protoc plugin for Elixir, which can be easily installed with the following command:
+
+    $ mix escript.install hex protobuf
+
+Then we can generate the code:
+
+    $ protoc --elixir_out=plugins=grpc:./lib/ */*.proto
+
+It’s going to create a file with pb.ex extension, full of Elixir code that we can use to implement something cool. Talking about implementation, here comes the server code:
+
+```elixir
+defmodule Chatty.ChatService.Server do
+  use GRPC.Server, service: Chatty.ChatService.Service
+
+  def send_message(request, _stream) do
+    Chatty.ChatState.put_message(request.chat_message)
+    Chatty.SendMessageReply.new()
+  end
+
+  def fetch_messages(_request, _stream) do
+    messages = Chatty.ChatState.get_messages()
+    Chatty.FetchMessagesReply.new(messages: messages)
+  end
+
+end
+```
+
+I’ve also added an Agent to hold the app state. Yeah, it should be a database, but as I already stated that it’s more like a message board, I’m going further and cast it to be a _temporary message board_. It also can be useful. Maybe in some kind of one shot game?
+
+```elixir
+defmodule Chatty.ChatState do
+
+  def start_link do
+    Agent.start_link(fn -> %{} end, name: __MODULE__)
+  end
+
+  def put_message(message) do
+    Agent.update(__MODULE__, &Map.put_new(&1, :os.system_time(:millisecond), message))
+  end
+
+  def get_messages() do
+    Agent.get(__MODULE__, &(&1)) |> Map.values
+  end
+
+end
+```
+
+Earlier I mentioned about the module which will be a starting point of the application. Let’s create it. The processes that have to be started are the server and the state Agent.
+
+```elixir
+defmodule ChattyApp do
+  use Application
+
+  def start(_type, _args) do
+    import Supervisor.Spec
+
+    children = [
+      supervisor(GRPC.Server.Supervisor, [{Chatty.ChatService.Server, 8080}]),
+      worker(Chatty.ChatState, []),
+    ]
+
+    opts = [strategy: :one_for_one, name: ChattyApp]
+    Supervisor.start_link(children, opts)
+  end
+
+end
+```
+
+The last thing that should be done is enabling the server to start along with the application. To do that the following line should be added to the config/config.exs file:
+
+```exs
+    config :grpc, start_server: true
+```
+
+Okay, having it all we can begin with testing. Let’s start **chatty **with:
+
+```sh
+    $ iex -S mix
+```
+
+And then connect to the server:
+
+```sh
+    iex(1)> {:ok, channel} = GRPC.Stub.connect("localhost:8080")
+```
+
+Send some message:
+
+```
+iex(2)> m = Chatty.ChatMessage.new(sender: "Ola", text: "Hello")
+
+iex(3)> r = Chatty.SendMessageRequest.new(chat_message: m)
+
+iex(4)> channel |> Chatty.ChatService.Stub.send_message(r)
+```
+
+And fetch messages:
+
+    iex(5)> r = Chatty.FetchMessagesRequest.new()
+
+    iex(6)> channel |> Chatty.ChatService.Stub.fetch_messages(r)
+
+## Wrapping up
+
+This article isn’t meant to be an exhaustive treatment of the when, why, and how to use gRPC in Elixir, but an minimal guide how to start playing with it and an encouragement for exploring the topic on your own. If you want to know more about gRPC I would suggest to look through [official docs](https://grpc.io/) and if you’re interested in **protobuf** I would recommend checking out either [exprotobuf](https://github.com/bitwalker/exprotobuf) and [protobuf-elixir](https://github.com/tony612/protobuf-elixir). You can also checkout [the repo](https://github.com/beerose/chatty) with **chatty** code.

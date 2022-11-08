@@ -1,10 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { ArrowLink } from "../lib/ArrowLink";
 import { Dots } from "../lib/Dots";
 import { Featured } from "../lib/Featured";
-import type { PostFrontmatter } from "../types";
+import type { TalkFrontmatter } from "../types";
 
-const talks = await Astro.glob<PostFrontmatter>("../../talks/*.mdx");
+const talks = await Astro.glob<TalkFrontmatter>("../../talks/*.mdx");
 talks.sort((a, b) => {
   return (
     new Date(a.frontmatter.date).getTime() -
@@ -17,7 +18,7 @@ const talksByYear = talks.reduce(
     const year = new Date(talk.frontmatter.date).getFullYear();
     return {
       ...acc,
-      [year]: [...acc[year], talk],
+      [year]: [talk, ...acc[year]],
     };
   },
   { 2023: [], 2022: [], 2021: [], 2020: [], 2019: [] } as any
@@ -44,7 +45,7 @@ const talksByYear = talks.reduce(
                 </h1>
                 <Dots className="top-[45px]" />
                 {talksByYear[year].map(
-                  ({ frontmatter }: { frontmatter: PostFrontmatter }) => {
+                  ({ frontmatter }: { frontmatter: TalkFrontmatter }) => {
                     const date = new Date(frontmatter.date);
                     return (
                       <li class="ml-4 my-3">
@@ -56,23 +57,49 @@ const talksByYear = talks.reduce(
                             })}
                           </time>
                         </div>
-                        <a
-                          href={frontmatter.path}
-                          class="flex flex-row gap-2 justify-between"
-                        >
-                          <div>
-                            <h2 class="text-gray-800 dark:text-gray-300 font-sans">
-                              {frontmatter.title}
-                            </h2>
-                            <div class="flex flex-row space-x-2 items-center my-1">
-                              {frontmatter.tags?.split(",").map((tag) => (
-                                <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300">
-                                  #{tag.trim()}
-                                </span>
-                              ))}
-                            </div>
+                        <div class="flex flex-col space-y-2">
+                          <div class="text-gray-800 dark:text-gray-300 font-sans font-bold text-base">
+                            {frontmatter.title}
                           </div>
-                        </a>
+                          <div class="text-xs">
+                            {frontmatter.event}
+                            <span> · </span>
+                            {frontmatter.place}
+                            <span> · </span>
+                            {frontmatter.duration} min
+                            <span> · </span>
+                            {frontmatter.type}
+                          </div>
+                          <div>
+                            {frontmatter.video && (
+                              <a
+                                class={
+                                  "hover:translate-x-1 hover:underline underline-offset-4 decoration-gray-500 decoration-1 duration-100 whitespace-nowrap rounded-sm text-xs text-gray-600 dark:text-gray-400 no-underline"
+                                }
+                                href={frontmatter.video}
+                              >
+                                <span>Recording ↗</span>
+                              </a>
+                            )}
+                            {frontmatter.slides && (
+                              <a
+                                class={
+                                  "hover:translate-x-1 hover:underline underline-offset-4 decoration-gray-500 decoration-1 duration-100 whitespace-nowrap rounded-sm text-xs text-gray-600 dark:text-gray-400 no-underline"
+                                }
+                                href={frontmatter.slides}
+                              >
+                                <span>Slides ↗</span>
+                              </a>
+                            )}
+                          </div>
+                          <div class="flex flex-row space-x-2 items-center my-1">
+                            {frontmatter.tags?.split(",").map((tag) => (
+                              <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300">
+                                #{tag.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </li>
                     );
                   }
@@ -82,7 +109,7 @@ const talksByYear = talks.reduce(
         }
       </ul>
     </div>
-    <div>
+    <div class="w-3/5">
       <p
         class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
@@ -91,7 +118,7 @@ const talksByYear = talks.reduce(
       <ul class="grid grid-cols-1 xs:grid-cols-2 gap-2 md:grid-cols-1">
         {
           talks
-            .filter((p) => !!p.frontmatter.tags)
+            .filter((p) => !!p.frontmatter.featured)
             .map(({ frontmatter }) => {
               const date = new Date(frontmatter.date);
               return (
@@ -100,12 +127,9 @@ const talksByYear = talks.reduce(
                     title={frontmatter.title}
                     date={date}
                     href={frontmatter.path}
-                    description={`\
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Sed euismod, nisl nec aliquam aliquam, nunc nisl aliquet
-                `}
+                    description={frontmatter.excerpt}
                     tags={frontmatter.tags?.split(",") || []}
-                    length={frontmatter.readingTime.text}
+                    length={frontmatter.duration.toString()}
                     type="post"
                   />
                 </li>
@@ -115,9 +139,4 @@ const talksByYear = talks.reduce(
       </ul>
     </div>
   </div>
-  <style>
-    ul:hover li:not(:hover) :where(h2, time) {
-      @apply text-gray-600 dark:text-gray-500 transition-colors;
-    }
-  </style>
 </BaseLayout>

@@ -38,6 +38,48 @@ export interface PostFrontmatter {
   readingTime: ReadTimeResults;
 }
 
+export interface TalkFrontmatter {
+  /**
+   * @computed by derivedTitleAndDatePlugin from file name
+   *           if not given
+   */
+  title: string;
+  /**
+   * @computed by derivedTitleAndDatePlugin from git commit time
+   *           if not given
+   */
+  date: string;
+  tags: string;
+
+  excerpt: string;
+  featured?: boolean;
+  type: "conference" | "meetup" | "workshop" | "podcast" | "other";
+  event: string;
+  duration: number;
+  slides: string;
+  video: string;
+  place: string;
+
+  /**
+   * @computed by defaultLayoutPlugin
+   */
+  layout?: string;
+  /**
+   * @computed by urlOutsideOfPagesDirPlugin
+   */
+  path: string;
+  /**
+   * @computed by readingTimePlugin
+   * @example
+   * {
+   *   text: '1 min read',
+   *   minutes: 1,
+   *   time: 60000,
+   *   words: 200
+   * }
+   */
+}
+
 interface BasePostProps {
   file: string;
   frontmatter: PostFrontmatter;

@@ -16,10 +16,37 @@ const featuredPosts = posts.filter((p) => !!p.frontmatter.featured);
 ---
 
 <BaseLayout title="aleksandra.codes — writing" activePage="writing">
-  <div class="mt-2 flex flex-col-reverse md:flex-row md:space-y-0 md:space-x-5">
-    <div class="w-full mt-8 md:mt-0">
+  <div class="mt-2 flex flex-col space-y-8">
+    <div>
       <p
         class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
+      >
+        Featured posts
+      </p>
+      <ul class="featured grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-3">
+        {
+          featuredPosts.map(({ frontmatter }) => {
+            const date = new Date(frontmatter.date);
+            return (
+              <li class="post">
+                <Featured
+                  title={frontmatter.title}
+                  date={date}
+                  href={frontmatter.path}
+                  description={frontmatter.excerpt}
+                  tags={frontmatter.tags?.split(",") || []}
+                  length={frontmatter.readingTime.text}
+                  type="post"
+                />
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+    <div class="w-full mt-8 md:mt-0">
+      <p
+        class="mb-1 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
         All posts
       </p>
@@ -47,43 +74,13 @@ const featuredPosts = posts.filter((p) => !!p.frontmatter.featured);
                     </div>
                     <div class="flex flex-row space-x-2 items-center my-1">
                       {frontmatter.tags?.split(",").map((tag) => (
-                        <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300 border border-gray-500 dark:border-gray-500 px-1">
-                          {tag}
+                        <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300">
+                          #{tag.trim()}
                         </span>
                       ))}
                     </div>
                   </div>
                 </Link>
-              </li>
-            );
-          })
-        }
-      </ul>
-    </div>
-    <div>
-      <p
-        class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
-      >
-        Featured posts
-      </p>
-      <ul class="featured grid grid-cols-1 xs:grid-cols-2 gap-2 md:grid-cols-1">
-        {
-          featuredPosts.map(({ frontmatter }) => {
-            const date = new Date(frontmatter.date);
-            return (
-              <li class="post">
-                <Featured
-                  title={frontmatter.title}
-                  date={date}
-                  href={frontmatter.path}
-                  description={`\
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Sed euismod, nisl nec aliquam aliquam, nunc nisl aliquet
-                `}
-                  tags={frontmatter.tags?.split(",") || []}
-                  length={frontmatter.readingTime.text}
-                  type="post"
-                />
               </li>
             );
           })

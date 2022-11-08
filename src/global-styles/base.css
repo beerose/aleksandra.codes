@@ -26,3 +26,35 @@ html {
 body {
   @apply text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-900 p-4 md:p-8 relative min-h-screen;
 }
+
+.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dots {
+  position: absolute;
+  height: calc(100% - 40px);
+  transform: translate(4px, 0);
+
+  ::before {
+    content: "";
+    position: absolute;
+    height: 56px;
+    width: 10px;
+    background: black;
+    transform: translate(-2px);
+  }
+
+  ::after {
+    content: "";
+    position: absolute;
+    height: 100px;
+    width: 20px;
+    background: black;
+    transform: translate(-20px);
+    bottom: 0;
+  }
+}

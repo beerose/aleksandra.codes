@@ -1,8 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { Dots } from "../lib/Dots";
 import { Featured } from "../lib/Featured";
-import { formatDate } from "../lib/formatDate";
-import { Link } from "../lib/Link";
 import type { PostFrontmatter } from "../types";
 
 const talks = await Astro.glob<PostFrontmatter>("../../talks/*.mdx");
@@ -12,50 +11,74 @@ talks.sort((a, b) => {
     new Date(b.frontmatter.date).getTime()
   );
 });
+
+const talksByYear = talks.reduce(
+  (acc, talk) => {
+    const year = new Date(talk.frontmatter.date).getFullYear();
+    return {
+      ...acc,
+      [year]: [...acc[year], talk],
+    };
+  },
+  { 2023: [], 2022: [], 2021: [], 2020: [], 2019: [] } as any
+);
 ---
 
-<BaseLayout title="aleksandra.codes — speaking" activePage="writing">
+<BaseLayout title="aleksandra.codes — speaking" activePage="speaking">
   <div class="mt-2 flex flex-col-reverse md:flex-row md:space-y-0 md:space-x-5">
     <div class="w-full mt-8 md:mt-0">
       <p
-        class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
+        class="font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
         All talks
       </p>
-      <ul>
+      <ul class="ml-10 flex flex-col space-y-1">
         {
-          talks.map(({ frontmatter }) => {
-            const date = new Date(frontmatter.date);
-            return (
-              <li>
-                <Link
-                  href={frontmatter.path}
-                  class="flex flex-row gap-2 justify-between"
-                  noUnderline
-                >
-                  <div>
-                    <h2 class="text-gray-800 dark:text-gray-300 font-sans">
-                      {frontmatter.title}
-                    </h2>
-                    <div class="flex space-x-1 text-gray-600 dark:text-gray-400 text-xs">
-                      <time datetime={date.toISOString()}>
-                        {formatDate(date)}
-                      </time>
-                      <span>·</span>
-                      <p>{frontmatter.readingTime.text}</p>
-                    </div>
-                    <div class="flex flex-row space-x-2 items-center my-1">
-                      {frontmatter.tags?.split(",").map((tag) => (
-                        <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300 border border-gray-500 dark:border-gray-500 px-1">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            );
-          })
+          Object.keys(talksByYear)
+            .sort((a, b) => (a < b ? 1 : -1))
+            .filter((year) => talksByYear[year].length > 0)
+            .map((year) => (
+              <div class="flex flex-col relative">
+                <h1 class="-ml-10 text-3xl py-2 bg-inherit font-bold text-gray-300 dark:text-gray-500 h-[45px]">
+                  {year}
+                </h1>
+                <Dots className="top-[45px]" />
+                {talksByYear[year].map(
+                  ({ frontmatter }: { frontmatter: PostFrontmatter }) => {
+                    const date = new Date(frontmatter.date);
+                    return (
+                      <li class="ml-4 my-3">
+                        <div class="flex space-x-1 text-gray-600 dark:text-gray-400 text-xs -translate-x-14 my-1 absolute">
+                          <time datetime={date.toLocaleDateString()}>
+                            {date.toLocaleString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </time>
+                        </div>
+                        <a
+                          href={frontmatter.path}
+                          class="flex flex-row gap-2 justify-between"
+                        >
+                          <div>
+                            <h2 class="text-gray-800 dark:text-gray-300 font-sans">
+                              {frontmatter.title}
+                            </h2>
+                            <div class="flex flex-row space-x-2 items-center my-1">
+                              {frontmatter.tags?.split(",").map((tag) => (
+                                <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300">
+                                  #{tag.trim()}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </a>
+                      </li>
+                    );
+                  }
+                )}
+              </div>
+            ))
         }
       </ul>
     </div>

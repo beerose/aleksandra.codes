@@ -1,1 +1,364 @@
-todo
+---
+title: "Parsing JSON with OCaml"
+tags: ocaml
+excerpt: "A step-by-step tutorial on parsing data in OCaml using ocamllex and menhir."
+date: 2018-07-17
+---
+
+In this article, I’m going to share a little bit of knowledge introducing a brief example of parsing data in OCaml using ocamllex and menhir in a step-by-step tutorial. For those opting to use the repository, you can get it [here](https://github.com/beerose/ocaml-parser-example).
+
+First of all, let me explain it in two words what actually is that parsing thing.
+
+![](https://cdn-images-1.medium.com/max/2916/1*vHQv3H5MG7BdzS7_e_3kUQ.png)
+
+We’re gonna learn a little bit more about parsing and grammars further. Let’s go!
+
+## Project setup
+
+It may kind of tone down your enthusiasm, but we have to do some less exhilarating things. I regard it as the most annoying part of starting projects due to hitting difficulties one after another. So that I’m going to write down all the steps that need to be done hoping I’ll kind of mitigate your effort and annoyance. What’s more, I don’t even assume that you have OCaml installed!
+
+So let’s get deftly through it.
+
+## Installing OCaml and opam
+
+### **Linux**
+
+```sh
+<your-package-manager> install ocaml (or -S in case of Arch)
+<your-package-manager> install opam
+opam init
+```
+
+### macOS
+
+```sh
+brew install ocaml
+brew install opam
+opam init
+```
+
+### **Windows**
+
+[The newest OCaml installer for Windows](https://fdopen.github.io/opam-repository-mingw/installation/)
+
+You probably would like to have some assistant for editing OCaml code. **Merlin** is the one that will provide you with the features available in modern IDEs : error reporting, auto-completion, source browsing and much more. You can install it by typing:
+
+```sh
+opam install merlin
+opam user-setup install
+opam init
+```
+
+**Hint**: I’ve come across some problems with installing it on macOS, because OCaml version installed with brew was not consistent with the one that was expected to successfully install **merlin**. I resolved it by switching to previous version of OCaml.
+
+```sh
+opam switch <compiler-version-that-opam-will-ask-for>
+```
+
+To list all available OCaml compilers:
+
+```sh
+opam switch list --all
+```
+
+## Installing other stuff
+
+**Menhir** is a parser generator. It compiles [LR(1)](https://en.wikipedia.org/wiki/LR_parser) grammar specifications down to OCaml code.
+
+```sh
+opam install menhir
+```
+
+**Yojson** will help us in handling JSON data.
+
+```sh   
+opam install yojson
+```
+
+## Parsing, lexing, coding
+
+Okay, so we are finally ready to write some code!
+
+<div style="text-align: center; max-width: 100%">
+<img style="max-width: 100%" alt="dancing" src="https://cdn-images-1.medium.com/max/2000/1*HOzx5DF3BxuQVS9PZF00aA.gif" />
+</div>
+But before coding, let’s get through some crucial definitions.
+
+![](https://cdn-images-1.medium.com/max/2956/1*ixx3G-hR3CvwT0PbyoPmSw.png)
+
+Parsing is broken down into two parts:
+
+- _lexing_ — converting a stream of characters into a stream of tokens,
+
+- _parsing_ — converting a stream of tokens into the final representation, the form of a tree-like data structure called an _abstract syntax tree_.
+
+In this tutorial, we’ll be parsing JSON object. We need to think about JSON as a sequence of tokens(values) that can be represented by some type. Let’s create json.ml file and write down following type there.
+
+```ocaml
+type value = [
+  | `Assoc of (string * value) list
+  | `Bool of bool
+  | `Float of float
+  | `Int of int
+  | `List of value list
+  | `Null
+  | `String of string
+]
+```
+
+Let’s consider the short example of JSON object and its AST based on our value definition:
+
+![Example of AST](https://cdn-images-1.medium.com/max/2368/1*MZ0oiFvLDV38N8WMmnvA5Q.png)_Example of AST_
+
+## Defining a parser
+
+For now, we need a file with suffix .mly which will be filled with parser specification. It ought to consist two sections. In the first one, we will put declarations, including token and type specifications. The second is for specifying the grammar of the language to be parsed.
+
+Let’s start by declaring the list of tokens. For JSON, we need tokens for numbers, strings, identifiers, and punctuation:
+
+```ocaml
+%token <int> INT
+%token <float> FLOAT
+%token <string> ID
+%token <string> STRING
+%token TRUE
+%token FALSE
+%token NULL
+%token LEFT_BRACE
+%token RIGHT_BRACE
+%token LEFT_BRACK
+%token RIGHT_BRACK
+%token COLON
+%token COMMA
+%token EOF
+```
+
+The \<type\> means that the token carries a value. Each of the INT, FLOAT, ID and STRING carry some value in specified type, whereas the rest is not associated with any value.
+
+### Describing grammar
+
+Okay, we can move on to the second part of parser specification which is describing grammar.
+
+To generate a parser we will use **menhir**. It turns grammar specifications to the OCaml code. **Menhir** expresses grammars as a _context-free_.
+
+![](https://cdn-images-1.medium.com/max/2964/1*8Dm0ttiH99oDooKdSOer6g.png)
+
+As you may assumed we’ll also declare the start symbol. Then we end the declaration section of the parser with %% symbol.
+
+```ocaml
+%start <Json.value option> prog
+%%
+```
+
+Now we can start specifying the productions. In **menhir**, productions are organised into _rules_, where each rule lists all the possible productions for a given nonterminal symbols. Here, for example, is the rule for prog:
+
+```ocaml
+prog:
+  | EOF       { None }
+  | v = value { Some v }
+  ;
+```
+
+![](https://cdn-images-1.medium.com/max/2356/1*IAIG6oY5OD7iunwaMbOrHw.png)
+
+So let’s write the rule for value and see where we can possibly go with it.
+
+```
+value:
+  | LEFT_BRACE; obj = obj_fields; RIGHT_BRACE { `Assoc obj  }
+  | LEFT_BRACK; vl = list_fields; RIGHT_BRACK { `List vl    }
+  | s = STRING                                { `String s   }
+  | i = INT                                   { `Int i      }
+  | x = FLOAT                                 { `Float x    }
+  | TRUE                                      { `Bool true  }
+  | FALSE                                     { `Bool false }
+  | NULL                                      { `Null       } ;
+```
+
+### Parsing sequences
+
+**Menhir** provides an extended standard library of built-in rules to simplify handling lists (they are described in _not-so-pleasant-to-read_ [**menhir** manual](http://pauillac.inria.fr/~fpottier/menhir/manual.pdf)).
+
+We will use separated_list to parse both JSON objects and lists with one rule:
+
+```ocaml
+prog:
+  | v = value { Some v }
+  | EOF       { None   } ;
+
+value:
+  | LEFT_BRACE; obj = obj_fields; RIGHT_BRACE { `Assoc obj  }
+  | LEFT_BRACK; vl = list_fields; RIGHT_BRACK { `List vl    }
+  | s = STRING                                { `String s   }
+  | i = INT                                   { `Int i      }
+  | x = FLOAT                                 { `Float x    }
+  | TRUE                                      { `Bool true  }
+  | FALSE                                     { `Bool false }
+  | NULL                                      { `Null       } ;
+
+obj_fields:
+    obj = separated_list(COMMA, obj_field)    { obj } ;
+
+obj_field:
+    k = STRING; COLON; v = value              { (k, v) } ;
+
+list_fields:
+    vl = separated_list(COMMA, value)         { vl } ;
+```
+
+At that point, we have two files: parser.mly andjson.ml, so we can invoke **menhir** by using **corebuild** to generate our parser.
+
+```sh
+corebuild -use-menhir short_parser.mli
+```
+
+We have a lot of new files now! And since we started our parsing thing backward let’s jump to the beginning now — lexing.
+
+## Defining a lexer
+
+Now we can define a lexer, using **ocamllex**, to convert our input text into a stream of tokens. **Ocamllex** produces a lexical analyser from a set of regular expressions. We need to create lexer.mll file and place the lexer specification there. We’ll walk through the definitions of a lexer step by step.
+
+**OCaml Prelude**
+
+The first section is optional. We can define utility functions or set up the environment by opening useful modules or define exceptions. They need to be put in curly braces. Sample code with next_line function for tracing the location of tokens is presented below.
+
+```ocaml
+{
+  open Lexing
+  open Parser
+
+  exception SyntaxError of string
+
+  let next_line lexbuf =
+    let pos = lexbuf.lex_curr_p **in**
+      lexbuf.lex_curr_p <-
+        { pos_with_pos_bol = lexbuf.lex_curr_pos;
+              pos_lnum = pos.pos_lnum + 1
+        }
+}
+```
+
+**Regular Expressions**
+
+The second section is a collection of named regular expressions. The syntax is quite specific and it’s something between OCaml syntax and _normal_ regular expression syntax.
+
+```ocaml
+let int = '-'? ['0'-'9'] ['0'-'9']*
+
+let digit = ['0'-'9']
+let frac = '.' digit*
+let exp = ['e' 'E'] ['-' '+']? digit+
+let float = digit* frac? exp?
+
+let white = [' ' '\t']+
+let newline = '\r' | '\n' | "\r\n"
+let id = ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']
+```
+
+**Lexing Rules**
+
+The lexing rules are functions that consume the data and produce OCaml expressions that are evaluated to tokens. These OCaml expressions can be quite complicated, using side effects and invoking other rules as part of the body of the rule. Let’s look at the read rule for parsing a JSON expression:
+
+```ocaml
+rule read =
+  parse
+  | white    { read lexbuf }
+  | newline  { next_line lexbuf; read lexbuf }
+  | int      { INT (int_of_string (Lexing.lexeme lexbuf)) }
+  | float    { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
+  | "true"   { TRUE }
+  | "false"  { FALSE }
+  | "null"   { NULL }
+  | '"'      { read_string (Buffer.create 17) lexbuf }
+  | '{'      { LEFT_BRACE }
+  | '}'      { RIGHT_BRACE }
+  | '['      { LEFT_BRACK }
+  | ']'      { RIGHT_BRACK }
+  | ':'      { COLON }
+  | ','      { COMMA }
+  | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
+  | eof      { EOF }
+```
+
+The read rule resembles match statement with regular expression on the left side and value of the rule on the right side. Lexbuf parameter correspond to the input — position in input file and matched text.
+
+The first white `{ read lexbuf }` calls the lexer recursively skipping the input whitespaces. The second action newline does almost the same but it adds the number of the line using the function that was defined earlier in the first section of that lexing part. The third action specifies what to do in case of matching input with int. By using (int_of_string (Lexing.lexeme lexbuf)) the rule will return complete string matched by the regular expression converted to the int type. The next actions are created in ananalogous way.
+
+**Recursive rules**
+
+Our last step is to define the second lexer that handles strings that we will merge with previous rule read declaration.
+
+```ocaml
+read_string buf =
+  parse
+  | '"'       { STRING (Buffer.contents buf) }
+  | [^ '"' '\\']+
+    { Buffer.add_string buf (Lexing.lexeme lexbuf);
+      read_string buf lexbuf
+    }
+```
+
+The action \[^ '"' 'he'\]+ matches normal input that does not contain a double quote or backslash and adds it to the buffer that will be returned in case of the terminated double quote.
+
+## Bringing it all together
+
+We are done with the parsing part. What else we need to do is to blend lexer and parser together and write the main function that takes an input file, parse it and returns the result.
+
+Let’s create main.ml file with main functions which looks like that:
+
+```ocaml
+let () =
+  let filename = Sys.argv(0) in
+  let in_channel = In_channel.create filename in
+  let lexbuf = Lexing.from_channel in_channel in
+  lexbuf.lex_curr_p <-
+  { lexbuf.lex_curr_p with pos_fname = filename };
+  parse_and_print lexbuf;
+  In_channel.close in_channel;
+```
+
+What we do in here is getting a filename from arguments passed in the command line, then we open the channel from which we will get stuff to parse and we attach current position and filename to lexbuf. The next step is to parse and print eventual errors, so we need parse_and_print function and a few helpers.
+
+```ocaml
+let print_position out_channel lexbuf =
+  let pos = lexbuf.lex_curr_p in
+  fprintf out_channel "%s:%d:%d"
+         pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+
+
+let parse_with_error lexbuf =
+  try Parser.prog Lexer.read lexbuf with
+  SyntaxError msg ->
+    fprintf stderr "%a: %s\n" print_position lexbuf msg; None
+  | Parser.Error ->
+    fprintf stderr "%a: syntax error\n" print_position lexbuf;
+    exit (-1)
+
+
+let rec parse_and_print lexbuf =
+  match parse_with_error lexbuf with
+  Some value -> parse_and_print lexbuf
+  | None -> ()
+```
+
+In print_position function, we extract filename and detailed error position to print it to out_channel. parse_with_error use defined earlier prog and read to parse our input, picking up the errors. It returns None in case of SyntaxError, exits the program when encounters Parser.Error . If error doesn’t occur the function returns parsed value with tag Some as we defined it in parser specification. That’s why we match its result in parse_and_print function with Some value and None. When the first variant is fulfilled we call the function recursively to parse the rest of the input. Otherwise, we return a unit omitting the other half.
+
+Now, we are ready to build our program with following command:
+
+```sh
+ocamlbuild -use-menhir -tag thread -use-ocamlfind -quiet -pkg core main.native
+```
+
+Then we are able to run our program with:
+
+```sh
+./main.native *some_test_file*
+```
+
+For wrong-defined JSON object, ex. `{ "superhero" : "Thor"; }` the result is:
+
+```sh
+test.json:2:17: Unexpected char: ;
+```
+
+![](https://cdn-images-1.medium.com/max/3060/1*8Xixfr1D6o7uLz7lFlGPSw.png)

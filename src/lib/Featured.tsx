@@ -15,7 +15,7 @@ export type FeaturedProps = {
 } | {
   type: "speaking";
   location: string;
-  eventType: "conference" | "meetup" | "workshop";
+  eventType: string;
   links?: JSX.Element;
 })
 

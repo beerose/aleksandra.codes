@@ -1,0 +1,98 @@
+---
+title: "Few words about ORMs"
+path: "/few-words-about-orms"
+tags: databases
+excerpt: “Raw SQL? Like dinosaurs?” My professor once said. Then I used ORM in the existing project. Results? Dropped database.
+date: 2019-04-02
+---
+
+In my first job as a programmer, I've been using ORMs quite a lot. And as for the junior, having no idea about developing real-life web apps it was kinda cool. I accidentally found myself in python team even though I didn't know python. Or Django. Moreover, there was really old codebase so it was quite hard to grow into the job. But the tasks were coming. And with ORM things were more doable. For most of the time, I was like I have no idea what I'm doing. However, I was able to accomplish my work, get some positive feedback and gain reliance and respect from the team. Again, no idea how. There was so much magic I didn't understand at that point in our database models and what ORM does with them.
+
+Sometime later I was moved to the Elixir team where I was supposed to be from the beginning. We were using Ecto. That was cool. Being able to write queries with tons of pipe operators. I had fun.
+
+![](/content/orms/elixir.png)
+
+Having said that I ought to say that I'm not actually a fan of ORMs. Here go some of my thoughts. There are some appreciating ORMs, though.
+
+### #1 Each ORM is different
+
+You may be an expert when it comes to a particular ORM. But then you may change a project to some that use another one or doesn't use ORM at all. You're starting from scratch.
+
+<div style="text-align: center; max-width: 100%;">
+    <img alt="You know nothing gif" src="https://media.giphy.com/media/NCTbhL8AG2s8g/giphy.gif" style="max-width: 100%"/>
+</div>
+
+ORMs may be great, fast, have a small learning curve. However, I don't believe there are ORMs that are easy to learn and to be mastered. Anyways. ORMs are so different. Even when it comes to the same platform. Take a look at the following code snippets. These are Sequelize and TypeORM. Both made for NodeJS.
+
+```ts
+// TypeORM
+
+@Entity("users")
+export class Users {
+  @PrimaryGeneratedColumn({
+    type: "int",
+    name: "id",
+  })
+  id: number;
+
+  @Column("varchar", {
+    nullable: true,
+    length: 50,
+    name: "name",
+  })
+  name: string | null;
+}
+```
+
+```ts
+// Sequelize
+
+export const Users = sequelize.define(
+  "users",
+  {
+    id: {
+      type: DataTypes.INTEGER(11),
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    name: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+  },
+  {
+    tableName: "users",
+  }
+);
+```
+
+The most significant advantage of SQL over ORMs is that once you learn it you can use that knowledge in any SQL dialect. It may differ a little between database systems, but those are not huge differences.
+
+### #2 It may be easier to switch to another database engine
+
+Let’s be honest — that doesn’t happen often. But when it does, ORMs may be handy. Even if it won’t be like on the picture below it still may be quite easier than doing so without using ORM. Surely there will be less refactoring.
+
+<div style="text-align: center">
+<img alt="Switch databases" src="https://cdn-images-1.medium.com/max/2000/1*wdLeXbFP75W_zQ_jpr_trg.png" style="width: 400px; max-width: 100%" />
+</div>
+
+### #3 ORMs are not reliable
+
+They simply can’t do everything. I remember putting fragments of raw SQL into Ecto query just because I wasn’t able to achieve something. So.. no matter of using ORM you still need to learn SQL. Turns out there’s no escape from it.
+
+### #4 ORMs speed up development
+
+With them, developers don’t have to write repetitive SQL queries, wrappers and so on. A lot of boilerplate can be eliminated.
+
+### #5 ORMs slow down development
+
+Yep. That also can be true. All depends on the developers' experience, size of the project and ORM itself. When I’m working with databases and I need to write some more complicated query, I first try to test it in the console. When I have all the edge cases tested I use it in the project. It saves me time since debugging a query through the application is far more complex. And with ORM debugging is not so easy anymore. I need to test it via application then read the logs to find the generated query and check what went wrong.
+
+### #6 Shield for SQL injection attacks
+
+That’s semi-true. Yes, by not passing anything directly to query ORMs do reduce chances of SQL injections but that’s nothing you can’t achieve with raw SQL. Furthermore, if you put plain SQL into ORM queries that’s not the case for ORMs anymore.
+
+## Wrapping up
+
+Recently I tried to use both TypeORM and Sequelize since they are trending in NodeJS world right now. The learning curve was huge. As I mentioned before with TypeORM I accidentally dropped the database. I made some bugs in database models definitions. But once I learned my faults and dig deeper into it I did find some virtues. Not enough to give up on SQL, though. I still prefer writing these raw SQL queries. Like a dinosaur.

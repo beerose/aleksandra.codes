@@ -2,29 +2,15 @@
 import type { MarkdownLayoutProps } from "astro";
 
 import { formatDate } from "../lib/formatDate";
-import type { PostFrontmatter } from "../types";
+import type { TalkFrontmatter } from "../types";
 
 import BaseLayout from "./BaseLayout.astro";
 
 import "../global-styles/shiki.css";
 
-type Props = MarkdownLayoutProps<PostFrontmatter>;
+type Props = MarkdownLayoutProps<TalkFrontmatter>;
 
 const { frontmatter } = Astro.props;
-
-/**
- * Thanks to remark reading time plugin, we can display how much time it takes
- * to read the post. `frontmatter.readingTime` is an object like this:
- * ```
- * {
- *   text: '2 min read',
- *   minutes: 1.07,
- *   time: 64200,
- *   words: 214
- * }
- * ```
- */
-const readingTime = frontmatter.readingTime;
 
 const date = new Date(frontmatter.date);
 ---
@@ -34,18 +20,41 @@ const date = new Date(frontmatter.date);
     <header class="flex flex-col space-y-2">
       <h1 class="!my-0">{frontmatter.title}</h1>
       <p class="text-gray-600 dark:text-gray-400 text-sm">
-        {
-          readingTime.minutes > 1 && (
-            <>
-              <span>{readingTime.text}</span>
-              {" · "}
-            </>
-          )
-        }
         <time datetime={date.toISOString()}>
           Given on {formatDate(date)}
         </time>
+        {" · "}
+        <span>{frontmatter.place}</span>
+        {" · "}
+        <span>at {frontmatter.event}</span>
       </p>
+      <div class="space-x-2">
+        {
+          frontmatter.video && (
+            <a
+              class={
+                "hover:translate-x-1 hover:underline underline-offset-4 decoration-wavy decoration-gray-500 decoration-1 duration-100 whitespace-nowrap rounded-sm text-sm text-gray-600 dark:text-gray-400 no-underline"
+              }
+              href={frontmatter.video}
+            >
+              <span>Recording ↗</span>
+            </a>
+          )
+        }
+        {
+          frontmatter.slides && (
+            <a
+              class={
+                "hover:translate-x-1 hover:underline underline-offset-4 decoration-wavy decoration-gray-500 decoration-1 duration-100 whitespace-nowrap rounded-sm text-sm text-gray-600 dark:text-gray-400 no-underline"
+              }
+              href={frontmatter.slides}
+            >
+              <span>Slides ↗</span>
+            </a>
+          )
+        }
+      </div>
+      <span class="text-sm">Length: {frontmatter.duration} min</span>
     </header>
     <slot />
   </main>

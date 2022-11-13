@@ -80,6 +80,10 @@
         margin-right: 0.5em;
         user-select: none;
       }
+
+      & > p {
+        display: contents;
+      }
     }
 
     & li > p {

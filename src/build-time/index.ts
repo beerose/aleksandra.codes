@@ -19,7 +19,8 @@ export const remarkPlugins = (projectDir: string): PluggableList => {
     [
       defaultLayoutPlugin,
       {
-        layoutPath: resolve(projectDir, "./src/layouts/PostLayout.astro"),
+        postLayoutPath: resolve(projectDir, "./src/layouts/PostLayout.astro"),
+        talkLayoutPath: resolve(projectDir, "./src/layouts/TalkLayout.astro"),
       },
     ],
     [

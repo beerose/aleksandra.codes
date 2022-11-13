@@ -3,14 +3,25 @@ import { relative } from "node:path";
 
 import type { PostProps } from "../types";
 
-export const defaultLayoutPlugin: RemarkPlugin<[{ layoutPath: string }]> = ({
-  layoutPath,
+export const defaultLayoutPlugin: RemarkPlugin<[
+  {
+    postLayoutPath: string,
+    talkLayoutPath: string
+  }
+]> = ({
+  postLayoutPath,
+  talkLayoutPath
 }: {
-  layoutPath: string;
+  postLayoutPath: string,
+  talkLayoutPath: string
 }) => {
   return (_tree, file) => {
     const data = file.data as { astro: PostProps };
 
-    data.astro.frontmatter.layout = relative(file.dirname!, layoutPath);
+    if (file.dirname?.endsWith("talks")) {
+      data.astro.frontmatter.layout = relative(file.dirname!, talkLayoutPath);
+      return
+    }
+    data.astro.frontmatter.layout = relative(file.dirname!, postLayoutPath);
   };
 };

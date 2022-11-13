@@ -1,0 +1,52 @@
+---
+import type { MarkdownLayoutProps } from "astro";
+
+import { formatDate } from "../lib/formatDate";
+import type { PostFrontmatter } from "../types";
+
+import BaseLayout from "./BaseLayout.astro";
+
+import "../global-styles/shiki.css";
+
+type Props = MarkdownLayoutProps<PostFrontmatter>;
+
+const { frontmatter } = Astro.props;
+
+/**
+ * Thanks to remark reading time plugin, we can display how much time it takes
+ * to read the post. `frontmatter.readingTime` is an object like this:
+ * ```
+ * {
+ *   text: '2 min read',
+ *   minutes: 1.07,
+ *   time: 64200,
+ *   words: 214
+ * }
+ * ```
+ */
+const readingTime = frontmatter.readingTime;
+
+const date = new Date(frontmatter.date);
+---
+
+<BaseLayout title={frontmatter.title} activePage="speaking">
+  <main class="zaduma-prose py-4">
+    <header class="flex flex-col space-y-2">
+      <h1 class="!my-0">{frontmatter.title}</h1>
+      <p class="text-gray-600 dark:text-gray-400 text-sm">
+        {
+          readingTime.minutes > 1 && (
+            <>
+              <span>{readingTime.text}</span>
+              {" · "}
+            </>
+          )
+        }
+        <time datetime={date.toISOString()}>
+          Given on {formatDate(date)}
+        </time>
+      </p>
+    </header>
+    <slot />
+  </main>
+</BaseLayout>

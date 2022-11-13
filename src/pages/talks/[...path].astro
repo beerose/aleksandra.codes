@@ -1,0 +1,22 @@
+---
+import type { TalkFrontmatter } from "../../types";
+
+export const getStaticPaths = async () => {
+  const talks = await Astro.glob<TalkFrontmatter>(
+    "../../../posts/talks/**/*.mdx"
+  );
+
+  return talks.map((post) => {
+    return {
+      params: {
+        path: post.frontmatter.path.replace(/^\//, ""),
+      },
+      props: post,
+    };
+  });
+};
+
+const { Content } = Astro.props;
+---
+
+<Content />

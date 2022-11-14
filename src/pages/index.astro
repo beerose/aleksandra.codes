@@ -1,10 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { formatDate } from "../lib/formatDate";
+import { FeaturedCard } from "../lib/FeaturedCard";
+import { FeaturedSpeakingCard } from "../lib/FeaturedSpeakingCard";
 import { Link } from "../lib/Link";
 import type { PostFrontmatter } from "../types";
 
-const posts = await Astro.glob<PostFrontmatter>("../../posts/**/*.mdx");
+const posts = (
+  await Astro.glob<PostFrontmatter>("../../posts/**/*.mdx")
+).filter((p) => !!p.frontmatter.tags);
 posts.sort((a, b) => {
   return (
     new Date(a.frontmatter.date).getTime() -
@@ -13,51 +16,88 @@ posts.sort((a, b) => {
 });
 ---
 
-<BaseLayout title="zaduma">
-  <h1 slot="header-content" class="text-gray-600 dark:text-gray-500">zaduma</h1>
-  <main class="py-10 zaduma-prose">
-    <p>
-      <small class="text-gray-600 dark:text-gray-500"
-        >IPA /zaˈdu.ma/ — reverie, musing</small
+<BaseLayout title="aleksandra.codes" activePage="about">
+  <h1
+    slot="header-content"
+    class="text-gray-600 dark:text-gray-500 w-full text-[11vw] text-center border-b border-gray-400 py-6 text-ad"
+  >
+    aleksandra.codes
+  </h1>
+  <main class="space-y-6">
+    <div
+      slot="links"
+      class="flex flex-col sm:flex-row space-y-1 sm:space-y-0 py-3 pb-10 text-xs italic w-full justify-between px-1"
+    >
+      <div class="space-y-1">
+        <div>@aleksandrasays</div>
+        <div>@beerose</div>
+      </div>
+      <div>Fullstack developer</div>
+      <div>Wrocław, Poland</div>
+    </div>
+    <div>
+      <p class="mb-3 font-semibold text-sm text-gray-500 uppercase">
+        Featured blogposts
+      </p>
+      <ul class="grid grid-cols-2 gap-6 sm:grid-cols-3">
+        {
+          posts.map(({ frontmatter }) => {
+            const date = new Date(frontmatter.date);
+            return (
+              <li class="">
+                <FeaturedCard
+                  title={frontmatter.title}
+                  date={date}
+                  href={frontmatter.path}
+                  description={`\
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Sed euismod, nisl nec aliquam aliquam, nunc nisl aliquet
+                    `}
+                  tags={frontmatter.tags?.split(",") || []}
+                  readLength={frontmatter.readingTime.text}
+                />
+              </li>
+            );
+          })
+        }
+      </ul>
+      <div class="my-2 ml-1">
+        <Link class="text-xs text-gray-600 my-4" href="writing"
+          >Go to /writing to see more →</Link
+        >
+      </div>
+    </div>
+    <div>
+      <p class="mb-3 font-semibold text-sm text-gray-500 uppercase">
+        Featured talks
+      </p>
+      <ul class="grid grid-cols-2 gap-6 sm:grid-cols-3">
+        {
+          posts.map(({ frontmatter }) => {
+            const date = new Date(frontmatter.date);
+            return (
+              <li class="">
+                <FeaturedSpeakingCard
+                  title={frontmatter.title}
+                  date={date}
+                  href={frontmatter.path}
+                  tags={frontmatter.tags?.split(",") || []}
+                />
+              </li>
+            );
+          })
+        }
+      </ul>
+      <div
+        class="my-2 ml-1 hover:translate-x-1 hover:underline underline-offset-2 decoration-1 decoration-gray-400 duration-100"
       >
-      <br />
-      is an Astro starter template for understated personal websites
-    </p>
-    <p class="mt-6">
-      Learn about it by reading the articles below, take a look at the
-      <Link href="https://github.com/hasparus/zaduma">readme</Link>, or boldly
-      <Link href="https://github.com/hasparus/zaduma/generate">
-        create a new repository</Link
-      >. I wish you a pleasant journey.
-    </p>
+        <a
+          class={"whitespace-nowrap rounded-sm before:rounded-sm transition-colors relative text-xs text-gray-600 my-4 no-underline "}
+          href="speaking">Go to /speaking to see more →</a
+        >
+      </div>
+    </div>
   </main>
-  <ul>
-    {
-      posts.map(({ frontmatter }) => {
-        const date = new Date(frontmatter.date);
-
-        return (
-          <li>
-            <Link
-              href={frontmatter.path}
-              class="flex flex-row gap-2 justify-between"
-              noUnderline
-            >
-              <h2 class="text-gray-800 dark:text-gray-300 font-sans">
-                {frontmatter.title}
-              </h2>
-              <time
-                datetime={date.toISOString()}
-                class="text-gray-600 dark:text-gray-400"
-              >
-                {formatDate(date)}
-              </time>
-            </Link>
-          </li>
-        );
-      })
-    }
-  </ul>
   <style>
     ul:hover li:not(:hover) :where(h2, time) {
       @apply text-gray-600 transition-colors;

@@ -13,7 +13,7 @@ export const setScheme = (scheme: ColorScheme): void => {
 
       isDark = scheme === "dark";
     } else {
-      const mql = (window.ⲍ_schemeMql ||= window.matchMedia(
+      const mql = (window.ⲍ_schemeMql = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ));
 

@@ -95,7 +95,7 @@ posts.sort((a, b) => {
           talks.map(({ frontmatter }) => {
             return (
               <li>
-                <lite-youtube videoid={frontmatter.videoId} />
+                <lite-youtube youtubeId={frontmatter.youtubeId} />
               </li>
             );
           })

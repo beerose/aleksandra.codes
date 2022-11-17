@@ -56,7 +56,11 @@ const date = new Date(frontmatter.date);
       </div>
       <span class="text-sm">Length: {frontmatter.duration} min</span>
     </header>
-    {frontmatter.videoId && <lite-youtube videoid={frontmatter.videoId} />}
+    {
+      frontmatter.youtubeId && (
+        <lite-youtube youtubeId={frontmatter.youtubeId} />
+      )
+    }
     <slot />
   </main>
 </BaseLayout>

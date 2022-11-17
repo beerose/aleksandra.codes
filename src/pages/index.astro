@@ -50,9 +50,9 @@ posts.sort((a, b) => {
       <div>Fullstack developer</div>
       <div>Wrocław, Poland</div>
     </div>
-    <div>
+    <div class="space-y-3">
       <p
-        class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
+        class="font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
         Featured blogposts
       </p>
@@ -76,7 +76,13 @@ posts.sort((a, b) => {
           })
         }
       </ul>
-      <ArrowLink title="Go to /writing to see more" href="writing" />
+      <div>
+        <ArrowLink
+          title="Go to /writing to see more"
+          href="writing"
+          class="ml-1"
+        />
+      </div>
     </div>
     <!-- <div>
       <p

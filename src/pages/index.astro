@@ -78,43 +78,32 @@ posts.sort((a, b) => {
       </ul>
       <ArrowLink title="Go to /writing to see more" href="writing" />
     </div>
-    <div>
+    <!-- <div>
       <p
         class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
         Featured talks
       </p>
-      <ul class="featured-talks grid grid-cols-2 gap-6 sm:grid-cols-3">
+      <ul class="featured-talks grid grid-cols-2 gap-6 sm:grid-cols-3 mb-2">
         {
           talks.map(({ frontmatter }) => {
-            const date = new Date(frontmatter.date);
             return (
-              <li class="">
-                <Featured
-                  title={frontmatter.title}
-                  date={date}
-                  href={frontmatter.path}
-                  tags={frontmatter.tags?.split(",") || []}
-                  length={frontmatter.duration.toString()}
-                  type="speaking"
-                  eventType={frontmatter.type}
-                  location={frontmatter.place}
-                  description={frontmatter.excerpt}
-                />
+              <li>
+                <lite-youtube videoid={frontmatter.videoId} />
               </li>
             );
           })
         }
       </ul>
       <ArrowLink title="Go to /speaking to see more" href="speaking" />
-    </div>
+    </div> -->
   </main>
   <style>
     .featured:hover li:not(:hover) {
       @apply opacity-50 transition-opacity duration-500;
     }
 
-    .featured-talks:hover li:not(:hover) {
+    .featured-talks:li:hover li:not(:hover) {
       @apply opacity-50 transition-opacity duration-500;
     }
   </style>

@@ -58,6 +58,7 @@ export interface TalkFrontmatter {
   duration: number;
   slides: string;
   video: string;
+  videoId: string;
   place: string;
 
   /**

@@ -21,7 +21,6 @@ specifiers:
   eslint: ^8.27.0
   eslint-plugin-markdown: ^3.0.0
   estree-util-value-to-estree: ^2.0.0
-  lite-youtube-embed: ^0.2.0
   postcss: 8.4.17
   prettier: ^2.7.1
   prettier-plugin-astro: ^0.5.5
@@ -48,7 +47,6 @@ dependencies:
   astro-eslint-parser: 0.6.2
   eslint-plugin-markdown: 3.0.0_eslint@8.27.0
   estree-util-value-to-estree: 2.0.0
-  lite-youtube-embed: 0.2.0
   postcss: 8.4.17
   reading-time: 1.5.0
   remark-shiki-twoslash: 3.1.0
@@ -5984,13 +5982,6 @@ packages:
         integrity: sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==,
       }
     engines: { node: ">=10" }
-
-  /lite-youtube-embed/0.2.0:
-    resolution:
-      {
-        integrity: sha512-XXXAk5sbvtjjwbie3XG+6HppgTm1HTGL/Uk9z9NkJH53o7puZLur434heHzAjkS60hZB3vT4ls25zl5rMiX4EA==,
-      }
-    dev: false
 
   /load-yaml-file/0.2.0:
     resolution:

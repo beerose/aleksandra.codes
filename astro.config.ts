@@ -26,7 +26,8 @@ export default defineConfig({
     extendPlugins: "markdown",
     remarkPlugins: remarkPlugins(__dirname),
     rehypePlugins: rehypePlugins
-  }), solidJs()],
+  }), solidJs(),
+],
   vite: {
     ssr: {
       noExternal: ["@fontsource/inter", "@fontsource/brygada-1918"]

@@ -29,13 +29,17 @@ import { Shortcut } from "./Shortcut";
 
 const INPUT_ID = "command-input";
 
-export function Commands({hide = false}: {hide: boolean}) {
+export function Commands({ hide = false }: { hide: boolean }) {
   const [clientside, setClientside] = createSignal(false);
   onMount(() => setClientside(true)); // workaround for Astro + Solid Hydration issue
 
   return (
     <CommandCenter inputId={INPUT_ID}>
-      <CommandCenterTrigger class={`zaduma-hover-before w-12 h-12 -mx-4 rounded-sm dark:text-gray-400 dark:hover:text-gray-300 ${hide ? "hidden" : ""}`} />
+      <CommandCenterTrigger
+        class={`zaduma-hover-before w-12 h-12 -mx-4 rounded-sm dark:text-gray-400 dark:hover:text-gray-300 ${
+          hide ? "hidden" : ""
+        }`}
+      />
       <Show when={clientside()} keyed>
         {() => <CommandsPalette />}
       </Show>
@@ -174,8 +178,12 @@ export function CommandsPalette() {
                 </CommandItem>
               </CommandGroup>
               <CommandGroup heading={<GroupHeading>Links</GroupHeading>}>
-                <CommandItem href="https://twitter.com/aleksandrasays">Twitter</CommandItem>
-                <CommandItem href="https://github.com/beerose">GitHub</CommandItem>
+                <CommandItem href="https://twitter.com/aleksandrasays">
+                  Twitter
+                </CommandItem>
+                <CommandItem href="https://github.com/beerose">
+                  GitHub
+                </CommandItem>
               </CommandGroup>
             </>
           }

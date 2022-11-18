@@ -24,12 +24,16 @@ const { title, description, activePage } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1.4.0/lite-youtube.js"
+    ></script>
+    <!-- <link
       rel="stylesheet"
       href="../../node_modules/lite-youtube-embed/src/lite-yt-embed.css"
     />
     <script src="../../node_modules/lite-youtube-embed/src/lite-yt-embed.js"
-    ></script>
+    ></script> -->
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
     <meta

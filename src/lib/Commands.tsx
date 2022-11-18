@@ -105,6 +105,7 @@ export function CommandsPalette({posts, talks}: {posts: {title: string, href: st
       "alt+slash",
       () => {
         if (dialog && !dialog.open) dialog.showModal();
+        document.getElementById(INPUT_ID)?.focus();
         setPage("posts");
       },
     ],
@@ -176,7 +177,7 @@ export function CommandsPalette({posts, talks}: {posts: {title: string, href: st
               </CommandItem>
               <CommandGroup heading={<GroupHeading>Posts</GroupHeading>}>
                 <CommandItem shortcut="alt+slash" onClick={handleShortcut}>
-                  Search Posts
+                  Search Posts & Talks
                 </CommandItem>
               </CommandGroup>
               <CommandGroup heading={<GroupHeading>Links</GroupHeading>}>

@@ -60,6 +60,7 @@ export interface TalkFrontmatter {
   video: string;
   youtubeId: string;
   place: string;
+  img: string;
 
   /**
    * @computed by defaultLayoutPlugin

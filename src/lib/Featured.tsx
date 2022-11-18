@@ -44,7 +44,7 @@ export function Featured({
       {"links" in rest && <div>{rest.links}</div>}
       <div class="flex flex-row space-x-2 mt-auto">
         {tags.map((tag) => (
-          <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300">
+          <span class="text-xs tracking-wide text-gray-600 dark:text-gray-300 mt-2">
             #{tag.trim()}
           </span>
         ))}

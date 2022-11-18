@@ -16,7 +16,7 @@ const date = new Date(frontmatter.date);
 ---
 
 <BaseLayout title={frontmatter.title} activePage="speaking">
-  <main class="zaduma-prose py-4">
+  <main class="zaduma-prose py-4 space-y-4">
     <header class="flex flex-col space-y-2">
       <h1 class="!my-0">{frontmatter.title}</h1>
       <p class="text-gray-600 dark:text-gray-400 text-sm">
@@ -56,7 +56,22 @@ const date = new Date(frontmatter.date);
       </div>
       <span class="text-sm">Length: {frontmatter.duration} min</span>
     </header>
-    {frontmatter.youtubeId && <lite-youtube videoId={frontmatter.youtubeId} />}
-    <slot />
+    <div>
+      {
+        frontmatter.img !== "" && frontmatter.video && (
+          <a href={frontmatter.video} target="_blank" class="hover:opacity-90">
+            <img src={frontmatter.img} alt={frontmatter.title} />
+          </a>
+        )
+      }
+      {
+        frontmatter.youtubeId && (
+          <lite-youtube videoId={frontmatter.youtubeId} />
+        )
+      }
+    </div>
+    <div>
+      <slot />
+    </div>
   </main>
 </BaseLayout>

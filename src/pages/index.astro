@@ -14,15 +14,15 @@ posts.sort((a, b) => {
   );
 });
 
-const talks = (
-  await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx")
-).filter((p) => !!p.frontmatter.featured);
-posts.sort((a, b) => {
-  return (
-    new Date(b.frontmatter.date).getTime() -
-    new Date(a.frontmatter.date).getTime()
-  );
-});
+const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
+  .sort((a, b) => {
+    return (
+      new Date(b.frontmatter.date).getTime() -
+      new Date(a.frontmatter.date).getTime()
+    );
+  })
+  .filter((p) => p.frontmatter.youtubeId || p.frontmatter.img)
+  .slice(0, 3);
 ---
 
 <BaseLayout title="aleksandra.codes" activePage="about">
@@ -84,25 +84,42 @@ posts.sort((a, b) => {
         />
       </div>
     </div>
-    <!-- <div>
+    <div>
       <p
         class="mb-3 font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
-        Featured talks
+        Latest talks
       </p>
       <ul class="featured-talks grid grid-cols-2 gap-6 sm:grid-cols-3 mb-2">
         {
           talks.map(({ frontmatter }) => {
-            return (
-              <li>
-                <lite-youtube youtubeId={frontmatter.youtubeId} />
-              </li>
-            );
+            if (frontmatter.youtubeId) {
+              return (
+                <li>
+                  <lite-youtube videoId={frontmatter.youtubeId} />
+                </li>
+              );
+            } else if (frontmatter.img && frontmatter.video) {
+              return (
+                <a
+                  href={frontmatter.video}
+                  target="_blank"
+                  class="hover:opacity-90"
+                >
+                  <img
+                    src={frontmatter.img}
+                    alt={frontmatter.title}
+                    class="h-full object-cover"
+                  />
+                </a>
+              );
+            }
+            return null;
           })
         }
       </ul>
       <ArrowLink title="Go to /speaking to see more" href="speaking" />
-    </div> -->
+    </div>
   </main>
   <style>
     .featured:hover li:not(:hover) {

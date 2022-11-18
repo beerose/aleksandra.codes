@@ -1,4 +1,7 @@
 ---
+import { createHeading } from "../../lib/Heading";
+import { Link } from "../../lib/Link";
+import { OrderedList } from "../../lib/OrderedList";
 import type { TalkFrontmatter } from "../../types";
 
 export const getStaticPaths = async () => {
@@ -16,7 +19,18 @@ export const getStaticPaths = async () => {
   });
 };
 
+const mdxComponents = {
+  a: Link,
+  ol: OrderedList,
+  h1: createHeading("h1"),
+  h2: createHeading("h2"),
+  h3: createHeading("h3"),
+  h4: createHeading("h4"),
+  h5: createHeading("h5"),
+  h6: createHeading("h6"),
+};
+
 const { Content } = Astro.props;
 ---
 
-<Content />
+<Content components={mdxComponents} />

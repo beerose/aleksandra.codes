@@ -14,7 +14,7 @@ const { headings } = Astro.props;
 ---
 
 <section
-  class="fixed left-[max(0px,calc(50%-43rem/2-20rem-1rem))] top-[94px] w-[20rem] max-h-full overflow-y-auto p-4 hidden xl:block"
+  class="fixed left-[2rem] top-[94px] w-[18rem] lg:w[22rem] max-h-full overflow-y-auto p-4 hidden xl:block"
 >
   <PostProgressBar client:media="(min-width: 1280px)">
     <ul
@@ -30,7 +30,7 @@ const { headings } = Astro.props;
               <Link
                 noUnderline
                 href={"#" + slug}
-                class="dark:current:text-white current:text-black current:font-semibold"
+                class="dark:current:text-white current:text-black current:font-semibold overflow-ellipsis"
               >
                 {text}
               </Link>

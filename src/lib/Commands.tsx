@@ -29,7 +29,7 @@ import { Shortcut } from "./Shortcut";
 
 const INPUT_ID = "command-input";
 
-export function Commands({ hide = false }: { hide: boolean }) {
+export function Commands({ hide = false, posts, talks }: { hide: boolean, posts: {title: string, href: string}[], talks: {title: string, href: string}[] }) {
   const [clientside, setClientside] = createSignal(false);
   onMount(() => setClientside(true)); // workaround for Astro + Solid Hydration issue
 
@@ -41,13 +41,13 @@ export function Commands({ hide = false }: { hide: boolean }) {
         }`}
       />
       <Show when={clientside()} keyed>
-        {() => <CommandsPalette />}
+        {() => <CommandsPalette  posts={posts} talks={talks}/>}
       </Show>
     </CommandCenter>
   );
 }
 
-export function CommandsPalette() {
+export function CommandsPalette({posts, talks}: {posts: {title: string, href: string}[], talks: {title: string, href: string}[]}) {
   type CommandsPage = "posts" | "theme" | undefined;
   const [page, setPage] = createSignal<CommandsPage>();
   let dialog: HTMLDialogElement | undefined;
@@ -78,7 +78,7 @@ export function CommandsPalette() {
       "enter",
       () => {
         if (document.activeElement?.id === INPUT_ID) {
-          getSelected()?.click();
+          (getSelected() as any)?.click();
         }
       },
     ],
@@ -119,6 +119,8 @@ export function CommandsPalette() {
 
       const { code, key } = parseKeys(event);
 
+      console.log({ code, key });
+
       const found =
         keybindings.get(plus(...modifiers, code)) ||
         keybindings.get(plus(...modifiers, key));
@@ -150,7 +152,7 @@ export function CommandsPalette() {
       }
     >
       <div class="flex justify-end">
-        <DialogCloseButton class="p-2 cursor-pointer group focus:outline-none">
+        <DialogCloseButton class="p-2 cursor-pointer group focus:outline-none" onClick={() => setPage(undefined)}>
           <Kbd aria-hidden>esc</Kbd>
           <span class="sr-only">Close</span>
         </DialogCloseButton>
@@ -201,14 +203,14 @@ export function CommandsPalette() {
           </Match>
           <Match when={page() === "posts"}>
             <CommandGroup heading={<GroupHeading>Posts</GroupHeading>}>
-              <CommandItem href="">One</CommandItem>
-              <CommandItem href="">Two</CommandItem>
-              <CommandItem href="">Three</CommandItem>
+              {posts.map(p => (
+                <CommandItem href={p.href}>{p.title}</CommandItem>
+              ))}
             </CommandGroup>
             <CommandGroup heading={<GroupHeading>Talks</GroupHeading>}>
-              <CommandItem href="">One</CommandItem>
-              <CommandItem href="">Two</CommandItem>
-              <CommandItem href="">Three</CommandItem>
+              {talks.map(p => (
+                <CommandItem href={p.href}>{p.title}</CommandItem>
+              ))}
             </CommandGroup>
           </Match>
         </Switch>
@@ -276,7 +278,7 @@ function CommandItem(props: CommandItemProps) {
 
 function GroupHeading(props: { children: JSX.Element }) {
   return (
-    <span class="text-sm p-2 font-semibold text-gray-400 dark:text-gray-500 uppercase leading-none tracking-wider">
+    <span class="text-xs p-2 font-semibold text-gray-400 dark:text-gray-500 uppercase leading-none tracking-wider">
       {props.children}
     </span>
   );

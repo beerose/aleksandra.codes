@@ -3,6 +3,7 @@ import InitColorScheme from "../lib/color-scheme/InitColorScheme.astro";
 import { Commands } from "../lib/Commands";
 import GrainOverlay from "../lib/GrainOverlay/GrainOverlay.astro";
 import { Link } from "../lib/Link";
+import type { PostFrontmatter, TalkFrontmatter } from "../types";
 
 import "../global-styles/base.css";
 import "../global-styles/prose.css";
@@ -18,6 +19,27 @@ interface Props {
 }
 
 const { title, description, activePage } = Astro.props;
+
+const posts = (await Astro.glob<PostFrontmatter>("../../posts/*.mdx")).map(
+  (p) => ({
+    href: p.frontmatter.path,
+    title: p.frontmatter.title,
+    date: p.frontmatter.date,
+  })
+);
+posts.sort((a, b) => {
+  return new Date(a.date).getTime() - new Date(b.date).getTime();
+});
+
+const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
+  .map((p) => ({
+    href: p.frontmatter.path,
+    title: p.frontmatter.title,
+    date: p.frontmatter.date,
+  }))
+  .sort((a, b) => {
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
 ---
 
 <html lang="en">
@@ -95,7 +117,12 @@ const { title, description, activePage } = Astro.props;
         <slot name="header-content">
           <Link class="text-sm" href="/">← back</Link>
         </slot>
-        <Commands hide={activePage === "home"} client:load />
+        <Commands
+          hide={activePage === "home"}
+          client:load
+          talks={talks}
+          posts={posts}
+        />
       </header>
       <slot />
       <GrainOverlay opacity={1} />

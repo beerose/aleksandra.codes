@@ -35,7 +35,7 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
   <main class="space-y-6 border-t border-gray-400 dark:border-gray-500">
     <div
       slot="links"
-      class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 py-3 pb-10 text-xs italic w-full justify-between px-1"
+      class="flex sm:flex-row py-3 sm:pb-6 text-xs italic w-full justify-between px-1"
     >
       <div class="space-y-2 flex flex-col">
         <a
@@ -48,7 +48,7 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
         >
       </div>
       <div>Fullstack developer</div>
-      <div>Wrocław, Poland</div>
+      <div class="hidden sm:block">Wrocław, Poland</div>
     </div>
     <div class="space-y-3">
       <p
@@ -56,7 +56,7 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
       >
         Featured blogposts
       </p>
-      <ul class="featured grid grid-cols-2 gap-6 sm:grid-cols-3">
+      <ul class="featured grid grid-cols-1 gap-2 sm:gap-6 sm:grid-cols-3">
         {
           posts.map(({ frontmatter }) => {
             const date = new Date(frontmatter.date);
@@ -90,7 +90,9 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
       >
         Latest talks
       </p>
-      <ul class="featured-talks grid grid-cols-2 gap-6 sm:grid-cols-3 mb-2">
+      <ul
+        class="featured-talks grid grid-cols-1 gap-2 sm:gap-6 sm:grid-cols-3 mb-2"
+      >
         {
           talks.map(({ frontmatter }) => {
             if (frontmatter.youtubeId) {

@@ -13,11 +13,7 @@ Most of us come to TypeScript from JavaScript. For some, static typing is someth
 
 There is a broad spectrum of what TypeScript can give you. On the one side of this spectrum, we have the above thing: writing good old JavaScript, without types or filling the gaps with any, and after the implementation is done — *fixing* the types. On the other side of the spectrum, we have type-driven development.
 
-<div style="display: flex; justify-content: center; width: 100%">
-  <div style="text-align: center; width: 800px">
-    <img src="/content/typescript-ftw/line.png"/>
-  </div>
-</div>
+<img src="/content/typescript-ftw/line.png"/>
 
 With this article, I do not want to preach that type-driven development is superior and the only way to go about writing code. I want to show you that being on the "fixing typescript" side of the spectrum won't allow you to get the most out of TypeScript and that you may want to go a bit more to the other side.
 
@@ -90,21 +86,13 @@ Types let you zoom out in a space of all possible programs and choose the best o
 
 Imagine you're about to implement a bigger feature that requires a few modules, integrating with existing code, and you need to figure out how the data is going to flow through these modules. Working with proper types early can help you see what shapes of data flows through the program, how does it change, what is needed and where. If you don't yet know how to implement a thing, the code will naturally emerge between those types.
 
-<div style="display: flex; justify-content: center; width: 100%">
-  <div style="text-align: center; width: 800px">
-    <img src="/content/typescript-ftw/flow.png"/>
-  </div>
-</div>
+<img src="/content/typescript-ftw/flow.png"/>
 
 ### TypeScript is not exactly _JavaScript + types_
 
 In practice, when you write TypeScript, you’re writing JavaScript, but restricted to the subset that's conventional in TypeScript, which may differ from the JavaScript you used to.
 
-<div style="display: flex; justify-content: center; width: 100%">
-  <div style="text-align: center; width: 800px">
-    <img src="/content/typescript-ftw/parts.png"/>
-  </div>
-</div>
+<img src="/content/typescript-ftw/parts.png"/>
 
 Despite that TypeScript is a superset of JavaScript, many things that pass in JS will cause a TypeScript compiler error.
 

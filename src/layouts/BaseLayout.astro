@@ -12,7 +12,7 @@ import "../global-styles/font.css";
 
 interface Props {
   title: string;
-  activePage: "writing" | "speaking" | "about";
+  activePage: "writing" | "speaking" | "home";
   description?: string;
   children: astroHTML.JSX.Element;
 }
@@ -72,9 +72,9 @@ const { title, description, activePage } = Astro.props;
         <Link
           href="/"
           noUnderline
-          class={activePage === "about"
+          class={activePage === "home"
             ? "font-semibold text-gray-600 dark:text-gray-300"
-            : ""}>ABOUT</Link
+            : ""}>/</Link
         >
         <Link
           href="/writing"
@@ -95,7 +95,7 @@ const { title, description, activePage } = Astro.props;
         <slot name="header-content">
           <Link class="text-sm" href="/">← back</Link>
         </slot>
-        <Commands hide={activePage === "about"} client:load />
+        <Commands hide={activePage === "home"} client:load />
       </header>
       <slot />
       <GrainOverlay opacity={1} />

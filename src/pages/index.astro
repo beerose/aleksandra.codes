@@ -106,7 +106,7 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
                 <a
                   href={frontmatter.video}
                   target="_blank"
-                  class="hover:opacity-90"
+                  class="hover:opacity-90 max-w-full max-h-96"
                 >
                   <img
                     src={frontmatter.img}

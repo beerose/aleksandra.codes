@@ -89,28 +89,28 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
   <body>
     <div class="mx-auto flex flex-col justify-between">
       <div
-        class="flex justify-between w-full border-b border-gray-400 dark:border-gray-500 text-sm px-1 text-gray-400 dark:text-gray-500"
+        class="grid grid-cols-3 w-full border-b border-gray-400 dark:border-gray-500 text-sm px-1 text-gray-400 dark:text-gray-500"
       >
         <Link
           href="/"
           noUnderline
           class={activePage === "home"
-            ? "font-semibold text-gray-600 dark:text-gray-300 mr-14"
-            : ""}>/</Link
+            ? "font-semibold text-gray-600 dark:text-gray-300 mr-auto"
+            : "mr-auto"}>/</Link
         >
         <Link
           href="/writing"
           noUnderline
           class={activePage === "writing"
-            ? "font-semibold text-gray-600 dark:text-gray-300"
-            : ""}>WRITING</Link
+            ? "font-semibold text-gray-600 dark:text-gray-300 !mx-auto"
+            : "!mx-auto"}>WRITING</Link
         >
         <Link
           href="/speaking"
           noUnderline
           class={activePage === "speaking"
-            ? "font-semibold text-gray-600 dark:text-gray-300"
-            : ""}>SPEAKING</Link
+            ? "font-semibold text-gray-600 dark:text-gray-300 ml-auto"
+            : "ml-auto"}>SPEAKING</Link
         >
       </div>
       <header class="flex justify-between mx-1 items-center">

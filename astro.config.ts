@@ -1,10 +1,13 @@
 import mdx from "@astrojs/mdx";
+import partytown from "@astrojs/partytown";
 import solidJs from "@astrojs/solid-js";
 import tailwind from "@astrojs/tailwind";
 import { defineConfig } from "astro/config";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { rehypePlugins, remarkPlugins } from "./src/build-time";
+
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -21,7 +24,14 @@ export default defineConfig({
     config: {
       applyBaseStyles: false
     }
-  }), mdx({
+  }), 
+  partytown({
+    // Adds dataLayer.push as a forwarding-event.
+    config: {
+      forward: ["dataLayer.push"],
+    },
+  }),
+  mdx({
     // MDX integration inherits all remark plugins from markdown.remarkPlugins
     extendPlugins: "markdown",
     remarkPlugins: remarkPlugins(__dirname),

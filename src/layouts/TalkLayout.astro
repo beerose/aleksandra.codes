@@ -2,6 +2,7 @@
 import type { MarkdownLayoutProps } from "astro";
 
 import { formatDate } from "../lib/formatDate";
+import TableOfContents from "../lib/TableOfContents/TableOfContents.astro";
 import type { TalkFrontmatter } from "../types";
 
 import BaseLayout from "./BaseLayout.astro";
@@ -10,13 +11,13 @@ import "../global-styles/shiki.css";
 
 type Props = MarkdownLayoutProps<TalkFrontmatter>;
 
-const { frontmatter } = Astro.props;
+const { frontmatter, headings } = Astro.props;
 
 const date = new Date(frontmatter.date);
 ---
 
 <BaseLayout title={frontmatter.title} activePage="speaking">
-  <main class="zaduma-prose py-4 space-y-4">
+  <main class="zaduma-prose py-4 space-y-4 self-center">
     <header class="flex flex-col space-y-2">
       <h1 class="!my-0">{frontmatter.title}</h1>
       <p class="text-gray-600 dark:text-gray-400 text-sm">
@@ -74,4 +75,5 @@ const date = new Date(frontmatter.date);
       <slot />
     </div>
   </main>
+  <TableOfContents headings={headings} />
 </BaseLayout>

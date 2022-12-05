@@ -240,6 +240,12 @@
     @apply max-w-full dark:opacity-80;
   }
 
+  .description {
+    p {
+      @apply mb-0 text-xs mt-[-18px];
+    }
+  }
+
   /* #endregion images */
 }
 

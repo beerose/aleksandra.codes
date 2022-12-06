@@ -72,7 +72,10 @@ const colors = require("tailwindcss/colors");
 const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
-  content: ["{pages,app,src}/**/*.{js,ts,jsx,tsx,astro}", "./node_modules/@everybody-gives/ui/**/*.{js,ts}"],
+  content: [
+    "{pages,app,src}/**/*.{js,ts,jsx,tsx,astro}", 
+    "./node_modules/@everybody-gives/ui/**/*.{js,ts}"
+  ],
   theme: {
     colors: {
       inherit: "inherit",

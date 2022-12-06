@@ -9,8 +9,8 @@ const posts = (await Astro.glob<PostFrontmatter>("../../posts/*.mdx")).filter(
 );
 posts.sort((a, b) => {
   return (
-    new Date(a.frontmatter.date).getTime() -
-    new Date(b.frontmatter.date).getTime()
+    new Date(b.frontmatter.date).getTime() -
+    new Date(a.frontmatter.date).getTime()
   );
 });
 

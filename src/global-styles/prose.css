@@ -1,4 +1,8 @@
 .zaduma-prose {
+  max-width: 100vw;
+  padding: 0 8px;
+  overflow-x: hidden;
+
   /* TODO: Get rid of thesse two and apply Tailwind styles */
   --sans: "Inter";
   --serif: "Brygada 1918";

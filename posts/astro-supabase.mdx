@@ -8,11 +8,11 @@ featured: true
 
 ## Introduction
 
-Christmas is just around the corner and it's time to start thinking about gift-giving. In this blog post, we will explore how to use the Astro framework in combination with React and Supabase to create a simple app that lets you draw names for a Secret Santa gift exchange. By the end of this post, you will have a working app that you can use to make your gift exchange more organized and fun. Let's get started!
+Christmas is just around the corner, and it's time to start thinking about gift-giving. In this blog post, we will explore how to use the Astro framework in combination with React and Supabase to create a simple app that lets you draw names for a Secret Santa gift exchange. By the end of this post, we will have a working app that we can use to make gift exchange more organized and fun. Let's get started!
 
 ### Motivation
 
-Secret Santa is a fun and affordable way to exchange gifts with friends, family, or coworkers, without contributing to the overconsumption and waste that often comes with the holiday season. Instead of buying multiple gifts for each person in your group, you can draw names at random and only have to buy one gift for the person you drew. This allows you to focus on buying thoughtful and sustainable gifts that will be appreciated and used.
+Secret Santa is a fun and affordable way to exchange gifts without contributing to the overconsumption and waste that often comes with the holiday season. Instead of buying multiple gifts for each person in a group, you can only buy one for the person you drew. It allows to focus on more thoughtful and sustainable gifts that will be appreciated and used.
 
 ![](/content/astro-supabase/present.jpg)
 
@@ -24,53 +24,47 @@ Photo by
 
 ### Astro
 
-Astro is a modern framework for building static websites. It helps you reduce the amount of JavaScript in your sites, while still allowing you to use your preferred framework or even plain HTML and CSS. Astro offers a number of useful features, such as automatic sitemap generation, and it is designed to be intuitive and straightforward to use.
+Astro is a modern framework for building static websites. It helps you reduce the amount of JavaScript in your sites while still allowing you to use your preferred framework or even plain HTML and CSS. Astro offers several valuable features, such as automatic sitemap generation, designed to be intuitive and straightforward.
 
 ### Supabase
 
-Supabase is an serverless, open source Firebase alternative that provides powerful tools for building full-stack applications. Its seamless authentication, real-time subscriptions, and object storage are built on top of Postgres, the world's most advanced open source database. Supabase is easy to use and integrate with other tools, making it an excellent choice for developers who want to build or enhance their apps.
+Supabase is a serverless, open-source Firebase alternative that provides powerful tools for building full-stack applications. Its seamless authentication, real-time subscriptions, and object storage are built on top of Postgres, the world's most advanced open-source database. Supabase is easy to use and integrate with other tools, making it an excellent choice for developers who want to build or enhance their apps.
 
-In the blog post, we are using Supabase to store and retrieve groups and users date for the Secret Santa demo app. Supabase allows us to easily store and retrieve user and drawing data without having to write a lot of code or set up and manage a database ourselves. This can save time and make the development process more efficient.
+In the blog post, we use Supabase to store and retrieve groups and user dates for the Secret Santa demo app. Supabase allows us to store and retrieve users easily and draw data without having to write a lot of code or set up and manage a database ourselves. It can save time and make the development process more efficient.
 
-### What will be the format of this blogpost?
+### What will be the format of this blog post?
 
-This will be a step by step guide, but we will skip some of the UI elements, and focus more on going through creating a new Astro project, setting up Supabase, and integrating it with the Astro app. I created a minimal library of UI components that we will be using throughout the guide. In the guide, and in the library, I'm using Tailwind CSS.
+This will be a step-by-step guide focused on setting up Astro, Supabase and integration between them. I extracted a small library of UI components, so we won't have to focus on styling and UI logic. I'm using Tailwind CSS in the guide and the library.
 
 If you want to skip directly to the source code, you can visit [a repository with the code from this guide](https://github.com/beerose/everybody-gives-astro-supabase). There, you can browse the code and see how it works.
 
 ## Creating a new Astro project
 
-Run the following command to create a new project. Follow the wizard instructions and choose the recommended options. For TypeScript, choose `strictest` option. It's up to you whether you want to initialize a git repository, but I recommend doing so!
+Run the following command to create a new project. Follow the wizard instructions and choose the recommended options. For TypeScript, choose the `strictest` option. It's up to you whether you want to initialize a git repository, but I recommend doing so!
 
 ```
-pnpm create astro@latest
+$ pnpm create astro@latest
 ```
 
-Next, we're going to add React to the Astro app by running:
+Next, we're going to install React and Tailwind integrations to our new Astro project:
 
 ```
-pnpm astro add react
+$ pnpm astro add react tailwind
 ```
 
-Then, we'll setup Tailwind with the following command:
-
-```
-pnpm astro add tailwind
-```
-
-You can run `pnpm dev` to start your app, and see how it looks in the browser.
+You can run `pnpm dev` to start your app and see how it looks in the browser.
 
 ## Customizing styles
 
-In this guide, we won't be covering the UI in details. Insetad we will be using a components library that I created specifically for this app.  By using the library, you can focus on building the functionality of your app while still creating a nice-looking application. To install the library, run:
+I created a small components library for this guide (`@everybody-gives/ui`) so that we can focus on building the functionality of your app while still creating a nice-looking application. To install the library, run:
 
 ```
-pnpm add @everybody-gives/ui @tailwindcss/forms postcss
+$ pnpm add @everybody-gives/ui @tailwindcss/forms postcss
 ```
 
 ### Update `tailwind.config.cjs`
 
-The components library exports a Tailwind theme configuration that you can use directly in your `tailwind.config.cjs` file. To use the exported configuration, make sure your `tailwind.config.cjs` file looks like the following:
+Make sure your `tailwind.config.cjs` file looks like the following:
 
 ```js
 // tailwind.config.cjs
@@ -112,7 +106,7 @@ module.exports = {
 
 ### Create `postcss.config.cjs`
 
-In order for Tailwind to work correctly, we also need a `postcss` configuration:
+For Tailwind to work correctly, we also need a `postcss` configuration:
 
 ```js
 // postcss.config.cjs
@@ -146,7 +140,7 @@ body,
 
 ## New index page
 
-In an Astro project, pages are files that are located in the `src/pages/` directory. As mentioned before, we will use components from the `@everybody-gives/ui` library. Let's go to the `src/pages/index.astro`. The `.astro` extension indicates that it's an Astro component. In Astro, components are HTML-based templates with no client-side runtime. Components building blockes of the content of a page, and have the following structure:
+In an Astro project, pages are files that are located in the `src/pages/` directory. As mentioned, we will use components from the `@everybody-gives/ui` library. Let's go to the `src/pages/index.astro`. The `.astro` extension indicates that it's an Astro component. In Astro, components are HTML-based templates with no client-side runtime. Components building blocks of the content of a page and have the following structure:
 
 ```astro
 ---
@@ -176,9 +170,9 @@ import Layout from "../layouts/Layout.astro";
 </Layout>
 ```
 
-You might have noticed the `Layout` element — it's an Asro component used to provide a reusable UI structure, such as a page template. There are some common elements like `head` and `body`, and in order to avoid having to write them on the same page, we can extract them to a layout component.
+You might have noticed the `Layout` element — it's also an Astro component that we're using to extract some common elements like `head` and `body`.
 
-In the newly generated Astro app, we already have a `Layout` component, but we'll update it too:
+In the newly generated Astro app, we already have a `Layout` component, but we'll customize it a bit:
 
 ```astro
 ---
@@ -194,7 +188,7 @@ const { title } = Astro.props;
 <html lang="en">
 	<head>
 		<title>{title || "everybody-gives"}</title>
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="icon" href="/favicon.svg" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link
 			rel="preconnect"
@@ -216,11 +210,11 @@ If you open your app in the browser, this is what you should see:
 
 ![](./content/astro-supabase/main.png)
 
-Perfect! We now have a new landing page. The action button points to a `/new-group` page, and that's what we're going to cover next!
+Perfect! We now have a new landing page. The action button points to a `/new-group` page, and that's what we'll cover next!
 
 ## Adding new Secret Santa groups
 
-In order to draw names within a group, we first need some information. This includes an event name, and a list of paritcipants.
+To draw names within a group, we first need some information. It includes an event name and a list of participants.
 
 ### Create a new page
 
@@ -228,35 +222,35 @@ Let's add a new file — `src/pages/new-group.astro`:
 
 ```astro
 ---
-import { Card } from "@everybody-gives/ui";
+import { Sheet } from "@everybody-gives/ui";
 
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="everybody.gives">
-  <Card>TODO: new group form</Card>
+  <Sheet>TODO: new group form</Sheet>
 </Layout>
 ```
 
 ### New group form
 
-In our form, we will ask for three pices of information:
+In our form, we will ask for three pieces of information:
 
 - Group name
 - User's name (creator of the group)
 - Members list
 
-The form we will be using is basic, but there is potential for improvement. Here are some ideas for how the form could be enhanced in the future:
+The form we will be using is basic, but there is potential for improvement. Here are some ideas for how you could enhance the form in the future:
 
 - Add more fields to collect additional information from participants (e.g. their preferred gift category or budget)
 - Use conditional logic to display different form fields based on the responses to previous questions
 - Use validation to ensure that participants provide the required information and that it is in the correct format
 
-Anyway, let's create a `src/components/NewGroupForm.tsx` file. All utility components are imported from the `@everybody-gives/ui` lib.
+Let's create an `src/components/NewGroupForm.tsx` file. All utility components are imported from the `@everybody-gives/ui` lib.
 
 ```tsx
 // src/components/NewGroupForm.tsx
-import { Form, LabeledTextField, MemberCard, NewMemberInput } from "@everybody-gives/ui"
+import { Form, LabeledTextField, Card, InputWithSubmitButton } from "@everybody-gives/ui"
 import { useState } from "react"
 
 export const NewGroupForm = () => {
@@ -289,14 +283,14 @@ export const NewGroupForm = () => {
       <h3 className="mt-1 text-xl font-black tracking-tight text-gray-700 text-center">
         Group members
       </h3>
-      <NewMemberInput
+      <InputWithSubmitButton
         onSubmit={(value) => {
           setMembers(prev => [...prev, value])
         }}
       />
       <ul className="grid grid-cols-2 gap-6 sm:grid-cols-3">
         {members.map((memberName, personIdx) => (
-          <MemberCard
+          <Card
             className="bg-background"
             key={personIdx}
             title={memberName}
@@ -311,45 +305,40 @@ export const NewGroupForm = () => {
 }
 ```
 
-### Add form the the Astro page
+### Add the form to the Astro page
 
-Now, we need to inlude the `NewGroupForm` in the `new-group` page.
+We have to include the `NewGroupForm` in the `new-group` page.
 
-But, we can't just import it, because our form requires JavaScript, and Astro generates every website with zero client-side JavaScript. However, it provides a way to have client-side JavaScript, by creating an island.
-
-> With Astro Islands, the vast majority of your site remains pure, lightweight HTML and CSS. In the example above, you have just added a single, isolated island of interactivity without also changing the rest of the page.
-https://docs.astro.build/en/concepts/islands/
-
-Hence, when including the `NewGroupForm` in the Astro page, we also need to provide a `client` directive:
+Astro, by default, generates website with zero client-side JavaScript.*Our form needs client-side JavaScript, so we need to add a `client:load` directive:
 
 ```astro
 ---
-import { Card } from "@everybody-gives/ui";
+import { Sheet } from "@everybody-gives/ui";
 import { NewGroupForm } from "../components/NewGroupForm";
 
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="everybody.gives">
-  <Card>
+  <Sheet>
     <NewGroupForm client:load />
-  </Card>
+  </Sheet>
 </Layout>
 ```
 
-Now, `NewGroupForm` is interactive, while  the rest of your website remains static and zero JS. [Here](https://docs.astro.build/en/reference/directives-reference/#client-directives) you can read more about client directives.
+Now, `NewGroupForm` is interactive, while the rest of your website remains static and zero JS. [Here](https://docs.astro.build/en/reference/directives-reference/#client-directives), you can read more about client directives.
 
-If you open `https://localhost:3000/new-group` you should see this form:
+If you open `https://localhost:3000/new-group`, you should see this form:
 
 ![](./content/astro-supabase/new.png)
 
-In the next section, we'll go over setting up a Supabase project, creating new tables in the database, and saving the group after submitting the form.
+In the next section, we'll cover setting up a Supabase project, creating new tables in the database, and saving the group after submitting the form.
 
 ## Supabase project initialization
 
 To create a new Supabase project, follow these steps:
 
-1. Go to `supabase.com` and click on "Start Your Project".
+1. Go to `supabase.com` and click "Start Your Project".
 2. Authenticate with your GitHub account (or email and password).
 3. Create a new project under the organization provided to you in your account. Follow the instructions on the page to complete the setup process.
 
@@ -378,56 +367,56 @@ CREATE TABLE members (
 );
 ```
 
-We are creating one table to store group information, and a separate table for members. We're also adding an unique constraint on the `(group_id, name)` so that we have unique members within groups.
+We are creating one table to store group information and a separate table for members. We're also adding a unique constraint on the `(group_id, name)` so that we have distinctive members within groups.
 
-### Setting up Supabase in Astro project
+### Setting up Supabase in the Astro project
 
 Firstly, let's add Supabase to our dependencies:
 
 ```
-pnpm add @supabase/supabase-js
+$ pnpm add @supabase/supabase-js
 ```
 
-Then, we need to update environmental variables to be able to initialize a Supabase client. Open `.env` file and add the following keys:
+Then, we need to update environmental variables to be able to initialize a Supabase client. Create an `.env` file and add the following keys:
 
 ```
 PUBLIC_SUPABASE_URL=<your supabase project url>
 PUBLIC_SUPABASE_ANON_KEY=<your public api key>
 ```
 
-You can find them in the Supabase dashboard in the Settings -> API page:
+You can find them in the Supabase dashboard on the Settings -> API page:
 
 ![](./content/astro-supabase/keys.png)
 
 ### Generating TypeScript types
 
-Before we initialize a new Supabase client in our app, let's generate types from our database, so that we have TypeScript support and autocompletion.
+Before we initialize a new Supabase client in our app, let's generate types from our database to have TypeScript support and auto-completion.
 
 First, we need to authenticate. For that, run:
 
 ```
-npx supabase login
+$ npx supabase login
 ```
 
-It will ask you for your access token. You can generate it in your org's settings:
+It will ask you for your access token. You can generate it in your organization's settings:
 
 ![](./content/astro-supabase/access.png)
 
-Once, you're successfully authenticated, run this command to generate types:
+Once you've successfully authenticated, run this command to generate types:
 
 ```
-npx supabase gen types typescript --project-id "<PROJECT_ID>" --schema public
+$ npx supabase gen types typescript --project-id "<PROJECT_ID>" --schema public
 ```
 
-Don't forget to replace `<PROJECT_ID>` with your project's id, which you can find in the settings page:
+Don't forget to replace `<PROJECT_ID>` with your project's id, which you can find on the settings page:
 
 ![](./content/astro-supabase/id.png)
 
-Once you run the command, copy the output and paste it in a new file: `src/types.ts`.
+Once you run the command, copy the output and paste it into a new file: `src/types.ts`.
 
 ### Creating Supabase client
 
-Let's create an `src/supabase.ts` file. Inside, we'll initialize a new client:
+Let's create a `src/supabase.ts` file. Inside, we'll initialize a new client:
 
 ```ts
 // src/supabase.ts
@@ -441,11 +430,11 @@ const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 ```
 
-We're passing the project's URL and public key that we stored earlier in the `.env` file. In Astro, instead of using `process.env`, you can use `import.meta.env`, which uses the `import.meta` feature added in ES2020. We are also providing the generated `Database` type as a generic parameter to `createClient` function.
+We're passing the project's URL and a public key that we stored earlier in the `.env` file. In Astro, instead of using `process.env`, you can use `import.meta.env`, which uses the `import.meta` feature added in ES2020. We also provide the generated `Database` type as a generic parameter to the `createClient` function.
 
 ## Saving new groups in the DB
 
-Now that we have both UI and Supabase setup ready, we can call the API and store new group form's content in the database.
+Now that we have both UI and Supabase setup ready, we can call the API and store the new group form's content in the database.
 
 Let's go back to the `NewGroupForm.tsx` file and update the `onSubmit` function with the following code:
 
@@ -484,9 +473,9 @@ onSubmit={async () => {
 }}>
 ```
 
-As you noticed, I'm only pritning the error here. Feel free to pause here and handle the error in the UI. You could for example, show an error notification or display the error below the submit button.
+As you noticed, I'm only printing the error here. Feel free to pause here and handle the error in the UI. You could, for example, show an error notification or display the error below the submit button.
 
-You can test it out and create your first group. You can see if it was properly created in the Supabase dashboard in the 
+You can test it out and create your first group. You can see if it was properly created in the Supabase dashboard in the database section:
 
 ![](./content/astro-supabase/newrow.png)
 
@@ -498,7 +487,7 @@ Now that we can create groups, we need to display them in the application. But b
 import { useState } from "react"
 import { useReward } from "react-rewards"
 
-import { Button, MemberCard } from "@everybody-gives/ui"
+import { Button, Card } from "@everybody-gives/ui"
 
 type GroupInfoProps = {
   group: {name: string, createdBy: string, id: string}
@@ -559,7 +548,7 @@ export const GroupInfo = ({group, members, userName}: GroupInfoProps) => {
           if (result !== member.name && result) {
             className = " bg-background opacity-50";
           }
-          return <MemberCard key={member.name} title={member.name} className={className} />;
+          return <Card key={member.name} title={member.name} className={className} />;
         })}
       </ul>
     </div>
@@ -567,10 +556,10 @@ export const GroupInfo = ({group, members, userName}: GroupInfoProps) => {
 }
 ```
 
-Inside, I'm using `react-rewards` library. It will render some confetti whenever user draws a name! Run the following command to install it:
+Inside, I'm using the `react-rewards` library. It will render some confetti whenever a user draws a name! Run the following command to install it:
 
 ```
-pnpm add react-rewards
+$ pnpm add react-rewards
 ```
 
 Now, let's add a new page. We will use dynamic routing. 
@@ -585,7 +574,7 @@ As later we will have more than one page under `https://localhost:3000/[groupId]
 ---
 // src/[groupId]/index.astro
 
-import { Card } from "@everybody-gives/ui";
+import { Sheet } from "@everybody-gives/ui";
 import { GroupInfo } from "../../components/GroupInfo";
 import Layout from "../../layouts/Layout.astro";
 
@@ -610,14 +599,14 @@ const group = {
 ---
 
 <Layout title={group.name}>
-  <Card>
+  <Sheet>
     <GroupInfo
       client:load
       group={{ createdBy: group.createdBy, name: group.name, id: group.id }}
       userName={userName}
       members={group.members}
     />
-  </Card>
+  </Sheet>
 </Layout>
 ```
 
@@ -630,25 +619,25 @@ export default defineConfig({
 });
 ```
 
-Then we are still left with a bunch of things to do in the group page:
+Then we are still left with a bunch of things to do on the group page:
 
-1. Handle missing user name in the URL. The `GroupInfo` component needs a name of the current user, and additionally we need it to know who's drawing a person.
-2. Fetch group's information from Supabase.
+1. Handle missing user names in the URL. The `GroupInfo` component needs the current user's name, and we need it to know who's drawing a person.
+2. Fetch the group's information from Supabase.
 3. Add drawing a name functionality.
 
-We'll cover it one by one.
+We'll cover them one by one.
 
-### Handle members "login"
+### Handle members' "login"
 
-I put login in quotes, because we won't be doing any authentication. We will only provide a way for group members to choose their name from a participants list before accessing a group page.
+I put login in quotes because we won't be doing any authentication. We will only provide a way for group members to choose their names from a participants list before accessing a group page.
 
-We'll create a new page — `src/[groupId]/name.tsx`. Inside we will display a list of group members and when user picks their name, we'll redirect them to the group page:
+We'll create a new page — `src/[groupId]/name.tsx`. Inside we will display a list of group members, and when a user picks their name, we'll redirect them to the group page:
 
 ```astro
 ---
 // src/[groupId]/name.tsx
 
-import { MemberCard } from "@everybody-gives/ui";
+import { Sheet } from "@everybody-gives/ui";
 import Layout from "../../layouts/Layout.astro";
 
 const { groupId } = Astro.params;
@@ -658,7 +647,7 @@ const members = ["Alex", "John", "Jane"];
 ---
 
 <Layout title="Select name">
-  <Card>
+  <Sheet>
     <h1 class="mt-1 text-5xl font-black tracking-tight text-gray-700 text-center">
       Select your name
     </h1>
@@ -668,7 +657,7 @@ const members = ["Alex", "John", "Jane"];
       {
         members?.map((member) => {
           return (
-            <MemberCard
+            <Card
               href={`/${groupId}?user=${member}`}
               title={member}
               className="bg-background hover:scale-105"
@@ -677,7 +666,7 @@ const members = ["Alex", "John", "Jane"];
         })
       }
     </ul>
-  <Card>
+  <Sheet>
 </Layout>
 ```
 
@@ -686,7 +675,7 @@ Currently, the members are hardcoded, so let's retrieve them from Supabase:
 ```js
 ---
 // src/[groupId]/name.tsx
-import { MemberCard } from "@everybody-gives/ui";
+import { Sheet } from "@everybody-gives/ui";
 import Layout from "../../layouts/Layout.astro";
 import { supabase } from "../../supabase";
 
@@ -719,19 +708,19 @@ Now, if you try to access an existing group at `http://localhost:3000/<group_id>
 
 ![](./content/astro-supabase/name.png)
 
-Let's go back to the group page! We're still have two things to cover:
+Let's go back to the group page! We still have two things to cover:
 
 1. ✅ Handle missing user name in the URL.
-2. Fetch group's information from Supabase.
+2. Fetch the group's information from Supabase.
 3. Add drawing a name functionality.
 
 ### Fetch group info from Supabase
 
-We already saw how to fetch informtion from Supabase in the `name.astro` page. Now we will do something very similar. Open `src/[groupId]/index.astro` and fill the missing logic:
+We already saw how to fetch information from Supabase on the `name.astro` page. Now we will do something very similar. Open `src/[groupId]/index.astro` and fill in the missing logic:
 
 ```astro
 ---
-import { Card } from "@everybody-gives/ui";
+import { Sheet } from "@everybody-gives/ui";
 import Layout from "../../layouts/Layout.astro";
 import { GroupInfo } from "../../components/GroupInfo";
 import { supabase } from "../../supabase";
@@ -762,14 +751,14 @@ const members = Array.isArray(group.members) ? group.members : [group.members];
 ---
 
 <Layout title={group.name}>
-  <Card>
+  <Sheet>
     <GroupInfo
       client:load
       group={{ createdBy: group.created_by, name: group.name, id: group.id }}
       userName={userName}
       members={members}
     />
-  </Card>
+  </Sheet>
 </Layout>
 ```
 
@@ -780,19 +769,19 @@ Now, after selecting your name, you should be able to see a group page with full
 Let's dive into the last item on our list!
 
 1. ✅ Handle missing user name in the URL.
-2. ✅ Fetch group's information from Supabase.
+2. ✅ Fetch the group's information from Supabase.
 3. Add drawing a name functionality.
 
 ### Drawing a name with RPC API 
 
-For this, I thought it would be cool to use Supabase's `rpc` API. 
+I thought it would be cool to use Supabase's `rpc` API for this. 
 
 > You can call Postgres functions as Remote Procedure Calls, logic in your database that you can execute from anywhere. Functions are useful when the logic rarely changes—like for password resets and updates.
 https://supabase.com/docs/reference/javascript/rpc
 
-Let's go to the Supabase dashboard, and open an SQL editor. Inside we will create a new Postgres function. It takes two arguments: `group_id` and `username`.
+Let's go to the Supabase dashboard and open an SQL editor. Inside we will create a new Postgres function. It takes two arguments: `group_id` and `username`.
 
-It uses the `group_id` argument to filter the rows in the members table, selecting only rows where the `group_id` matches the specified value. The `username` argument is used in the `UPDATE` statement to set the `selected_by` column to the specified username for the row that has a name value that was selected randomly from the members table. Then, it also returns the name of the randomly selected row as the result of the function.
+It uses the `group_id` argument to filter the rows in the `members` table, selecting only rows where the `group_id` matches the specified value. The `username` argument is used in the `UPDATE` statement to set the `selected_by` column to the specified username for the row with a name value selected randomly from the `members` table. Then, it also returns the name of the randomly selected row as the result of the function.
 
 ```sql
 CREATE FUNCTION draw_name11(groupid uuid, username text)
@@ -817,12 +806,12 @@ $$;
 Since adding a new function means schema update, we need to generate Supabase types again:
 
 ```
-npx supabase gen types typescript --project-id "<PROJECT_ID>" --schema public
+$ npx supabase gen types typescript --project-id "<PROJECT_ID>" --schema public
 ```
 
 Don't forget to update `src/types.ts`!
 
-Now, let's go to the `GroupInfo` component where we'll use the `draw_name` function:
+Now, let's go to the `GroupInfo` component, where we'll use the `draw_name` function:
 
 ```js
 const drawPerson = async () => {
@@ -842,8 +831,9 @@ You can test it out in your browser. This should be the final effect:
 
 ## Summary
 
-Great job! Now that you've mastered the basics, you can use your new skills to build even more exciting projects with Astro and Supabase. Have fun exploring the capabilities of these tools and see what you can create!
+Great job! Now that you've mastered the basics, you can use your new skills to build even more exciting projects with Astro and Supabase. Have fun exploring the capabilities of these tools, and see what you can create!
 
+If you have any feedback on this blog post, feel free to reach out [via Twitter](https://twitter.com/aleksandrasays), or if you want to contribute, [here's the post's source code](https://github.com/beerose/aleksandra.codes/tree/main/posts/astro-supabase.mdx).
 
 ### Links
 
@@ -851,20 +841,20 @@ Great job! Now that you've mastered the basics, you can use your new skills to b
 
 - [Components library](https://github.com/beerose/everybody-gives-ui).
 
-This guide was based on app that I've originally built with Blitz.js. If you want to see an extended version of what we built in this guide, visit: [everybody.gives](https://everybody.gives).
+This guide was based on the app that I originally built with Blitz.js. If you want to check out an extended version of what we made in this guide, visit: [everybody.gives](https://everybody.gives).
 
 ### Future improvements
 
-There are some potential improvements that could be made to the app. Here are some ideas:
+Here's a list of some potential improvements that you could make to the app:
 
-- Implement authentication and user accounts, so that users can securely create and manage their own groups and gift exchanges. This could be done using Supabase's built-in authentication and user management tools.
+- Implement authentication and user accounts so that users can securely create and manage their groups and gift exchanges. This could be done using Supabase's built-in authentication and user management tools.
 
-- Allow users to invite others to join their group, either by email or by sharing a unique group code. This would make it easier for users to organize gift exchanges with their friends and family.
+- Allow users to invite others to join their group by email or by sharing a unique group code. This would make it easier for users to organize gift exchanges with friends and family.
 
-- Error handling: we could add error messages or other visual indicators to inform the user when an error has occurred. This could be done by displaying an error message in a pop-up window, or by highlighting the relevant form field in red to indicate that it is invalid.
+- Error handling: we could add error messages or other visual indicators to inform the user when an error has occurred. This could be done by displaying an error message in a pop-up window or highlighting the relevant form field in red to indicate that it is invalid.
 
-- Add form validation — make sure that user provides minimum of three members.
+- Add form validation — make sure that the user provides a minimum of three members.
 
 - Filter names in the `[groupId]/name` page — we could skip showing those users who already drew a name.
 
-- Add exlusions. Exclusions would allow users to specify certain people that they do not want to draw in the gift exchange
+- Add exclusions. Exclusions would allow users to specify certain people that they do not want to draw in the gift exchange.

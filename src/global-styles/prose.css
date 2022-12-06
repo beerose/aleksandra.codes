@@ -1,5 +1,4 @@
-.zaduma-prose {
-  max-width: 100vw;
+.zaduma-prose { 
   padding: 0 8px;
   overflow-x: hidden;
 
@@ -10,7 +9,11 @@
 
   --block-mb: 1.5rem; /* same as Tailwind's mb-6 */
 
-  @apply max-w-container;
+  /* @apply max-w-container; */
+
+  @media (max-width: 740px) {
+    max-width: 100vw !important;
+  }
 
   & > :not(:last-child) {
     margin-bottom: var(--block-mb);

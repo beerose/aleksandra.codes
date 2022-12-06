@@ -485,7 +485,6 @@ Now that we can create groups, we need to display them in the application. But b
 
 ```tsx
 import { useState } from "react"
-import { useReward } from "react-rewards"
 
 import { Button, Card } from "@everybody-gives/ui"
 
@@ -497,20 +496,11 @@ type GroupInfoProps = {
 
 export const GroupInfo = ({group, members, userName}: GroupInfoProps) => {
   const [result, setResult] = useState<string | undefined>(undefined)
-  const { reward, isAnimating } = useReward("rewardId", "confetti", {
-    elementCount: 200,
-    lifetime: 500,
-    elementSize: 10,
-    startVelocity: 20,
-    angle: 70,
-    spread: 150,
-  });
   
   const drawPerson = async () => {
     // todo: handle draw
     const result = "Alex"
     setResult(result)
-    reward()
   }
 
   return (
@@ -518,7 +508,7 @@ export const GroupInfo = ({group, members, userName}: GroupInfoProps) => {
       <h1 className="mt-1 text-5xl font-black tracking-tight text-gray-700">
         Welcome to {group.name}, {userName}!
       </h1>
-      <div className="flex justify-start my-6 items-center" id={"rewardId"}>
+      <div className="flex justify-start my-6 items-center">
         <Button width={215} onClick={() => {
           void drawPerson()
         }}>DRAW A NAME</Button>
@@ -554,12 +544,6 @@ export const GroupInfo = ({group, members, userName}: GroupInfoProps) => {
     </div>
   )
 }
-```
-
-Inside, I'm using the `react-rewards` library. It will render some confetti whenever a user draws a name! Run the following command to install it:
-
-```
-$ pnpm add react-rewards
 ```
 
 Now, let's add a new page. We will use dynamic routing. 
@@ -821,13 +805,73 @@ const drawPerson = async () => {
     return
   }
   setResult(data)
-  reward()
 }
 ```
 
 You can test it out in your browser. This should be the final effect:
 
 ![](./content/astro-supabase/draw.gif)
+
+### Bonus 🎊
+
+Let's add some sprinkles to our app! Whenever a user draws a name, we can display a confetti animation with `react-rewards` library. Run the following command to install it:
+
+```
+$ pnpm add react-rewards
+```
+
+Next, we need to update the `GroupInfo.tsx` file:
+
+```diff
+import { useState } from "react"
++ import { useReward } from "react-rewards"
+
+import { Button, Card } from "@everybody-gives/ui"
+import { supabase } from "../supabase"
+
+type GroupInfoProps = {
+  group: {name: string, createdBy: string, id: string}
+  members: {name: string}[]
+  userName: string
+}
+
+export const GroupInfo = ({group, members, userName}: GroupInfoProps) => {
+  const [result, setResult] = useState<string | undefined>(undefined)
++ const { reward, isAnimating } = useReward("rewardId", "confetti", {
++   elementCount: 200,
++   lifetime: 500,
++   elementSize: 10,
++   startVelocity: 20,
++   angle: 70,
++   spread: 150,
++ });
+  
+  const drawPerson = async () => {
+    const {data} = await supabase.rpc("draw_name", {groupid: group.id, username: userName}).single()
+    if (!data) {
+      console.error("No data returned")
+      return
+    }
+    setResult(data)
++   reward()
+  }
+
+  return (
+    <div>
+      <h1 className="mt-1 text-5xl font-black tracking-tight text-gray-700">
+        Welcome to {group.name}, {userName}!
+      </h1>
+-     <div className="flex justify-start my-6 items-center">
++     <div className="flex justify-start my-6 items-center" id={"rewardId"}>
+        <Button width={215} onClick={() => {
+          void drawPerson()
+        }}>DRAW A NAME</Button>
+      </div>
+      {/* ... */}
+    </div>
+  )
+}
+```
 
 ## Summary
 

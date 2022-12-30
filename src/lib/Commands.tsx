@@ -120,8 +120,6 @@ export function CommandsPalette({posts, talks}: {posts: {title: string, href: st
 
       const { code, key } = parseKeys(event);
 
-      console.log({ code, key });
-
       const found =
         keybindings.get(plus(...modifiers, code)) ||
         keybindings.get(plus(...modifiers, key));

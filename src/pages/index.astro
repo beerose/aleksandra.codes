@@ -35,9 +35,9 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
   <main class="space-y-6 border-t border-gray-400 dark:border-gray-500">
     <div
       slot="links"
-      class="flex sm:flex-row py-3 sm:pb-6 text-xs italic w-full justify-between px-1"
+      class="flex sm:flex-row py-3 sm:pb-6 text-sm italic w-full justify-between px-1"
     >
-      <div class="space-y-2 flex flex-col">
+      <div class="space-y-3 flex flex-col">
         <a
           class="hover:underline underline-offset-4 decoration-1 decoration-gray-500 dark:decoration-gray-400 hover:decoration-wavy"
           href="https://twitter.com/aleksandrasays">@aleksandrasays</a

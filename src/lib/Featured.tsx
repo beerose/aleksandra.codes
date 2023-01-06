@@ -3,6 +3,8 @@ import type { JSX } from "solid-js";
 import { Card } from "./Card";
 import { formatDate } from "./formatDate";
 
+import "../global-styles/clamp.css"
+
 export type FeaturedProps = {
   title: string;
   tags: string[];

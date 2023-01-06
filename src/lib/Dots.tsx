@@ -1,3 +1,5 @@
+import "../global-styles/dots.css"
+
 export function Dots(props: { className: string }) {
   return (
     <div class={`dots ${props.className} text-gray-800 dark:text-gray-400`}>

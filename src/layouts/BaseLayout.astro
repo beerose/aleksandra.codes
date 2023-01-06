@@ -50,19 +50,6 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
       type="module"
       src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1.4.0/lite-youtube.js"
     ></script>
-    <script
-      async
-      type="text/partytown"
-      src="https://www.googletagmanager.com/gtag/js?id=G-13KZ8THJVV"
-    ></script>
-    <script type="text/partytown">
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-13KZ8THJVV");
-    </script>
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
     <meta

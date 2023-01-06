@@ -103,17 +103,21 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
               );
             } else if (frontmatter.img && frontmatter.video) {
               return (
-                <a
-                  href={frontmatter.video}
-                  target="_blank"
-                  class="hover:opacity-90 max-w-full sm:max-h-[180px] md:max-h-[230px] xl:max-h-[264px]"
-                >
-                  <img
-                    src={frontmatter.img}
-                    alt={frontmatter.title}
-                    class="h-full object-cover"
-                  />
-                </a>
+                <li>
+                  <a
+                    href={frontmatter.video}
+                    target="_blank"
+                    class="hover:opacity-90 max-w-full sm:max-h-[180px] md:max-h-[230px] xl:max-h-[264px]"
+                  >
+                    <img
+                      src={frontmatter.img}
+                      alt={frontmatter.title}
+                      class="h-full object-cover"
+                      height="100%"
+                      width="100%"
+                    />
+                  </a>
+                </li>
               );
             }
             return null;

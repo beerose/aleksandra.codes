@@ -36,7 +36,7 @@ export function Featured({
 }: FeaturedProps) {
   return (
     <Card href={href}>
-      <h3 class="font-semibold mb-1">{title}</h3>
+      <h2 class="font-semibold mb-1">{title}</h2>
       <div class="flex space-x-1 text-gray-600 dark:text-gray-400 text-xs">
         <time datetime={date.toISOString()}>{formatDate(date)}</time>
         <span>·</span>

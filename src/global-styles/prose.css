@@ -51,10 +51,11 @@
   }
 
   & p {
-    @apply max-w-prose;
+    @apply max-w-prose p-2 -m-2;
 
     line-height: 1.75;
     text-overflow: ellipsis;
+    overflow-x: hidden;
 
     & a {
       @apply dont-break-out;
@@ -268,7 +269,7 @@
   /* #region images */
 
   & img {
-    @apply dark:opacity-80;
+    @apply dark:opacity-80 rounded-sm;
     transform: translateX(-50%);
     margin-left: 50%;
     max-width: var(--wide-content-width);

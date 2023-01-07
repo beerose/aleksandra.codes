@@ -206,7 +206,7 @@ export function CommandsPalette({posts, talks}: {posts: {title: string, href: st
           </Match>
           <Match when={page() === "posts"}>
             <CommandGroup heading={<GroupHeading>Posts</GroupHeading>}>
-              {posts.map(p => (
+              {posts.map((p) => (
                 <CommandItem href={p.href}>{p.title}</CommandItem>
               ))}
             </CommandGroup>

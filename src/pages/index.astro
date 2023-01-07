@@ -1,4 +1,6 @@
 ---
+import { Image } from "@astrojs/image/components";
+
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { ArrowLink } from "../lib/ArrowLink";
 import { Featured } from "../lib/Featured";
@@ -98,7 +100,7 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
             if (frontmatter.youtubeId) {
               return (
                 <li>
-                  <lite-youtube videoId={frontmatter.youtubeId}  />
+                  <lite-youtube videoId={frontmatter.youtubeId} />
                 </li>
               );
             } else if (frontmatter.img && frontmatter.video) {
@@ -109,12 +111,13 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
                     target="_blank"
                     class="hover:opacity-90 max-w-full sm:max-h-[180px] md:max-h-[230px] xl:max-h-[264px]"
                   >
-                    <img
-                      src={frontmatter.img}
+                    <Image
                       alt={frontmatter.title}
+                      src={frontmatter.img}
+                      format="webp"
+                      width={774}
+                      aspectRatio={2}
                       class="h-full object-cover"
-                      height="100%"
-                      width="100%"
                     />
                   </a>
                 </li>

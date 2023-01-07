@@ -185,7 +185,7 @@ export function CommandsPalette({posts, talks}: {posts: {title: string, href: st
                 <CommandItem href="https://github.com/beerose">
                   GitHub
                 </CommandItem>
-                <CommandItem href="rss.xml">RSS</CommandItem>
+                <CommandItem href="/rss.xml">RSS</CommandItem>
                 <CommandItem href="https://github.com/beerose/aleksandra.codes">
                   Edit this website on GitHub
                 </CommandItem>

@@ -1,14 +1,18 @@
-.zaduma-prose { 
-  
+:root {
+  --container-width: 43rem;
+  --wide-content-width: min(100vw, calc(var(--container-width) * 1.2));
+}
+
+.zaduma-prose {
   /* TODO: Get rid of thesse two and apply Tailwind styles */
   --sans: "Inter";
   --serif: "Brygada 1918";
   --italic-serif: italic 444 1.15em var(--serif);
-  
+
   --block-mb: 1.5rem; /* same as Tailwind's mb-6 */
-  
+
   /* @apply max-w-container; */
-  
+
   @media (max-width: 740px) {
     padding: 0 16px;
     max-width: 100vw !important;
@@ -32,12 +36,11 @@
     @apply max-w-prose;
 
     line-height: 1.75;
-    overflow: hidden;
     text-overflow: ellipsis;
 
     & a {
-      /* white-space: nowrap; */
-      max-width: 100%;
+      white-space: nowrap;
+      max-width: var(--container-width);
     }
   }
 
@@ -246,8 +249,17 @@
 
   /* #region images */
 
-  img {
-    @apply max-w-full dark:opacity-80;
+  & img {
+    @apply dark:opacity-80;
+    transform: translateX(-50%);
+    margin-left: 50%;
+    max-width: var(--wide-content-width);
+  }
+
+  & .zaduma-image-link {
+    @apply inline-block;
+    max-width: unset;
+    transform: translateX(calc((100% - var(--container-width)) / -2));
   }
 
   .description {

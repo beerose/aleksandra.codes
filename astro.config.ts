@@ -1,3 +1,4 @@
+import image from "@astrojs/image";
 import mdx from "@astrojs/mdx";
 import solidJs from "@astrojs/solid-js";
 import tailwind from "@astrojs/tailwind";
@@ -31,6 +32,9 @@ export default defineConfig({
       rehypePlugins: rehypePlugins,
     }),
     solidJs(),
+    image({
+      serviceEntryPoint: "@astrojs/image/sharp",
+    }),
   ],
   vite: {
     ssr: {

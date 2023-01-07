@@ -29,7 +29,15 @@ import { Shortcut } from "./Shortcut";
 
 const INPUT_ID = "command-input";
 
-export function Commands({ hide = false, posts, talks }: { hide: boolean, posts: {title: string, href: string}[], talks: {title: string, href: string}[] }) {
+export function Commands({
+  hide = false,
+  posts,
+  talks,
+}: {
+  hide: boolean;
+  posts: { title: string; href: string }[];
+  talks: { title: string; href: string }[];
+}) {
   const [clientside, setClientside] = createSignal(false);
   onMount(() => setClientside(true)); // workaround for Astro + Solid Hydration issue
 
@@ -41,13 +49,19 @@ export function Commands({ hide = false, posts, talks }: { hide: boolean, posts:
         }`}
       />
       <Show when={clientside()} keyed>
-        {() => <CommandsPalette  posts={posts} talks={talks}/>}
+        {() => <CommandsPalette posts={posts} talks={talks} />}
       </Show>
     </CommandCenter>
   );
 }
 
-export function CommandsPalette({posts, talks}: {posts: {title: string, href: string}[], talks: {title: string, href: string}[]}) {
+export function CommandsPalette({
+  posts,
+  talks,
+}: {
+  posts: { title: string; href: string }[];
+  talks: { title: string; href: string }[];
+}) {
   type CommandsPage = "posts" | "theme" | undefined;
   const [page, setPage] = createSignal<CommandsPage>();
   let dialog: HTMLDialogElement | undefined;
@@ -151,7 +165,10 @@ export function CommandsPalette({posts, talks}: {posts: {title: string, href: st
       }
     >
       <div class="flex justify-end">
-        <DialogCloseButton class="p-2 cursor-pointer group focus:outline-none" onClick={() => setPage(undefined)}>
+        <DialogCloseButton
+          class="p-2 cursor-pointer group focus:outline-none"
+          onClick={() => setPage(undefined)}
+        >
           <Kbd aria-hidden>esc</Kbd>
           <span class="sr-only">Close</span>
         </DialogCloseButton>
@@ -211,7 +228,7 @@ export function CommandsPalette({posts, talks}: {posts: {title: string, href: st
               ))}
             </CommandGroup>
             <CommandGroup heading={<GroupHeading>Talks</GroupHeading>}>
-              {talks.map(p => (
+              {talks.map((p) => (
                 <CommandItem href={p.href}>{p.title}</CommandItem>
               ))}
             </CommandGroup>

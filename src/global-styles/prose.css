@@ -253,7 +253,7 @@
     @apply dark:opacity-80;
     transform: translateX(-50%);
     margin-left: 50%;
-    max-width: var(--wide-content-width);
+    /* max-width: var(--content-width); */
   }
 
   & .zaduma-image-link {

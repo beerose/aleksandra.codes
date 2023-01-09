@@ -1,6 +1,7 @@
 import * as fs from "fs";
 
 import { titleCase } from "../../lib/titleCase";
+import { mdxToPlainText } from "../mdxToPlainText";
 import { splitIntoChunks } from "../splitIntoChunks";
 import type { PostDetails } from "../types";
 
@@ -22,10 +23,10 @@ async function main() {
 
     const rawContent = fs.readFileSync(`./posts/${post}`, "utf-8");
     const title = getTitle(rawContent, post);
-    // TODO: Remove YAML frontmatter from mdx
-    // .replace(/^---((.|\n)*)---/, "");
 
-    const chunks = splitIntoChunks(rawContent);
+    const plainText = await mdxToPlainText(rawContent);
+
+    const chunks = splitIntoChunks(plainText);
     console.log(`Split post ${title} into ${chunks.length} chunks`);
 
     const postDetail = {

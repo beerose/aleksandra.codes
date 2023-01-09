@@ -5,36 +5,40 @@ export const splitIntoChunks = (
   maxInputTokens = MAX_INPUT_TOKENS
 ) => {
   const chunks: Chunk[] = [];
-  let chunk: Chunk = {
-    text: "",
+  let chunk = {
+    text: [] as string[],
     start: 0,
     end: 0,
   };
-  let chunkLength = 0;
   let start = 0;
-  for (const line of content.split("")) {
-    const lineLength = line.split(" ").length;
-    if (chunkLength + lineLength > maxInputTokens) {
+
+  const words = content.split(" ");
+
+  for (const word of words) {
+    const newChunkText = [...chunk.text, word];
+    if (newChunkText.join(" ").length > maxInputTokens) {
+      const chunkLength = chunk.text.join(" ").length;
       chunks.push({
-        text: chunk.text,
+        text: chunk.text.join(" "),
         start,
-        end: start + chunkLength + lineLength - 1,
+        end: start + chunkLength,
       });
-      start += chunkLength + lineLength;
+      start += chunkLength + 1;
       chunk = {
-        text: "",
+        text: [],
         start,
         end: start,
       };
-      chunkLength = 0;
     }
     chunk = {
       ...chunk,
-      text: `${chunk.text}${line}`,
+      text: [...chunk.text, word],
     };
-    chunkLength += lineLength;
   }
-  chunks.push(chunk);
+  chunks.push({
+    ...chunk,
+    text: chunk.text.join(" "),
+  });
 
   return chunks;
 };

@@ -17,3 +17,6 @@ pnpm-debug.log*
 
 .env.local
 .env.*.local
+
+# semantic search stuff
+aleksandra-codes.json

@@ -29,6 +29,7 @@ specifiers:
   eslint: ^8.30.0
   eslint-plugin-markdown: ^3.0.0
   estree-util-value-to-estree: ^2.0.0
+  gpt3-tokenizer: ^1.1.4
   lite-youtube-embed: ^0.2.0
   node-fetch: ^3.3.0
   openai: ^3.1.0
@@ -69,6 +70,7 @@ dependencies:
   astro-eslint-parser: 0.6.2
   eslint-plugin-markdown: 3.0.0_eslint@8.31.0
   estree-util-value-to-estree: 2.0.0
+  gpt3-tokenizer: 1.1.4
   lite-youtube-embed: 0.2.0
   postcss: 8.4.20
   reading-time: 1.5.0
@@ -1532,6 +1534,10 @@ packages:
 
   /array-iterate/1.1.4:
     resolution: {integrity: sha512-sNRaPGh9nnmdC8Zf+pT3UqP8rnWj5Hf9wiFGsX3wUQ2yVSIhO2ShFwCoceIPpB41QF6i2OEmrHmCo36xronCVA==}
+    dev: false
+
+  /array-keyed-map/2.1.3:
+    resolution: {integrity: sha512-JIUwuFakO+jHjxyp4YgSiKXSZeC0U+R1jR94bXWBcVlFRBycqXlb+kH9JHxBGcxnVuSqx5bnn0Qz9xtSeKOjiA==}
     dev: false
 
   /array-union/2.1.0:
@@ -4022,6 +4028,13 @@ packages:
       p-cancelable: 1.1.0
       to-readable-stream: 1.0.0
       url-parse-lax: 3.0.0
+    dev: false
+
+  /gpt3-tokenizer/1.1.4:
+    resolution: {integrity: sha512-qfkRgE9ZvJjx9vWD0/R3xdH35SCINykliIF0+OP9BObiqwGhJA8BWs3laHyhNA92OPCwlQLhCxQuWjYMeyqAUw==}
+    engines: {node: '>=12'}
+    dependencies:
+      array-keyed-map: 2.1.3
     dev: false
 
   /graceful-fs/4.2.10:

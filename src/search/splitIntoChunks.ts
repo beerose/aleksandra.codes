@@ -1,3 +1,5 @@
+import GPT3Tokenizer from "gpt3-tokenizer";
+
 import { Chunk, MAX_INPUT_TOKENS } from "./types";
 
 export const splitIntoChunks = (
@@ -6,38 +8,40 @@ export const splitIntoChunks = (
 ) => {
   const chunks: Chunk[] = [];
   let chunk = {
-    text: [] as string[],
+    tokens: [] as string[],
     start: 0,
     end: 0,
   };
   let start = 0;
 
-  const words = content.split(" ");
+  const tokenizer = new GPT3Tokenizer({ type: "gpt3" });
+  const { text } = tokenizer.encode(content);
 
-  for (const word of words) {
-    const newChunkText = [...chunk.text, word];
-    if (newChunkText.join(" ").length > maxInputTokens) {
-      const chunkLength = chunk.text.join(" ").length;
+  for (const word of text) {
+    const newChunkTokens = [...chunk.tokens, word];
+    if (newChunkTokens.length > maxInputTokens) {
+      const text = chunk.tokens.join("");
       chunks.push({
-        text: chunk.text.join(" "),
+        text,
         start,
-        end: start + chunkLength,
+        end: start + text.length,
       });
-      start += chunkLength + 1;
+      start += text.length + 1;
       chunk = {
-        text: [],
+        tokens: [],
         start,
         end: start,
       };
+    } else {
+      chunk = {
+        ...chunk,
+        tokens: newChunkTokens,
+      };
     }
-    chunk = {
-      ...chunk,
-      text: [...chunk.text, word],
-    };
   }
   chunks.push({
     ...chunk,
-    text: chunk.text.join(" "),
+    text: chunk.tokens.join(""),
   });
 
   return chunks;

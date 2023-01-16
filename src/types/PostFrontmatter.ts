@@ -1,7 +1,7 @@
 import type { ReadTimeResults } from "reading-time";
 
 export interface PostFrontmatter {
-  tags: string[];
+  tags: string;
   /**
    * Optional URL to a picture. */
   img?: string;
@@ -35,4 +35,5 @@ export interface PostFrontmatter {
    */
   readingTime: ReadTimeResults;
   featured?: boolean;
+  excerpt?: string;
 }

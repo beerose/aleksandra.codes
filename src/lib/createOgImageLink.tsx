@@ -2,10 +2,13 @@ import { createHmac } from "node:crypto";
 
 import type { StringifiedPost } from "../../api/og";
 import type { PostFrontmatter } from "../types/PostFrontmatter";
+import type { TalkFrontmatter } from "../types/TalkFrontmatter";
 
 const OG_IMAGE_SECRET = import.meta.env.OG_IMAGE_SECRET;
 
-export function createOgImageLink(frontmatter: PostFrontmatter) {
+export function createOgImageLink(
+  frontmatter: PostFrontmatter | TalkFrontmatter
+) {
   // prettier-ignore
   const stringifiedPost: StringifiedPost = `${
     new Date(frontmatter.date).getTime()

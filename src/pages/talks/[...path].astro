@@ -1,4 +1,5 @@
 ---
+import TalkLayout from "../../layouts/TalkLayout.astro";
 import { createHeading } from "../../lib/Heading";
 import { Link } from "../../lib/Link";
 import { OrderedList } from "../../lib/OrderedList";
@@ -33,4 +34,6 @@ const mdxComponents = {
 const { Content } = Astro.props;
 ---
 
-<Content components={mdxComponents} />
+<TalkLayout {...Astro.props} headings={Astro.props.getHeadings()}>
+  <Content components={mdxComponents} />
+</TalkLayout>

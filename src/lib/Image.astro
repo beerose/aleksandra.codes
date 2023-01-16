@@ -61,8 +61,8 @@ const placeholder = await getPlaiceholder(decodeURIComponent(src), {
 });
 
 if (!props.width && !props.height && !props.aspectRatio) {
-  props.width ??= placeholder.img.width;
-  props.aspectRatio ??= placeholder.img.width / placeholder.img.height;
+  props.width = placeholder.img.width;
+  props.aspectRatio = placeholder.img.width / placeholder.img.height;
 }
 
 const attrs = await getImage(props);

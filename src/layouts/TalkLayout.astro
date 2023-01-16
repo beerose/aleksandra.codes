@@ -1,6 +1,7 @@
 ---
 import type { MarkdownLayoutProps } from "astro";
 
+import { createOgImageLink } from "../lib/createOgImageLink";
 import { formatDate } from "../lib/formatDate";
 import TableOfContents from "../lib/TableOfContents/TableOfContents.astro";
 import type { TalkFrontmatter } from "../types";
@@ -13,10 +14,17 @@ type Props = MarkdownLayoutProps<TalkFrontmatter>;
 
 const { frontmatter, headings } = Astro.props;
 
+const ogImage = createOgImageLink(frontmatter);
+
 const date = new Date(frontmatter.date);
 ---
 
-<BaseLayout title={frontmatter.title} activePage="speaking">
+<BaseLayout
+  title={frontmatter.title}
+  activePage="speaking"
+  ogImage={ogImage}
+  description={frontmatter.excerpt}
+>
   <main class="zaduma-prose py-4 space-y-4 self-center">
     <header class="flex flex-col space-y-2">
       <h1 class="!my-0">{frontmatter.title}</h1>

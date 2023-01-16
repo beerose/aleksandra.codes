@@ -211,7 +211,7 @@ const { title } = Astro.props;
 
 If you open your app in the browser, this is what you should see:
 
-![](./content/astro-supabase/main.png)
+![](/content/astro-supabase/main.png)
 
 Perfect! We now have a new landing page. The action button points to a `/new-group` page, and that's what we'll cover next!
 
@@ -333,7 +333,7 @@ Now, `NewGroupForm` is interactive, while the rest of your website remains stati
 
 If you open `https://localhost:3000/new-group`, you should see this form:
 
-![](./content/astro-supabase/new.png)
+![](/content/astro-supabase/new.png)
 
 In the next section, we'll cover setting up a Supabase project, creating new tables in the database, and saving the group after submitting the form.
 
@@ -345,7 +345,7 @@ To create a new Supabase project, follow these steps:
 2. Authenticate with your GitHub account (or email and password).
 3. Create a new project under the organization provided to you in your account. Follow the instructions on the page to complete the setup process.
 
-![](./content/astro-supabase/new-project.png)
+![](/content/astro-supabase/new-project.png)
 
 ### Adding a new table
 
@@ -389,7 +389,7 @@ PUBLIC_SUPABASE_ANON_KEY=<your public api key>
 
 You can find them in the Supabase dashboard on the Settings -> API page:
 
-![](./content/astro-supabase/keys.png)
+![](/content/astro-supabase/keys.png)
 
 ### Generating TypeScript types
 
@@ -403,7 +403,7 @@ $ npx supabase login
 
 It will ask you for your access token. You can generate it in your organization's settings:
 
-![](./content/astro-supabase/access.png)
+![](/content/astro-supabase/access.png)
 
 Once you've successfully authenticated, run this command to generate types:
 
@@ -413,7 +413,7 @@ $ npx supabase gen types typescript --project-id "<PROJECT_ID>" --schema public
 
 Don't forget to replace `<PROJECT_ID>` with your project's id, which you can find on the settings page:
 
-![](./content/astro-supabase/id.png)
+![](/content/astro-supabase/id.png)
 
 Once you run the command, copy the output and paste it into a new file: `src/types.ts`.
 
@@ -480,7 +480,7 @@ As you noticed, I'm only printing the error here. Feel free to pause here and ha
 
 You can test it out and create your first group. You can see if it was properly created in the Supabase dashboard in the database section:
 
-![](./content/astro-supabase/newrow.png)
+![](/content/astro-supabase/newrow.png)
 
 ## Group page
 
@@ -693,7 +693,7 @@ if (!userName) {
 
 Now, if you try to access an existing group at `http://localhost:3000/<group_id>`, you should see a list of all participants:
 
-![](./content/astro-supabase/name.png)
+![](/content/astro-supabase/name.png)
 
 Let's go back to the group page! We still have two things to cover:
 
@@ -751,7 +751,7 @@ const members = Array.isArray(group.members) ? group.members : [group.members];
 
 Now, after selecting your name, you should be able to see a group page with full info:
 
-![](./content/astro-supabase/name.png)
+![](/content/astro-supabase/name.png)
 
 Let's dive into the last item on our list!
 
@@ -813,7 +813,7 @@ const drawPerson = async () => {
 
 You can test it out in your browser. This should be the final effect:
 
-![](./content/astro-supabase/draw.gif)
+![](/content/astro-supabase/draw.gif)
 
 ### Bonus 🎊
 

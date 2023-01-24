@@ -1,4 +1,6 @@
 ---
+import type { MarkdownInstance } from "astro";
+
 import TalkLayout from "../../layouts/TalkLayout.astro";
 import { createHeading } from "../../lib/Heading";
 import { Link } from "../../lib/Link";
@@ -6,9 +8,7 @@ import { OrderedList } from "../../lib/OrderedList";
 import type { TalkFrontmatter } from "../../types";
 
 export const getStaticPaths = async () => {
-  const talks = await Astro.glob<TalkFrontmatter>(
-    "../../../posts/talks/**/*.mdx"
-  );
+  const talks = await Astro.glob<TalkFrontmatter>("../../../posts/*.mdx");
 
   return talks.map((post) => {
     return {
@@ -20,6 +20,10 @@ export const getStaticPaths = async () => {
   });
 };
 
+interface Props extends Omit<MarkdownInstance<{}>, "frontmatter"> {
+  frontmatter: TalkFrontmatter;
+}
+
 const mdxComponents = {
   a: Link,
   ol: OrderedList,
@@ -29,6 +33,7 @@ const mdxComponents = {
   h4: createHeading("h4"),
   h5: createHeading("h5"),
   h6: createHeading("h6"),
+  img: Image,
 };
 
 const { Content } = Astro.props;

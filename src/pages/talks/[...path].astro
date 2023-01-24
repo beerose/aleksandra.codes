@@ -8,7 +8,7 @@ import { OrderedList } from "../../lib/OrderedList";
 import type { TalkFrontmatter } from "../../types";
 
 export const getStaticPaths = async () => {
-  const talks = await Astro.glob<TalkFrontmatter>("../../../posts/*.mdx");
+  const talks = await Astro.glob<TalkFrontmatter>("../../../posts/talks/*.mdx");
 
   return talks.map((post) => {
     return {

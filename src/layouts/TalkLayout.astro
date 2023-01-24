@@ -10,7 +10,9 @@ import BaseLayout from "./BaseLayout.astro";
 
 import "../global-styles/shiki.css";
 
-type Props = MarkdownLayoutProps<TalkFrontmatter>;
+interface Props extends Omit<MarkdownLayoutProps<{}>, "frontmatter"> {
+  frontmatter: TalkFrontmatter;
+}
 
 const { frontmatter, headings } = Astro.props;
 

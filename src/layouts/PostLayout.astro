@@ -25,7 +25,7 @@ const date = new Date(frontmatter.date);
 <BaseLayout
   title={frontmatter.title}
   activePage="writing"
-  description={frontmatter.excerpt}
+  description={frontmatter.excerpt || ""}
   ogImage={ogImage}
 >
   <main class="zaduma-prose py-4 self-center">

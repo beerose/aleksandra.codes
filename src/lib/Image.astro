@@ -55,24 +55,36 @@ if (typeof src === "object") {
   }
 }
 
-// TODO: Consider computing just `css` placeholder
-const placeholder = await getPlaiceholder(decodeURIComponent(src), {
-  size: 10,
-});
+let error = false;
+let placeholder = null;
+let attrs = null;
 
-if (!props.width && !props.height && !props.aspectRatio) {
-  props.width = placeholder.img.width;
-  props.aspectRatio = placeholder.img.width / placeholder.img.height;
+try {
+  // TODO: Consider computing just `css` placeholder
+  placeholder = await getPlaiceholder(decodeURIComponent(src), {
+    size: 10,
+  });
+
+  if (!props.width && !props.height && !props.aspectRatio) {
+    props.width = placeholder.img.width;
+    props.aspectRatio = placeholder.img.width / placeholder.img.height;
+  }
+  attrs = await getImage(props);
+} catch (e) {
+  error = true;
 }
-
-const attrs = await getImage(props);
 ---
 
 <span zaduma-image class="zaduma-image-box block relative overflow-hidden">
-  <img {...attrs} loading={loading} decoding={decoding} />
-  <span
-    style={placeholder.css}
-    class="absolute inset-0 w-full h-full transform scale-150 filter blur-2xl -z-10 dark:opacity-80"
-  >
-  </span>
+  {
+    !error && (
+      <>
+        <img {...attrs} loading={loading} decoding={decoding} />
+        <span
+          style={placeholder!.css}
+          class="absolute inset-0 w-full h-full transform scale-150 filter blur-2xl -z-10 dark:opacity-80"
+        />
+      </>
+    )
+  }
 </span>

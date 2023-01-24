@@ -30,7 +30,7 @@
     "@types/react": "^18.0.26",
     "@vercel/og": "^0.0.21",
     "astro": "^1.9.2",
-    "astro-eslint-parser": "^0.6.2",
+    "astro-eslint-parser": "^0.9.5",
     "eslint-plugin-markdown": "^3.0.0",
     "estree-util-value-to-estree": "^2.0.0",
     "lite-youtube-embed": "^0.2.0",

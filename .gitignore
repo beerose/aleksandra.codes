@@ -20,3 +20,7 @@ pnpm-debug.log*
 
 # semantic search stuff
 aleksandra-codes.json
+
+.astro/
+
+vectors/

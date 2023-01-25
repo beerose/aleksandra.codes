@@ -1,5 +1,6 @@
 import type { OpenAIApi } from "openai";
 import type { PineconeClient } from "pinecone-client";
+import * as fs from "fs";
 
 import { getEmbeddingsForPostContent } from "./getEmbeddings";
 import type { PineconeMetadata, PostDetails } from "./types";
@@ -30,6 +31,12 @@ export async function upsertPostsContent(
         `Generated ${itemEmbeddings.length} vectors for post: ${item.title}`
       );
 
+      fs.writeFileSync(
+        `./vectors/${item.path}.json`,
+        JSON.stringify({ itemEmbeddings }, null, 2),
+        "utf-8"
+      );
+
       console.log(
         `Embeddings for post: ${item.title}`,
         JSON.stringify(itemEmbeddings, null, 2)
@@ -39,9 +46,9 @@ export async function upsertPostsContent(
         `Upserting ${itemEmbeddings.length} vectors for post: ${item.title}...`
       );
 
-      await pinecone.upsert({
-        vectors: itemEmbeddings,
-      });
+      // await pinecone.upsert({
+      //   vectors: itemEmbeddings,
+      // });
     } catch (err) {
       console.error(`Error processing post: ${item.title}`, err);
     }

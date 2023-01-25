@@ -29,7 +29,7 @@ async function main() {
 
   const vectors = fs.readdirSync("./vectors");
 
-  for (let vector of vectors) {
+  for (const vector of vectors) {
     const { itemEmbeddings }: { itemEmbeddings: any[] } = JSON.parse(
       fs.readFileSync(`./vectors/${vector}`, "utf-8")
     );

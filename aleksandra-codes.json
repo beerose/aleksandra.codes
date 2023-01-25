@@ -1,0 +1,3354 @@
+{
+  "items": [
+    {
+      "title": "Amortised analysis in the nutshell",
+      "path": "amortized-analysis.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "Algorithmic complexity is a crucial thing in computer science. Knowing the complexity of algorithms allows to answer following questions:- How long will a program run on an input?- How much space will it take?- Is the problem solvable?It��s hard to talk about amortised analysis without brushing up on asymptotic analysis first. So, I��m going to bring back some significant stuff about asymptotic analysis and then jump into the main point.## As",
+            "start": 0,
+            "end": 446
+          },
+          {
+            "text": "ptotic AnalysisRegular asymptotic analysis looks at the performance of an individual operation asymptotically, as a function of the size of the problem. It is about how the performance of a given operation scales to a large data set.### Worst-Case and Average-Case AnalysisWorst case analysis always consider a single operation. To find the cost of the algorithm we need to find the worst-case cost of every single operation and then count the number of their executions. If algorithm",
+            "start": 447,
+            "end": 931
+          },
+          {
+            "text": " in time T(n) it means that it is and upper bound for any inputs of size n. In fact, the algorithm may take less time on some inputs of that size, because particular operations may cheaper for them, but it doesn��t matter since we counted the worst-cost of every operation in the algorithm.A worst-cost analysis is not the most reliable way to analyse the algorithms, so there��s an alternative — average-case analysis. In the average-cost",
+            "start": 932,
+            "end": 1371
+          },
+          {
+            "text": " we try to calculate the running time for randomly chosen input. It��s kind of harder due to the fact it needs some probabilistic arguments and some assumptions about the inputs distribution, which is not the easiest thing to justify. Despite that it may be a lot more useful, hence the worst-case analysis is often misleading. For example the worst-case running time for the quick-sort algorithm is 2n and the average-case is nlog(n), which in case of large",
+            "start": 1372,
+            "end": 1830
+          },
+          {
+            "text": " is a significant difference.### Order of growth and Big-O notationOrder of growth describes how an algorithm��s time and space complexity is going to increase or decrease when we increase or decrease a size of the input. There are different notations to measure it, but the most popular is Big O notation, which gives the worst-case time complexity. For instance if we have O(f(x)) = g(x) it means that the growth of the function f will never surpass",
+            "start": 1831,
+            "end": 2282
+          },
+          {
+            "text": " function g . Let��s consider an example below with the nested for loop. Singe for loop takes n operations so that its time complexity is O(n).jsfor (i = 0; i \\< n; ++i) \\{  for (j = 0; j \\< n; ++j) \\{    ...  }}This going to take n operations for each value of i due to the nested loop and i has n possible values. So the order",
+            "start": 2283,
+            "end": 2611
+          },
+          {
+            "text": " growth is O(n²).Asymptotic analysis is the most common method for analysing algorithms, but it��s not perfect. Let��s consider an example of two algorithms taking respectively 1000nlog(n) and 2nlog(n) time. In case of asymptotic analysis they are both the same, having asymptotic complexity n\\*log(n) , so that we can��t judge which one is better as constants are",
+            "start": 2612,
+            "end": 2976
+          },
+          {
+            "text": ". Another thing is that in asymptotic analysis we always consider input sizes larger that a constant value, but they may be never given as an input, so algorithm which is asymptotically slower, may performs better for the particular situation.## Amortised AnalysisAs it was said earlier, asymptotic analysis is about how the performance of a given operation scales to a large data set. Amortised analysis in the other hand is about how the average of the performance of",
+            "start": 2977,
+            "end": 3446
+          },
+          {
+            "text": " of the operations on a large data set scales. Comparing to the average-case analysis, amortised analysis gives an upper bound of the actual cost of an algorithm, which the average-case doesn��t guarantee. To describe it in one sentence we can say that it gives the average performance (over time) of each operation in the worst-case.When we have some sequence of operations the worst-case doesn��t occur very often in each operation. Operations vary in their",
+            "start": 3447,
+            "end": 3906
+          },
+          {
+            "text": " — some may be cheap and some may be expensive. Let��s take a dynamic array as an example. In the dynamic array the number of elements does not need to be known until program execution and it can be resized at any time. What is important for us is the fact that in the dynamic array only some inserts take a linear time, though others — a constant time. So if the inserts differ in their costs, how we are able to correctly calculate the total time? This is",
+            "start": 3907,
+            "end": 4364
+          },
+          {
+            "text": " amortised approach comes into play. It assigns an artificial cost to each operation in the sequence, which is called the amortised cost. It needs the total cost of the algorithm to be bounded by the total number of the amortised costs of all operations. There are three methods used for assigning the amortised cost:1. Aggregate Method (brute force)1. Accounting Method (the banker��s method)1. Potential Method (the physicist��s method",
+            "start": 4365,
+            "end": 4802
+          },
+          {
+            "text": "### Aggregate MethodLet��s take dynamic array as an example. If the array has space available, we simply insert new item in available space. If not following steps are performed:1. Allocate memory for a larger array of size twice as the old one1. Copy the contents of old array to new oneLet��s assume first that the cost for insert is equal to 1 unit and resizing an array costs us 1 unit per each element in the array.What is the",
+            "start": 4803,
+            "end": 5234
+          },
+          {
+            "text": " complexity of n insertions using the above scheme?The cost of i-th insertion is:    cost\\_i = if (i − 1 is a power of 2) then i else 1And why is that? It��s because whenever the array is full (number of elements already inserted is a power of 2), we need to perform the steps listed above, which costs us array size + 1 , where array size is the cost of coping the table and + 1 is",
+            "start": 5235,
+            "end": 5617
+          },
+          {
+            "text": " cost of inserting next element.Let��s say we want to insert numbers from 1 to 7 to the array, this is how it looks like:So we got the total cost equal to (1 + 2 + 3 + 1 + 5 + 1 + 1) / 7 =~ 2 , so the amortised cost is \\_O(1) \\_(reminder: we omit constants).To sum up, aggregate analysis determines the upper bound T(n) on the total cost",
+            "start": 5618,
+            "end": 5955
+          },
+          {
+            "text": " a sequence of n operations, then calculates the amortised cost to be T(n) / n.### Accounting MethodThe idea behind this method is really intuitive. We have an account where we can save up time and every operation is allowed to take some time (it�� our currency) out of the account, but no more than is in there. Many cheap operations help pay for the expensive ones, and if we distribute the cost that way, we can get a better analysis.Account",
+            "start": 5956,
+            "end": 6400
+          },
+          {
+            "text": " method seeks low-cost operation to be charged a little bit more than its true cost, and the surplus is deposited into the bank account for later use. Expensive operations can then be charged less than their true cost, and the deficit is paid for by the savings in the bank account. In that way we spread the cost of expensive inserts over the entire sequence. The charges to each operation must be set large enough that the balance in the bank account always remains greater than zero, but small enough that",
+            "start": 6401,
+            "end": 6909
+          },
+          {
+            "text": " one operation is charged significantly more than its actual cost. Notice that the extra time charged to an operation does not mean that the operation really takes that much time.Back to the example of the dynamic array. As earlier it costs us 1 unit to insert an element and 1 per each element to be moved to another array. Clearly a charge of 1 unit per insertion is not enough, because there is nothing left over to pay for the moving. Let��s try with charging 3 units per insertion and",
+            "start": 6910,
+            "end": 7399
+          },
+          {
+            "text": " earlier we want to insert numbers from 1 to 7 to an empty array:Now whenever an element needs to be moved to the new array, the move is already paid for. The first time an element is moved, when there��s no time in the account, it paid for it with one of its own time units that was charged to it.### Potential MethodThe key to amortised analysis with the potential method is to define the right potential function �� on states of a data structure",
+            "start": 7400,
+            "end": 7848
+          },
+          {
+            "text": " the following properties:- ��(h0) = 0, h0 is the initial state of the data structure.- ��(ht) ≥ 0Intuitively, the potential function will keep track of the precharged time at any point in the computation. It measures how much we can by for expensive operations with all the time saved-up earlier. It is analogous to the bank balance in the banker��s method. But interestingly, it depends only on the current state of the data",
+            "start": 7849,
+            "end": 8275
+          },
+          {
+            "text": ". We then define the amortised time of an operation as: c + ��(h��) − ��(h), where c is the real cost of the operation, h is the state of data structure before an operation and h�� is the state after operation. Ideally, �� should be defined so that the amortised time of each operation is small, because the change in potential should be greater than 0 for cheap operations and lower for expensive operations.For dynamic",
+            "start": 8276,
+            "end": 8696
+          },
+          {
+            "text": " with resizing by doubling, we can use the potential function:\\*��(h) = 2n − m,where n stands for current number of elements in the array and m is the array length. If we start with an array of length 0 and we want to insert the first element we have:��(h0) = 0 – 0 = 0and for the next elements, we will have: ��(ht) ≥ 0.Now we would like become convinced that",
+            "start": 8697,
+            "end": 9057
+          },
+          {
+            "text": " an element takes amortised constant time. There are two cases:1. n \\< m, then the actual cost is 1, n increases by 1, and m does not change. Then the potential increases by 2, so the amortised time is 1 + 2 = 3.1. If n = m, then the array is doubled, so the actual time is n + 1. But the potential drops from n to 2, so amortised time is n + 1 +",
+            "start": 9058,
+            "end": 9404
+          },
+          {
+            "text": "2 − n) = 3.In both cases, the amortised time is O(1).## ConclusionThe critical difference between asymptotic and amortised analysis is that the first is dependent on the input itself, while the second is dependent on the sequence of operations the algorithm will execute.Therefore:- asymptotic analysis allows us to assert that the complexity of the algorithm when it is given a worst/average case input of size n is bounded by some function f(n",
+            "start": 9405,
+            "end": 9850
+          },
+          {
+            "tokens": [
+              " am",
+              "ort",
+              "ised",
+              " analysis",
+              " allows",
+              " us",
+              " to",
+              " assert",
+              " that",
+              " the",
+              " complexity",
+              " of",
+              " the",
+              " algorithm",
+              " when",
+              " it",
+              " is",
+              " given",
+              " an",
+              " input",
+              " of",
+              " unknown",
+              " characteristics",
+              " but",
+              " known",
+              " size",
+              " n",
+              " is",
+              " no",
+              " worse",
+              " than",
+              " the",
+              " value",
+              " of",
+              " a",
+              " function",
+              " f",
+              "(",
+              "n",
+              ")"
+            ],
+            "start": 9851,
+            "end": 9851,
+            "text": " amortised analysis allows us to assert that the complexity of the algorithm when it is given an input of unknown characteristics but known size n is no worse than the value of a function f(n)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Setup for sane assembly programming",
+      "path": "assembly-setup.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "There are some days that seem to leads to no good. One of these days has come to me when I needed to do some serious assembly programming. No fun anymore. No joy from making stuff work or writing code enjoying the time. I came to the phase that it��s quite bearable, brought some colours into my asm adventure and for fear of forgetting the steps I��ve done I��m going to write them down.## DockerI needed to compile my assembly code",
+            "start": 0,
+            "end": 433
+          },
+          {
+            "text": " linux due to some differences connected with section text. Very important in my case, but not so important in general. Anyway, I needed to setup docker to compile, run and debug my code.One of the most important things you need when writing in C/C++ or assembly is debugger. That��s why I needed docker image with gdb , which is awesome (as for low level languages debugger). I took it from docker hub.The following command allows to run bash with gdb",
+            "start": 434,
+            "end": 886
+          },
+          {
+            "text": ":    docker run -it baygeldin/gdb-examples bashGdb works, I��m almost where I wanted to be. The next thing I found mandatory was mounting host directory into the docker container somehow. It can be done by adding one additional parameter to the previous command.    docker run -v $(pwd):/my-osom-dir -it baygeldin/gdb-examples bashWonderful! I�",
+            "start": 887,
+            "end": 1231
+          },
+          {
+            "text": "m in bash, I have access to my host directory, what can go wrong? Let��s find out. I have some piece of code below — ordinary hello world program.    .section .text    .globl main    main:      movl $4, %eax      movl $1, %ebx      movl $msg, %ecx     ",
+            "start": 1232,
+            "end": 1484
+          },
+          {
+            "text": "l $len, %edx      int $0x80      xorl %eax, %eax      ret    msg:      .ascii   \"Hello world!\\n\"      len = . - msgIt can be compiled with:    gcc -m64 -g hello\\_world.s -o hello\\_worldAnd then",
+            "start": 1485,
+            "end": 1678
+          },
+          {
+            "text": " in gdb:    gdb hello\\_worldAt this phase I wanted to place some breakpoints and see how it works. It doesn��t work. Gdb in docker container does not hit the breakpoints that were set. It is because gdb depends on a non-randomized address space for lots of things, including setting breakpoints. The container needs some extra privileges and it can be obtain by setting --privileged flag. So the final version of the command",
+            "start": 1679,
+            "end": 2103
+          },
+          {
+            "text": " the docker is:    docker run -v $(pwd):/my-osom-dir --privileged -it baygeldin/gdb-examples bash## GdbGdb is quite okey as it is. It debugs, it has many options, what do anyone expect from assembly debugger? Honestly, I didn��t. Nevertheless, at some point I found it triggering to type info registers over and over again. So after poking around in the",
+            "start": 2104,
+            "end": 2457
+          },
+          {
+            "text": " for a while I found this awesome .gdbinit config. And this is how the previous hello world program looks in gdb debugger:Looks quite nice, doesn��t it?There is also a couple of useful gdb commands:- r|run|start — run the program- b|breakpoint — place a breakpoint in the place given as the firs parameter, for example b main- n|next — step to line given as parameter without entering subroutines,",
+            "start": 2458,
+            "end": 2855
+          },
+          {
+            "tokens": [
+              " a",
+              " parameter",
+              " it",
+              " steps",
+              " to",
+              " next",
+              " line",
+              "-",
+              " s",
+              "|",
+              "step",
+              " —",
+              " same",
+              " as",
+              " n",
+              " ,",
+              " but",
+              " enters",
+              " the",
+              " sub",
+              "r",
+              "out",
+              "ines",
+              "-",
+              " l",
+              "|",
+              "list",
+              " —",
+              " prints",
+              " source",
+              " of",
+              " the",
+              " program",
+              "-",
+              " p",
+              "|",
+              "print",
+              " —",
+              " prints",
+              " some",
+              " variable",
+              " and",
+              " stores",
+              " it",
+              " in",
+              " the",
+              " local",
+              " variable",
+              ",",
+              " can",
+              " be",
+              " also",
+              " used",
+              " for",
+              " setting",
+              " values",
+              " for",
+              " some",
+              " variables",
+              ",",
+              " for",
+              " example",
+              " p",
+              " my",
+              "\\",
+              "_",
+              "var",
+              " =",
+              " 7",
+              "-",
+              " set",
+              " —",
+              " setting",
+              " variable",
+              " values"
+            ],
+            "start": 2856,
+            "end": 2856,
+            "text": " a parameter it steps to next line- s|step — same as n , but enters the subroutines- l|list — prints source of the program- p|print — prints some variable and stores it in the local variable, can be also used for setting values for some variables, for example p my\\_var = 7- set — setting variable values"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Getting into the holiday spirit with Astro, React, and Supabase",
+      "path": "astro-supabase.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "<Layout title={group.name}>  <Sheet>    <GroupInfo      client:load      group={{ createdBy: group.created_by, name: group.name, id: group.id }}      userName={userName}      members={members}    />  </Sheet></Layout>```Now, after selecting your name, you should be",
+            "start": 0,
+            "end": 265
+          },
+          {
+            "text": " to see a group page with full info:![](/content/astro-supabase/name.png)Let's dive into the last item on our list!1. �� Handle missing user name in the URL.2. �� Fetch the group's information from Supabase.3. Add drawing a name functionality.### Drawing a name with RPC API I thought it would be cool to use Supabase's `rpc` API for this. > You can call",
+            "start": 266,
+            "end": 621
+          },
+          {
+            "text": "gres functions as Remote Procedure Calls, logic in your database that you can execute from anywhere. Functions are useful when the logic rarely changes—like for password resets and updates.https://supabase.com/docs/reference/javascript/rpcLet's go to the Supabase dashboard and open an SQL editor. Inside we will create a new Postgres function. It takes two arguments: `group_id` and `username`.It uses the `group_id` argument to filter the",
+            "start": 622,
+            "end": 1062
+          },
+          {
+            "text": " in the `members` table, selecting only rows where the `group_id` matches the specified value. The `username` argument is used in the `UPDATE` statement to set the `selected_by` column to the specified username for the row with a name value selected randomly from the `members` table. Then, it also returns the name of the randomly selected row as the result of the function.```sqlCREATE FUNCTION draw_name11(groupid uuid",
+            "start": 1063,
+            "end": 1484
+          },
+          {
+            "text": " username text)RETURNS text LANGUAGE plpgsql AS $$  BEGIN    UPDATE members    SET selected_by = username    WHERE name = (SELECT name                 FROM members                 WHERE group_id = groupid                 ",
+            "start": 1485,
+            "end": 1706
+          },
+          {
+            "text": " AND selected_by IS NULL                 ORDER BY RANDOM()                 LIMIT 1);    RETURN (SELECT name            FROM members            WHERE group_id = groupid              AND",
+            "start": 1707,
+            "end": 1891
+          },
+          {
+            "text": "_by = username);  END;$$;```Since adding a new function means schema update, we need to generate Supabase types again:```$ npx supabase gen types typescript --project-id \"<PROJECT_ID>\" --schema public```Don't forget to update `src/types.ts`!Now, let's go to the `GroupInfo` component, where we'll use the `draw_name` function:```jsconst",
+            "start": 1892,
+            "end": 2228
+          },
+          {
+            "text": "Person = async () => {  const {data} = await supabase.rpc(\"draw_name\", {groupid: group.id, username: userName}).single()  if (!data) {    console.error(\"No data returned\")    return  }  setResult(data)}```You can test it out in your browser. This should be the final effect:![](/content/astro-supabase/draw.",
+            "start": 2229,
+            "end": 2537
+          },
+          {
+            "text": ")### Bonus ���Let's add some sprinkles to our app! Whenever a user draws a name, we can display a confetti animation with `react-rewards` library. Run the following command to install it:```$ pnpm add react-rewards```Next, we need to update the `GroupInfo.tsx` file:```diffimport { useState } from \"react\"+ import { useReward } from \"react-rewards",
+            "start": 2538,
+            "end": 2885
+          },
+          {
+            "text": "import { Button, Card } from \"@everybody-gives/ui\"import { supabase } from \"../supabase\"type GroupInfoProps = {  group: {name: string, createdBy: string, id: string}  members: {name: string}[]  userName: string}export const GroupInfo = ({group, members, userName}: GroupInfoProps) => {  const [result, setResult] = useState<string |",
+            "start": 2886,
+            "end": 3218
+          },
+          {
+            "text": ">(undefined)+ const { reward, isAnimating } = useReward(\"rewardId\", \"confetti\", {+   elementCount: 200,+   lifetime: 500,+   elementSize: 10,+   startVelocity: 20,+   angle: 70,+   spread: 150,+ });    const drawPerson = async () => {    const {data} = await supabase.rpc(\"draw",
+            "start": 3219,
+            "end": 3496
+          },
+          {
+            "text": "name\", {groupid: group.id, username: userName}).single()    if (!data) {      console.error(\"No data returned\")      return    }    setResult(data)+   reward()  }  return (    <div>      <h1 className=\"mt-1 text-5xl font-black tracking-tight text-gray",
+            "start": 3497,
+            "end": 3748
+          },
+          {
+            "text": "700\">        Welcome to {group.name}, {userName}!      </h1>-     <div className=\"flex justify-start my-6 items-center\">+     <div className=\"flex justify-start my-6 items-center\" id={\"rewardId\"}>        <Button width={215} onClick={() => { ",
+            "start": 3749,
+            "end": 3990
+          },
+          {
+            "text": "        void drawPerson()        }}>DRAW A NAME</Button>      </div>      {/* ... */}    </div>  )}```## SummaryGreat job! Now that you've mastered the basics, you can use your new skills to build even more exciting projects with Astro and Supabase. Have fun exploring the capabilities of these tools, and see what you",
+            "start": 3991,
+            "end": 4309
+          },
+          {
+            "text": " create!If you have any feedback on this blog post, feel free to reach out [via Twitter](https://twitter.com/aleksandrasays), or if you want to contribute, [here's the post's source code](https://github.com/beerose/aleksandra.codes/tree/main/posts/astro-supabase.mdx).### Links- [Supabase](supabase.com)- [Supabase launch week](https://sup",
+            "start": 4310,
+            "end": 4649
+          },
+          {
+            "text": ".com/launch-week)- [A repository with code from this guide](https://github.com/beerose/everybody-gives-astro-supabase).- [Components library](https://github.com/beerose/everybody-gives-ui).This guide was based on the app that I originally built with Blitz.js. If you want to check out an extended version of what we made in this guide, visit: [everybody.g",
+            "start": 4650,
+            "end": 5005
+          },
+          {
+            "text": "](https://everybody.gives).### Future improvementsHere's a list of some potential improvements that you could make to the app:- Implement authentication and user accounts so that users can securely create and manage their groups and gift exchanges. This could be done using Supabase's built-in authentication and user management tools.- Allow users to invite others to join their group by email or by sharing a unique group code. This would make it easier for users to organize gift exchanges with friends and family.- Error",
+            "start": 5006,
+            "end": 5530
+          },
+          {
+            "text": ": we could add error messages or other visual indicators to inform the user when an error has occurred. This could be done by displaying an error message in a pop-up window or highlighting the relevant form field in red to indicate that it is invalid.- Add form validation — make sure that the user provides a minimum of three members.- Filter names in the `[groupId]/name` page — we could skip showing those users who already drew a name.- Add exclusions. Exclusions would allow",
+            "start": 5531,
+            "end": 6010
+          },
+          {
+            "tokens": [
+              " to",
+              " specify",
+              " certain",
+              " people",
+              " that",
+              " they",
+              " do",
+              " not",
+              " want",
+              " to",
+              " draw",
+              " in",
+              " the",
+              " gift",
+              " exchange",
+              "."
+            ],
+            "start": 6011,
+            "end": 6011,
+            "text": " to specify certain people that they do not want to draw in the gift exchange."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Database model for a hierarchical content",
+      "path": "comments-db-model.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "Now imagine that you have pagination and need only ten comments and all of their replies. Getting ten \"base\" comments should be okay, but the tricky part here is to know what other comments are descendants of these ten — which ones are replies (or nested replies). The approach with a recursive CTE helps a bit with calculating the hierarchies. Still, it's pretty complex in terms of extendability — it can get out of hand when adding pagination on top of that. That's the",
+            "start": 0,
+            "end": 472
+          },
+          {
+            "text": " I'm going to show another approach that may solve this problem.### Using an additional path columnSince we already spoke about paths, we can think about another solution that doesn't require calculating them while fetching the comments. We can modify the schema by removing the foreign key relation and adding a new path column.<div style=\"width: 100%; display: flex; justify-content: center\">\t<div style=\"width: 400px\">\t\t<img src=\"/content/db-model",
+            "start": 473,
+            "end": 923
+          },
+          {
+            "text": "schema-with-path.png\" />\t</div></div>New schema means we need to change the way of adding new comments to the database. When inserting a new row, we need to pass a calculated path. It should be pretty straightforward if you have the information to which comment a user is replying and the hierarchy on the front end.Regarding fetching the comments, you can query all of the entries if you need all of them. However, if you need pagination",
+            "start": 924,
+            "end": 1362
+          },
+          {
+            "text": " this solution can be a good fit. Let's say you select ten \"base\" comments per page and all the nested replies of these ten comments. In such a case, the query should select ten entries with an empty path and all entries where the path starts with the selected base comments.sqlWITH base\\_comments AS (\tSELECT\t\t\\*\tFROM\t\t\"Comments\"\tWHERE\t\tpath IS NULL\tLIMIT 10 -- optional\tOFFSET 0 --",
+            "start": 1363,
+            "end": 1746
+          },
+          {
+            "text": ") (\tSELECT\t\t\\*\tFROM\t\t\"Comments\" replies\tWHERE\t\treplies.path ~ ANY (\t\t\tSELECT\t\t\t\tid\t\t\tFROM\t\t\t\tbase\\_comments))\tUNION ALL\tSELECT\t\t\\*\tFROM\t\tbase\\_comments;I used a CTE again in this query mostly because I like using it ���, but you can manage perfectly well without it!You need",
+            "start": 1747,
+            "end": 2021
+          },
+          {
+            "text": " remember that the text column has a limit. Though, it's big enough that it shouldn't be a problem unless you have A LOT of nested levels and/or use long strings to represent comments' ids.### Using ltreeIf you're using Postgres, you might be interested in checking out a ltree data type. It represents labels of data stored in a hierarchical tree-like structure. Postgres provides many ltree operators to search through the hierarchical data, for example, searching for",
+            "start": 2022,
+            "end": 2492
+          },
+          {
+            "text": " or descendants.A ltree's label is a sequence of alphanumeric characters and underscores less than 256 bytes long. A label path is a sequence of labels separated by dots, e.g. 1.2.3.To use this data type, we need to add an extension to Postgres and create a new column:sqlCREATE EXTENSION IF NOT EXISTS ltree;ALTER TABLE \"Comments\" ADD COLUMN path ltree;We can then use a",
+            "start": 2493,
+            "end": 2864
+          },
+          {
+            "text": "<@ operator to get all nested replies of a particular comment:sqlSELECT \\* FROM \"Comments\" WHERE path \\<@ 'comment\\_id';Here you can read more about a comparison between a recursive CTE and ltree.Note: In the previous examples, we were using comments' ids for paths. However, suppose you're using strings such as UUID for it. In that case, you might need an additional way of representing comments unique identifiers as ltree's label",
+            "start": 2865,
+            "end": 3298
+          },
+          {
+            "text": " only have alphanumeric characters and underscores.## SummaryAs I mentioned before, choosing a suitable model depends on many things — each application has different requirements and cares about different things. In this article, I only showed a few options that I've been looking at myself recently. However, other ways of handling multi-level comments may be a much better option in your particular use cases. Maybe a bridge table storing all the relations is a right fit for your app? Or perhaps you don't want to",
+            "start": 3299,
+            "end": 3815
+          },
+          {
+            "tokens": [
+              " a",
+              " relational",
+              " database",
+              " and",
+              " have",
+              " a",
+              " totally",
+              " different",
+              " way",
+              " of",
+              " dealing",
+              " with",
+              " this",
+              " problem",
+              "?",
+              " Cho",
+              "osing",
+              " the",
+              " right",
+              " solution",
+              " also",
+              " depends",
+              " on",
+              " your",
+              " current",
+              " database",
+              " and",
+              " its",
+              " supported",
+              " features",
+              " (",
+              "good",
+              " luck",
+              " with",
+              " working",
+              " with",
+              " js",
+              "ons",
+              " in",
+              " MS",
+              " SQL",
+              " server",
+              " �",
+              "��",
+              ").",
+              " Though",
+              ",",
+              " if",
+              " you",
+              " use",
+              " MS",
+              " SQL",
+              " Server",
+              ",",
+              " you",
+              " might",
+              " be",
+              " interested",
+              " in",
+              " ",
+              " hierarchy",
+              "id",
+              " data",
+              " type",
+              ".",
+              "I",
+              "'d",
+              " be",
+              " happy",
+              " to",
+              " hear",
+              " about",
+              " your",
+              " solutions",
+              " —",
+              " you",
+              " can",
+              " reach",
+              " out",
+              " to",
+              " me",
+              " via",
+              " Twitter",
+              "!"
+            ],
+            "start": 3816,
+            "end": 3816,
+            "text": " a relational database and have a totally different way of dealing with this problem? Choosing the right solution also depends on your current database and its supported features (good luck with working with jsons in MS SQL server ���). Though, if you use MS SQL Server, you might be interested in  hierarchyid data type.I'd be happy to hear about your solutions — you can reach out to me via Twitter!"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Elixir with a drop of gRPC",
+      "path": "elixir-with-grpc.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "Some time ago I found this Elixir implementation of gRPC and wanted to give it a try. This article will briefly cover the basic setup for implementing gRPC services in Elixir. However it won��t cover what is gRPC. Actually, I started writing a little bit about it but I found myself drown into all this stuff around like http/2, protobuf , etc… So when I had like 3-minutes-read-long text about message framing in TCP",
+            "start": 0,
+            "end": 417
+          },
+          {
+            "text": " almost started to draw these frames for better explanation I reminded myself that it was supposed to be short and brief and maybe even somehow effortless. Perhaps I finish it another time, in another article. But I make no promise. For those who are not familiar with gRPC I recommend read about it beforehand. I find this article very qualitative.## Getting startedFirstly we have to create new Elixir project. Like always. Nothing extraordinary. I choose the name chatty, because it��s going",
+            "start": 418,
+            "end": 912
+          },
+          {
+            "text": " be a chat. And.. it��s going to be a chat, because chat is always a good idea for some kind of tutorial article.sh$ mix new chattyIn the next step we have to edit our mix.exs file to add some dependencies.elixirdefp deps do  \\[    \\{:cowboy, \\[env: :prod, git: \"https://github.com/ninenines/cowboy.git",
+            "start": 913,
+            "end": 1215
+          },
+          {
+            "text": " tag: \"2.2.0\",override: true, manager: :make]},    \\{:ranch, \\[env: :prod, git: \"https://github.com/ninenines/ranch.git\", override: true,manager: :make]},    \\{:grpc, github: \"tony612/grpc-elixir\"},  ]endWhy we need grpc should be quite obvious. But what",
+            "start": 1216,
+            "end": 1470
+          },
+          {
+            "text": " the rest? Cowboy is a HTTP server, which is used by grpc in the version 2.2 — the older one. That��s the case for this override. And ranch is a socket acceptor pool for TCP protocols.Step number 3. Another small change in our mix.exs file:elixirdef application do  \\[    mod: \\{ChattyApp, \\[]},    applications: \\[:grpc]  ]end",
+            "start": 1471,
+            "end": 1798
+          },
+          {
+            "text": " application function lets us say what is required to start our app. Which other applications or locally registered processes need to be started beforehand and which module represents the starting point of the app. What we need to start is grpc process and our starting point will be called ChattyApp.Now we can create a proto file describing our chat app. There��re going to be two simple endpoints — one for sending messages and another for fetching them. I��m starting to think if it",
+            "start": 1799,
+            "end": 2285
+          },
+          {
+            "text": "�s not more like some message board rather than a chat…protobufsyntax = \"proto3\";package chatty;service ChatService \\{  rpc SendMessage (SendMessageRequest) returns (SendMessageReply) \\{}  rpc FetchMessages (FetchMessagesRequest) returns (FetchMessagesReply) \\{}}message SendMessageRequest \\{  ChatMessage chat\\_message = 1;}message SendMessageReply \\{}",
+            "start": 2286,
+            "end": 2639
+          },
+          {
+            "text": " FetchMessagesRequest \\{}message FetchMessagesReply \\{    repeated ChatMessage messages = 1;}message ChatMessage \\{  string sender = 1;  string text = 2;}If you��re not familiar with protobuf, there are the docs. Keeping the service definition in the simplest possible form there we have SendMessage and FetchMessages rpc methods along with simple request and reply messages. Having this we can generate the Elixir code using prot",
+            "start": 2640,
+            "end": 3070
+          },
+          {
+            "text": ". If you don��t have it, here��s the installation guide. On MacOS you can install it with brew: brew install protobuf. We��re also going to need protoc plugin for Elixir, which can be easily installed with the following command:    $ mix escript.install hex protobufThen we can generate the code:    $ protoc --elixir\\_out=plugins=grpc:./lib/ /",
+            "start": 3071,
+            "end": 3415
+          },
+          {
+            "text": "protoIt��s going to create a file with pb.ex extension, full of Elixir code that we can use to implement something cool. Talking about implementation, here comes the server code:elixirdefmodule Chatty.ChatService.Server do  use GRPC.Server, service: Chatty.ChatService.Service  def send\\_message(request, \\_stream) do    Chatty.ChatState.put\\_message(request.",
+            "start": 3416,
+            "end": 3775
+          },
+          {
+            "text": "\\_message)    Chatty.SendMessageReply.new()  end  def fetch\\_messages(\\_request, \\_stream) do    messages = Chatty.ChatState.get\\_messages()    Chatty.FetchMessagesReply.new(messages: messages)  endendI��ve also added an Agent to hold the app state. Yeah, it should be a database, but as I already stated",
+            "start": 3776,
+            "end": 4080
+          },
+          {
+            "text": " it��s more like a message board, I��m going further and cast it to be a temporary message board. It also can be useful. Maybe in some kind of one shot game?elixirdefmodule Chatty.ChatState do  def start\\_link do    Agent.start\\_link(fn -> %\\{} end, name: \\_\\_MODULE\\_\\_)  end  def put\\_message(message",
+            "start": 4081,
+            "end": 4383
+          },
+          {
+            "text": " do    Agent.update(\\_\\_MODULE\\_\\_, \\&Map.put\\_new(&1, :os.system\\_time(:millisecond), message))  end  def get\\_messages() do    Agent.get(\\_\\_MODULE\\_\\_, &(&1)) |> Map.values  endendEarlier I mentioned about the module which will be a starting point of the application.",
+            "start": 4384,
+            "end": 4654
+          },
+          {
+            "text": "��s create it. The processes that have to be started are the server and the state Agent.elixirdefmodule ChattyApp do  use Application  def start(\\_type, \\_args) do    import Supervisor.Spec    children = \\[      supervisor(GRPC.Server.Supervisor, \\[\\{Chatty.ChatService.Server, 8080}]),      worker(Chatty.",
+            "start": 4655,
+            "end": 4961
+          },
+          {
+            "text": "State, \\[]),    ]    opts = \\[strategy: :one\\_for\\_one, name: ChattyApp]    Supervisor.start\\_link(children, opts)  endendThe last thing that should be done is enabling the server to start along with the application. To do that the following line should be added to the config/config.exs file:exs    config :grpc,",
+            "start": 4962,
+            "end": 5275
+          },
+          {
+            "text": "\\_server: trueOkay, having it all we can begin with testing. Let��s start \\*\\*chatty \\*\\*with:sh    $ iex -S mixAnd then connect to the server:sh    iex(1)> \\{:ok, channel} = GRPC.Stub.connect(\"localhost:8080\")Send some message:iex(2)> m = Chatty.ChatMessage.new",
+            "start": 5276,
+            "end": 5538
+          },
+          {
+            "text": "sender: \"Ola\", text: \"Hello\")iex(3)> r = Chatty.SendMessageRequest.new(chat\\_message: m)iex(4)> channel |> Chatty.ChatService.Stub.send\\_message(r)And fetch messages:    iex(5)> r = Chatty.FetchMessagesRequest.new()    iex(6)> channel |> Chat",
+            "start": 5539,
+            "end": 5781
+          },
+          {
+            "text": ".ChatService.Stub.fetch\\_messages(r)## Wrapping upThis article isn��t meant to be an exhaustive treatment of the when, why, and how to use gRPC in Elixir, but an minimal guide how to start playing with it and an encouragement for exploring the topic on your own. If you want to know more about gRPC I would suggest to look through official docs and if you��re interested in protobuf I would",
+            "start": 5782,
+            "end": 6172
+          },
+          {
+            "tokens": [
+              " checking",
+              " out",
+              " either",
+              " exp",
+              "rot",
+              "ob",
+              "uf",
+              " and",
+              " prot",
+              "ob",
+              "uf",
+              "-",
+              "el",
+              "ixir",
+              ".",
+              " You",
+              " can",
+              " also",
+              " checkout",
+              " the",
+              " repo",
+              " with",
+              " chat",
+              "ty",
+              " code",
+              "."
+            ],
+            "start": 6173,
+            "end": 6173,
+            "text": " checking out either exprotobuf and protobuf-elixir. You can also checkout the repo with chatty code."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Oh no, I have to add those stupid TypeScript types",
+      "path": "fighting-with-ts.mdx",
+      "content": {
+        "chunks": [
+          {
+            "tokens": [
+              "Further",
+              " reading",
+              "\\",
+              "*",
+              " There",
+              " are",
+              " many",
+              " benefits",
+              " of",
+              " designing",
+              " with",
+              " types",
+              ".",
+              " If",
+              " you",
+              " want",
+              " to",
+              " know",
+              " more",
+              " about",
+              " it",
+              ",",
+              " check",
+              " out",
+              " the",
+              " excellent",
+              " post",
+              " series",
+              " on",
+              " F",
+              "#",
+              " for",
+              " Fun",
+              " and",
+              " Profit",
+              ".",
+              "\\",
+              "*",
+              " Tests",
+              " or",
+              " Types",
+              ":",
+              " Why",
+              " Not",
+              " Both",
+              "?",
+              ".",
+              "\\",
+              "*",
+              " If",
+              " you",
+              "'re",
+              " new",
+              " to",
+              " Type",
+              "Script",
+              " and",
+              " want",
+              " to",
+              " learn",
+              " it",
+              ",",
+              " check",
+              " out",
+              " this",
+              " amazing",
+              " tutorial",
+              ":",
+              " Type",
+              "Script",
+              " Tutorial",
+              " for",
+              " JS",
+              " Program",
+              "mers",
+              " Who",
+              " Know",
+              " How",
+              " to",
+              " Build",
+              " a",
+              " T",
+              "odo",
+              " App",
+              "."
+            ],
+            "start": 0,
+            "end": 0,
+            "text": "Further reading\\* There are many benefits of designing with types. If you want to know more about it, check out the excellent post series on F# for Fun and Profit.\\* Tests or Types: Why Not Both?.\\* If you're new to TypeScript and want to learn it, check out this amazing tutorial: TypeScript Tutorial for JS Programmers Who Know How to Build a Todo App."
+          }
+        ]
+      }
+    },
+    {
+      "title": "It's okay to leave your side projects unfinished",
+      "path": "finishing-side-projects.mdx",
+      "content": {
+        "chunks": [
+          {
+            "tokens": [
+              "It",
+              " may",
+              " sound",
+              " a",
+              " bit",
+              " sad",
+              " but",
+              " our",
+              " days",
+              " are",
+              " limited",
+              " and",
+              " we",
+              " should",
+              " spend",
+              " our",
+              " free",
+              " time",
+              " in",
+              " the",
+              " best",
+              " way",
+              " we",
+              " can",
+              ".",
+              " Fin",
+              "ishing",
+              " all",
+              " of",
+              " your",
+              " side",
+              " projects",
+              " may",
+              " not",
+              " always",
+              " be",
+              " it",
+              ".",
+              "Take",
+              "aways",
+              ":-",
+              " Pra",
+              "ise",
+              " what",
+              " you",
+              " already",
+              " learned",
+              ".-",
+              " Don",
+              "'t",
+              " look",
+              " at",
+              " your",
+              " abandoned",
+              " side",
+              " project",
+              " as",
+              " a",
+              " failure",
+              ",",
+              " but",
+              " notice",
+              " all",
+              " the",
+              " things",
+              " you",
+              " accomplished",
+              " along",
+              " the",
+              " way",
+              ".-",
+              " Did",
+              " you",
+              " have",
+              " fun",
+              "?",
+              " Or",
+              " did",
+              " you",
+              " grow",
+              " as",
+              " a",
+              " developer",
+              "?",
+              " If",
+              " you",
+              " got",
+              " something",
+              " out",
+              " of",
+              " it",
+              ",",
+              " then",
+              " it",
+              "'s",
+              " a",
+              " victory",
+              "!"
+            ],
+            "start": 0,
+            "end": 0,
+            "text": "It may sound a bit sad but our days are limited and we should spend our free time in the best way we can. Finishing all of your side projects may not always be it.Takeaways:- Praise what you already learned.- Don't look at your abandoned side project as a failure, but notice all the things you accomplished along the way.- Did you have fun? Or did you grow as a developer? If you got something out of it, then it's a victory!"
+          }
+        ]
+      }
+    },
+    {
+      "title": "8-step guide on how to contribute to open-source",
+      "path": "hacktoberfest.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "Find a project you have no idea about and never used before. You can use GitHub explorer for that: https://github.com/explore. No commits in five years? Not a problem. They might have been waiting for you this whole time.2. Do you see open issues? They��re for the weak. You��re creative and gonna fix issues they didn��t even know they had. Better yet, if you create a problem and then fix the problem,",
+            "start": 0,
+            "end": 403
+          },
+          {
+            "text": "��s two PRs. Gotta be smart if you want this free t-shirt.3. Time to start working on a PR. You have two options:  - Fork the project and run it locally. There��s probably a README or CONTRIBUTING guide with instructions, but you can also ping maintainers in every communication channel possible. They use Discord? Great! Open it and write ��I DON��T KNOW HOW TO RUN YOUR PROJECT�",
+            "start": 404,
+            "end": 784
+          },
+          {
+            "text": ". Make sure to copy paste your message to every channel possible. If no one replies in three minutes, mention the maintainers on Twitter. Now, you probably think ��what if they don��t have Twitter��. Use email, post in other issues on GitHub. Or create a new issue! If nothing helps, proceed to the option below:  - Don��t fork the project and make changes directly from GitHub. Why should you care if your changes work or not?",
+            "start": 785,
+            "end": 1212
+          },
+          {
+            "text": "��re not the maintainer, they��ll fix after you.4. Make your changes. You don��t have ideas what to do? What about changing I��m to I am or replacing words with synonyms? Or removing todo comments from the code. If you remove a to do item, it��s done, right? You can also add some typos, because our brains work this way that we don��t raelly relasie",
+            "start": 1213,
+            "end": 1563
+          },
+          {
+            "text": "aht a wrod has a typo. 5. Create a PR. Here��s an official guide on how to do it. That��s a lot of reading so you can ping maintainers again and ask for help.6. Now that your PR is there, time to make some noise. Go to Discord, Slack, or whatever they use, and post a link to your PR in every channel. You don��t have to add any context, your time is precious",
+            "start": 1564,
+            "end": 1923
+          },
+          {
+            "text": " they will guess what you need. If you don��t get a review in two hours, ping everyone again. Make sure to use @everyone or @here for better chances of success. Then wait.7. I��m kidding, there��s no time to wait. Use the power of social network. Twitter, email, GitHub, Discord, Slack, LinkedIN, Facebook, Instagram. Can you already smell this fresh new t-shirt?8. Now, we",
+            "start": 1924,
+            "end": 2297
+          },
+          {
+            "text": " a few options:  - If more than five hours passed and your PR still hasn��t been reviewed and merged, you have every right to feel offended. Go to GitHub, open your PR, write a comment that THIS IS UNACCEPTABLE and close it. Go to step number one and start again.  - In case your PR was reviewed but wasn��t accepted, you can write the same message, close the project and never think about it again. Then you go",
+            "start": 2298,
+            "end": 2709
+          },
+          {
+            "tokens": [
+              " step",
+              " number",
+              " one",
+              " to",
+              " give",
+              " my",
+              " guide",
+              " one",
+              " more",
+              " chance",
+              ".",
+              " (",
+              "Actually",
+              " you",
+              " need",
+              " to",
+              " do",
+              " it",
+              " more",
+              " than",
+              " once",
+              " to",
+              " get",
+              " a",
+              " T",
+              "-",
+              "Sh",
+              "irt",
+              ").",
+              " ",
+              " -",
+              " If",
+              " someone",
+              " was",
+              " smart",
+              " enough",
+              " to",
+              " appreciate",
+              " your",
+              " work",
+              ",",
+              " you",
+              " can",
+              " go",
+              " to",
+              " point",
+              " number",
+              " one",
+              " and",
+              " start",
+              " the",
+              " process",
+              " again",
+              ".",
+              " Three",
+              " more",
+              " times",
+              " to",
+              " go",
+              "!",
+              " Or",
+              " just",
+              " one",
+              " if",
+              " you",
+              " used",
+              " create",
+              " problem",
+              "/",
+              "s",
+              "olve",
+              " problem",
+              " idea",
+              " suggested",
+              " in",
+              " the",
+              " second",
+              " step",
+              "./",
+              "s"
+            ],
+            "start": 2710,
+            "end": 2710,
+            "text": " step number one to give my guide one more chance. (Actually you need to do it more than once to get a T-Shirt).  - If someone was smart enough to appreciate your work, you can go to point number one and start the process again. Three more times to go! Or just one if you used create problem/solve problem idea suggested in the second step./s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Today I learned: Hyphen is a delimiter",
+      "path": "hyphen.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "It��s going to be a short and brief note about one nonobvious (at least for me) full-text search related thing in MySQL. So, starting with some prerequirements, imagine that you have a database containing some users data. It will at least contain a name and a surname. It��s MySQL database and you have fulltext index on the surname column. It��s of course filled with tons of users. In many cases, these users have a",
+            "start": 0,
+            "end": 417
+          },
+          {
+            "text": "-barrelled surname. Now let��s say that you have to find all the people with the surname Jones-Smith. You want to use Natural Language Mode (the default one) since in Boolean Mode + and - are special characters that tell if the word has to be present or absent in the text.sqlSELECT    \\*FROM    usersWHERE    MATCH(surename) AGAINST (\"Jones-Smith\");And.. you got all your",
+            "start": 418,
+            "end": 790
+          },
+          {
+            "text": ". Great. But you also got hundreds of rows with people with surnames like Jones, Smith, Williams-Smith, Smith-Brown, Wilson-Jones, Jones-Jones, Smith-Doe, etc. Kind of awkward, isn��t it?When MySQL creates an index for some column it uses a very simple parser to split the text into words. And hyphen is one of the delimiters. That��s a bit of an oversimplification, but it works",
+            "start": 791,
+            "end": 1170
+          },
+          {
+            "text": " like this: check if Jones or Smith appear in the surname column. Notice the or operator. You can think of this indexed surname column as of rows of arrays filled with words extracted from the original surname. So for sure, the result will be positive for each row containing either Jones or Smith. Or both.What is also important is the fact that by default the minimum word length, that is extracted from text and is matched in the query is 3. It is specified by ft\\_min\\",
+            "start": 1171,
+            "end": 1643
+          },
+          {
+            "text": "word\\_len in mysqld. So if you have a surname like Jo-Do it won��t be matched with neither Jo-Do, Jo nor Do.## WorkaroundsLet��s say that you really need to extract all the Jones-Smiths from your database and you cannot have anyone else in your result set. It would be a good thing to be able to treat hyphen as a word character. And it can be achieved in the following ways:- With",
+            "start": 1644,
+            "end": 2025
+          },
+          {
+            "text": " source modification by adding a hyphen to one of the true\\_word\\_char() or misc\\_word\\_char() macros. And recompiling MySQL.> Recompiling? I don��t like it.- By modifying a character set file. The true\\_word\\_char() macro uses a character type table to distinguish between letters and other characters. You can edit the contents of the \\<ctype>\\<map> array in one of the character set",
+            "start": 2026,
+            "end": 2411
+          },
+          {
+            "text": " files to specify that hyphen is a letter. See the docs.> Kind of better.- By adding a new collation for the character set used by the indexed columns, and alter the columns to use that collation. See the docs.Sounds much better. But there comes my favorite h̶a̶c̶k̶ workaround:- Wrap your string in additional quotation marks. ���## Bug or feature?I cannot say if it��s a bug or a feature. In the",
+            "start": 2412,
+            "end": 2809
+          },
+          {
+            "tokens": [
+              " above",
+              " this",
+              " MySQL",
+              " behavior",
+              " is",
+              " obviously",
+              " a",
+              " bug",
+              ".",
+              " And",
+              " in",
+              " many",
+              " other",
+              " cases",
+              ",",
+              " it",
+              "�",
+              "�",
+              "s",
+              " also",
+              " going",
+              " to",
+              " look",
+              " like",
+              " a",
+              " bug",
+              ".",
+              " But",
+              " there",
+              "�",
+              "�",
+              "re",
+              " often",
+              " hyp",
+              "hens",
+              " between",
+              " words",
+              " in",
+              " many",
+              " texts",
+              " —",
+              " I",
+              " personally",
+              " tend",
+              " to",
+              " write",
+              " this",
+              " way",
+              ",",
+              " without",
+              " any",
+              " additional",
+              " delim",
+              "it",
+              "ers",
+              " —",
+              " so",
+              " I",
+              " guess",
+              " I",
+              " kind",
+              " of",
+              " see",
+              " the",
+              " use",
+              " case",
+              " in",
+              " treating",
+              " hyp",
+              "hen",
+              " as",
+              " a",
+              " delim",
+              "iter",
+              "."
+            ],
+            "start": 2810,
+            "end": 2810,
+            "text": " above this MySQL behavior is obviously a bug. And in many other cases, it��s also going to look like a bug. But there��re often hyphens between words in many texts — I personally tend to write this way, without any additional delimiters — so I guess I kind of see the use case in treating hyphen as a delimiter."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Developers job is not about writing code",
+      "path": "jira-to-javascript.mdx",
+      "content": {
+        "chunks": [
+          {
+            "tokens": [
+              "Further",
+              " reading",
+              "-",
+              " Become",
+              " a",
+              " +",
+              "10",
+              "%",
+              " engineer",
+              " by",
+              " Tomas",
+              "z",
+              " �",
+              "�",
+              "ak",
+              "omy"
+            ],
+            "start": 0,
+            "end": 0,
+            "text": "Further reading- Become a +10% engineer by Tomasz ��akomy"
+          }
+        ]
+      }
+    },
+    {
+      "title": "WTF JavaScript Quiz — explanations",
+      "path": "js-quiz.mdx",
+      "content": {
+        "chunks": [
+          {
+            "tokens": [
+              "Please",
+              " correct",
+              " me",
+              " if",
+              " I",
+              " got",
+              " something",
+              " wrong",
+              "!"
+            ],
+            "start": 0,
+            "end": 0,
+            "text": "Please correct me if I got something wrong!"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Sending Magic Links with Nodejs",
+      "path": "magic-links.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "The most popular method of logging in to an application is by providing a username and a password, but that may come with some cons for users. Even though there are many password managers it takes time to use them. Not much but still. And not everyone uses them. Some apps have frustrating and complex password rules, so coming up with a new password may be a tough task. The passwordless system makes quite a good alternative to the common login and password authentication. It is used by, among others",
+            "start": 0,
+            "end": 503
+          },
+          {
+            "text": " Slack and FramerX as a magic link that is sent to the user to enable his authentication in the app. The flow in a passwordless system goes that way:1. The user visits the app, where is a form for an email address1. The user provides an email address and clicks some confirm button1. The magic login link is sent to the user email1. User clicks the link and is redirected to the app, already logged inAnd after that, the magic link is no",
+            "start": 504,
+            "end": 941
+          },
+          {
+            "text": " valid.Steps below will cover some basic setup for implementing passwordless flow in NodeJS.### Create an express appFirst, we need to create a simple express app and add some endpoints. The code below is a setup for an express server with helpers for parsing incoming request, logging and enabling cors. We need to add two routes that later on we attach handlers to. They are /login and /account . The first one will be responsible for sending magic links to users and the second",
+            "start": 942,
+            "end": 1422
+          },
+          {
+            "text": " for authenticating the users.server.ts### Setup nodemailerWe��ll be using nodemailer for sending emails, but first, we need to setup it. There are some things needed: email address, email password, SMTP server host and SMTP server port. We also need some email template that we��ll be sending to the users along with the magic link. The template may be a simple string or a html snippet.### Generate tokensFor this, we",
+            "start": 1423,
+            "end": 1842
+          },
+          {
+            "text": "�ll be using jsonwebtoken package that will basically do everything for us. Our token will consist of just two properties: email and expiration time.token.ts### Sending an emailNow we need to add a login handler where we first validate a request to check if it contains a user email, then we generate a new token for this particular user and finally use transporter that was set up above to send an email.### User authenticationHaving logged user we need to authorize his/her requests to our",
+            "start": 1843,
+            "end": 2334
+          },
+          {
+            "text": ". What exactly we need to do is:1. Check if there is authorization header in the request1. Verify if the authorization header is a bearer token1. Try to decode this token1. Check if the token has all the required fields, which in our case are: email and expiration1. Compare expiration date and time to the current to assure that token hasn��t expired1. Finally, verify if there exists a user with the email as extracted from the token### ConclusionI�",
+            "start": 2335,
+            "end": 2786
+          },
+          {
+            "text": "ve presented basic setup for passwordless login on top of the normal auth flow. The biggest benefit I see is the fact that if users can get into some product faster and easier, they��ll be more satisfied.On the other hand, even that it may be easier to get into a product than in the standard login password systems, it may be harder to come back to it. Every time the user wants to log in, he needs to wait for an email, check an inbox and click",
+            "start": 2787,
+            "end": 3233
+          },
+          {
+            "tokens": [
+              " link",
+              ".",
+              " It",
+              " may",
+              " become",
+              " frustrating",
+              ",",
+              " so",
+              " if",
+              " there",
+              " are",
+              " short",
+              " session",
+              " timeout",
+              " periods",
+              " or",
+              " the",
+              " app",
+              " expects",
+              " users",
+              " to",
+              " log",
+              " in",
+              " frequently",
+              " the",
+              " password",
+              "less",
+              " flow",
+              " may",
+              " not",
+              " be",
+              " the",
+              " best",
+              " choice",
+              "."
+            ],
+            "start": 3234,
+            "end": 3234,
+            "text": " link. It may become frustrating, so if there are short session timeout periods or the app expects users to log in frequently the passwordless flow may not be the best choice."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Dealing with MySQL nulls and unique constraint",
+      "path": "mysql-nulls.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "What��s the problem?If you have a database system with soft deletes and unique indexes you might have faced some problems. Imagine that a user deleted some record and wants to add another one with the same unique value. He can��t do that since unique constraint would be violated. As a developer, you may understand what just happened, but let��s picture a frustrated user that wants to add another contact to his address book, but an app keeps telling him that it already",
+            "start": 0,
+            "end": 472
+          },
+          {
+            "text": ". It would be kind of:<div style=\"text-align: center; max-width: 100%;\">    <img alt=\"Weird\" src=\"https://media.giphy.com/media/b3ETeleegHXG0/giphy.gif\" style=\"max-width: 100%\" /></div>Unique constraints are important. I hope it��s obvious. You don��t want to check if some record",
+            "start": 473,
+            "end": 753
+          },
+          {
+            "text": " every time a user adds something through your app. Firstly making two queries instead of one sounds like a bad idea, secondly, let��s allow the database to do its job. Not to mention that you can face some problems with asynchronous processes that would want to insert the same record at the same time.## How to solve the problem?Let��s say you have some database table consisting of articles. And there can be only one article with a given name, so you have a unique",
+            "start": 754,
+            "end": 1222
+          },
+          {
+            "text": " on articles.name and because of reasons you don��t want to do hard deletes. What you want is to have soft deletes to keep all the data in the database and a user that is only supposed to see non-deleted articles and that is allowed to add another one with the same name as an article that was already deleted. In other words, you don��t care about the unique index for deleted records — you can have as many as possible deleted articles with the",
+            "start": 1223,
+            "end": 1669
+          },
+          {
+            "text": " name. But you do care that unique constraint should not be violated for not deleted ones.### Some intuitive solutionThe first solution that would come to my mind is to add a deleted\\_at column with type TIMESTAMP and extend a constraint to (name, deleted\\_at). Let��s try it!sql    ALTER TABLE articles        ADD deleted\\_at TIMESTAMP NULL DEFAULT NULL,       ",
+            "start": 1670,
+            "end": 2032
+          },
+          {
+            "text": "OP INDEX name,        ADD CONSTRAINT UNIQUE (name, deleted\\_at);And then let��s try to add a record and then soft delete it:sql    INSERT INTO articles (id, name, author, text)        VALUES (\"How to finish university?\", \"Jon Doe\", \"\");    UPDATE articles SET deleted\\_at = now() WHERE name = \"",
+            "start": 2033,
+            "end": 2327
+          },
+          {
+            "text": " to finish university?\";Great! Worked. Let��s see if I can add the same record again.I can! Actually, I can do it many times. Inserting the same article again and again. Oops ��� The unique constraint doesn't work anymore.Why is that? It��s because for all not deleted articles we have a unique constraint on (\\<name>, NULL) and for MySQL every null is unique. With this solution we can, in fact,",
+            "start": 2328,
+            "end": 2724
+          },
+          {
+            "text": " many items with the same unique key soft deleted but we also end up with our main goal of having articles names unique not working. Too bad.To deal with this problem I have three working solutions.### Solution #1In the first solution I��m going to add a new column similar as earlier but this time I will store the time of deletion in Unix format. So that with a unique constraint on (name, deleted\\_at\\_unix) I��m allowed to",
+            "start": 2725,
+            "end": 3151
+          },
+          {
+            "text": " have unique articles names since all not deleted record would have the column deleted\\_at\\_unix set to 0 and (\\<name>, 0) is a unique value.sql    ALTER TABLE articles        ADD deleted\\_at\\_unix int (10) DEFAULT 0;    ALTER TABLE articles        DROP INDEX name,        ADD CONSTRAINT",
+            "start": 3152,
+            "end": 3439
+          },
+          {
+            "text": "IQUE (name, deleted\\_at\\_unix);So, every time I want to soft-delete an item I set \\_delete\\_at\\_unix\\_ as current Unix time.### Solution #2Now I��m going back to my not working solution and I��ll try to fix it. I��ll use \\_TIMESTAMP\\_ for a \\_deleted\\_at\\_ column again but then I",
+            "start": 3440,
+            "end": 3720
+          },
+          {
+            "text": "�ll add some magic. Be cautious.\\`\\`\\`sql    ALTER TABLE articles        ADD COLUMN deleted\\_at TIMESTAMP NULL DEFAULT NULL,        DROP INDEX name;\\`\\`\\`The difference is that I won��t create a unique constraint on (name, deleted\\_at)as previously but I��ll add yet another column. It",
+            "start": 3721,
+            "end": 4006
+          },
+          {
+            "text": "�ll be a virtual column with value either \\*\\*NULL\\*\\* in case if the article was deleted or \\*\\*1\\*\\* if not.\\`\\`\\`sql    ALTER TABLE articles        ADD not\\_archived int (1) GENERATED ALWAYS AS (IF(deleted\\_at IS NULL,  1, NULL)) VIRTUAL;\\`\\`\\`",
+            "start": 4007,
+            "end": 4254
+          },
+          {
+            "text": " the unique constraint will be for(name, not\\_archived)\\`:sql    ALTER TABLE articles        ADD CONSTRAINT UNIQUE (name, not\\_archived);Similar as in the 0# solution (not working one) to delete a record I need to fill deleted\\_at column with the current timestamp.### Solution #3The third solution is kind of similar to the second but now I think about each record",
+            "start": 4255,
+            "end": 4620
+          },
+          {
+            "text": " it can be in two states — active or not.sql    ALTER TABLE articles        ADD COLUMN active BIT NULL DEFAULT 1,        ADD CONSTRAINT UNIQUE (name, active);In this case, all not deleted articles would have active column set to 1. But, deleted ones won��t be set to 0. In order to soft delete a record, I need to set active column",
+            "start": 4621,
+            "end": 4952
+          },
+          {
+            "tokens": [
+              " NULL",
+              ".",
+              " Thanks",
+              " to",
+              " this",
+              " and",
+              " due",
+              " to",
+              " the",
+              " fact",
+              " that",
+              " null",
+              "s",
+              " are",
+              " unique",
+              " in",
+              " MySQL",
+              " I",
+              " will",
+              " be",
+              " able",
+              " to",
+              " have",
+              " many",
+              " deleted",
+              " articles",
+              " with",
+              " the",
+              " same",
+              " name",
+              ".",
+              "##",
+              " Wra",
+              "pping",
+              " up",
+              "If",
+              " I",
+              " was",
+              " about",
+              " to",
+              " choose",
+              " one",
+              " of",
+              " these",
+              " solutions",
+              " I",
+              "�",
+              "�",
+              "d",
+              " say",
+              " I",
+              " prefer",
+              " the",
+              " #",
+              "1",
+              " solution",
+              " (",
+              "with",
+              " Unix",
+              " time",
+              ")",
+              " the",
+              " most",
+              ".",
+              " But",
+              " I",
+              " guess",
+              " it",
+              "�",
+              "�",
+              "s",
+              " good",
+              " to",
+              " have",
+              " some",
+              " alternatives",
+              ",",
+              " be",
+              " able",
+              " to",
+              " compare",
+              " them",
+              " and",
+              " choose",
+              " the",
+              " one",
+              " that",
+              " fits",
+              " the",
+              " most",
+              " to",
+              " your",
+              " system",
+              "."
+            ],
+            "start": 4953,
+            "end": 4953,
+            "text": " NULL. Thanks to this and due to the fact that nulls are unique in MySQL I will be able to have many deleted articles with the same name.## Wrapping upIf I was about to choose one of these solutions I��d say I prefer the #1 solution (with Unix time) the most. But I guess it��s good to have some alternatives, be able to compare them and choose the one that fits the most to your system."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Brief normal forms explanation with Haskell",
+      "path": "normal-forms.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "Before we start to befriending normal forms, there are some basic terms I��d like to briefly introduce.### Reduced Normal FormWe��re going to start with my favourite. Why is that my best one? Because of its tricky definition. Stay focus.> Expression A has r-nf if there exists term B obtained from A that is in r-nf and B is in rn-f where there��s no term A such A can be obtained from B",
+            "start": 0,
+            "end": 387
+          },
+          {
+            "text": " A has r-nf.Take your time reading it couples of times. I took me a while to see the difference between having and being when I read about it in the internet.So, what does it mean exactly? Consider some expression A, which has an r-nf. It means than A can be transformed using reduction rules to another expression B, such that it cannot be transformed further in any way — there��s no possible reduction for the term B. In other words",
+            "start": 388,
+            "end": 823
+          },
+          {
+            "text": " is reduction-free. Let��s look at the example below:f = \\x -> (\\y -> y) xThe above term has r-nf, because it can be transform using beta-reduction to the following one:    f = \\x -> xwhich on the other hand cannot be reduced in any way, which means it��s in r-nf.### (Head) Normal FormYou can think of the hnf as of",
+            "start": 824,
+            "end": 1140
+          },
+          {
+            "text": " simplest form of the particular expression. The head normal form (or just normal form) is the same as reduced normal form. In other words — it has no thunks inside.> An expression in normal form is fully evaluated, and no sub-expression could be evaluated any further.For example these expressions are all in normal form:    7    1:2:\\[]    \\x -> (x + 1)In general Haskell makes no use of head normal form",
+            "start": 1141,
+            "end": 1547
+          },
+          {
+            "text": " because of its laziness. But HNF can be obtained with some poking around inside the function bodies. In haskell prelude there��s function seq that introduces some strictness to a Haskell program. seq:: a ->b -> b takes two arguments of any type, and returns the second. However, it also evaluates the outermost part of the first one. But all sub-expressions stay as they were, so there��s no certainty in obtaining a normal form. That",
+            "start": 1548,
+            "end": 1983
+          },
+          {
+            "text": "�s where deepseq comes in handy. This package provides methods for fully evaluating data structures (deep evaluation) and is the way to bring full strictness to the program.### Weak Head Normal FormFirst, let��s look at some examples of the expressions that are in weak normal form (WHNF).    (1 + 1, 1 + 2)    'h' : (\"e\" ++ \"llo\")    \\x -> 2 + 2In the",
+            "start": 1984,
+            "end": 2336
+          },
+          {
+            "text": " two examples the outermost part (the head) is data constructor and in the last one the head is a lambda abstraction. And it��s the gist of WHNF.> An expression is in weak head normal form when the outermost part has been evaluated to the data constructor or lambda abstraction. Sub-expressions may not have been evaluated. If all the sub-expressions would be evaluated then the expression would be in normal form. The conclusion is: every normal form expression is also",
+            "start": 2337,
+            "end": 2807
+          },
+          {
+            "text": " weak normal form. The opposite is not always the true.To determine whether an expression is in weak head normal form, we only have to look at the outermost part of the expression. For example these expressions are not in weak head normal form:    1 + 2    (\\x -> x + 1) 2The first expression is an application of (+) and the second is a function a function application.In head normal form part of this article I wrote that normal form",
+            "start": 2808,
+            "end": 3243
+          },
+          {
+            "text": " have no thunks inside. In weak head normal form thunks are admissible unless they aren��t in the outermost part of the expression.### Beta Normal Form> An expression is in beta normal form when no beta reductions can be applied.It means that every function application were properly evaluated and there��s nothing to reduce.For example, suppose we apply the following function to some value:    (\\x -> x + y) 7To get the result, we",
+            "start": 3244,
+            "end": 3676
+          },
+          {
+            "tokens": [
+              " to",
+              " substitute",
+              " 7",
+              " for",
+              " every",
+              " occurrence",
+              " of",
+              " x",
+              ",",
+              " and",
+              " so",
+              " the",
+              " application",
+              " of",
+              " the",
+              " function",
+              " is",
+              " reduced",
+              " to",
+              " the",
+              " result",
+              " that",
+              " is",
+              " in",
+              " beta",
+              " normal",
+              " form",
+              ":",
+              " ",
+              " ",
+              " ",
+              " 7",
+              " +",
+              " y"
+            ],
+            "start": 3677,
+            "end": 3677,
+            "text": " to substitute 7 for every occurrence of x, and so the application of the function is reduced to the result that is in beta normal form:    7 + y"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Deploying OCaml server on Heroku",
+      "path": "ocaml-heroku.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "After some serious Google searches on that topic I decided to gather all the information I found in one place. This quick tutorial will cover how to write OCaml server and how to deploy it on Heroku.### Create Heroku appIf you haven��t already, sign up for a Heroku account here. Then, install Heroku��s CLI tool via the instructions here. And then, let��s create our Heroku app:    heroku create magnetic-",
+            "start": 0,
+            "end": 406
+          },
+          {
+            "text": "-kangarooYou can come up with some other fancy name, if not here��s a helper.You just got a fresh url to the app and you can see a temporary Heroku landing page after you head to the url.### Create OCaml serverThe code below is the proof of concept of how the OCaml server should look like.ocamlopen Lwtopen Cohttpopen Cohttp\\_lwt\\_unixlet server =  let callback",
+            "start": 407,
+            "end": 769
+          },
+          {
+            "text": "_conn req body =    body |> Cohttp\\_lwt.Body.to\\_string >|= (fun body ->    Printf.sprintf \"Hello! %s\" body)    >>= (fun body ->Server.respond\\_string ~status:\\`OK ~body ())  in  Server.create ~mode:(\\`TCP (\\`Port 8000)) (Server.make ~callback ())let () = ignore",
+            "start": 770,
+            "end": 1032
+          },
+          {
+            "text": "Lwt\\_main.run server)We��re using:- Cohttp — an OCaml library for HTTP clients and servers.- Lwt — helper for handling IO operations- Cohttp lwt unix — HTTP client and server using the Lwt\\_unix interfacesAnd can compile it and start the server with:    ocamlbuild -pkg cohttp-lwt-unix main.native    ./main.nativeCohttp lwt",
+            "start": 1033,
+            "end": 1357
+          },
+          {
+            "text": "ix package requires OCaml version ≥ 4.03 but you can easily switch between versions with opam switch version . To list all avaliable compilers you can type opam switch list --all .But.. since Heroku is using Linux it��s not going to work if you compiled you code on another operating system. And since I��m not aware of any OCaml cross-compilers when target platform is Linux, I recommend using Vagrant or Docker for compiling O",
+            "start": 1358,
+            "end": 1786
+          },
+          {
+            "text": "l server in order to not spend all night doing it as I just did.### Deploy on HerokuOne way of deploying app on Heroku is to push to a remote repository. But in our case it will fail as Heroku will try to detect what kind of project this is and it found out that OCaml isn��t any of the default languages. For other languages, ex. Ruby it would look for a Gemfile and then invokes the correct buildpack, a script",
+            "start": 1787,
+            "end": 2199
+          },
+          {
+            "text": " installs the dependencies and can take extra steps, like preprocess some code and so on. In case of OCaml we will generate a binary and deploy it, using null buildpack , which means that the only thing Heroku would have to do after it receives an executable file will be running it.    heroku buildpacks:set http://github.com/ryandotsmith/null-buildpack.git --app magnetic-mad-kangarooThe last step is",
+            "start": 2200,
+            "end": 2602
+          },
+          {
+            "text": " build and deploy our app on Heroku with heroku-builds.To install it we have to type:    heroku plugins:install heroku-buildsWe also need to create Procfile so that Heroku will know what it has to run.    web: ./main.nativeAnd finally we can deploy our app:    heroku builds:create --app magnetic-mad-kangarooThen we can make some test to confirm it works:",
+            "start": 2603,
+            "end": 2959
+          },
+          {
+            "tokens": [
+              " ",
+              " ",
+              " curl",
+              " -",
+              "X",
+              " GET",
+              " https",
+              "://",
+              "mag",
+              "netic",
+              "-",
+              "mad",
+              "-",
+              "k",
+              "ang",
+              "aroo",
+              ".",
+              "hero",
+              "ku",
+              "app",
+              ".",
+              "com",
+              "/",
+              "If",
+              " you",
+              " come",
+              " across",
+              " any",
+              " issues",
+              ",",
+              " you",
+              " can",
+              " always",
+              " run",
+              " hero",
+              "ku",
+              " logs",
+              " to",
+              " troubles",
+              "h",
+              "oot",
+              "."
+            ],
+            "start": 2960,
+            "end": 2960,
+            "text": "   curl -X GET https://magnetic-mad-kangaroo.herokuapp.com/If you come across any issues, you can always run heroku logs to troubleshoot."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Few words about ORMs",
+      "path": "orms.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "In my first job as a programmer, I've been using ORMs quite a lot. And as for the junior, having no idea about developing real-life web apps it was kinda cool. I accidentally found myself in python team even though I didn't know python. Or Django. Moreover, there was really old codebase so it was quite hard to grow into the job. But the tasks were coming. And with ORM things were more doable. For most of the time, I was",
+            "start": 0,
+            "end": 423
+          },
+          {
+            "text": " I have no idea what I'm doing. However, I was able to accomplish my work, get some positive feedback and gain reliance and respect from the team. Again, no idea how. There was so much magic I didn't understand at that point in our database models and what ORM does with them.Sometime later I was moved to the Elixir team where I was supposed to be from the beginning. We were using Ecto. That was cool. Being able to write queries with tons",
+            "start": 424,
+            "end": 865
+          },
+          {
+            "text": " pipe operators. I had fun.Having said that I ought to say that I'm not actually a fan of ORMs. Here go some of my thoughts. There are some appreciating ORMs, though.### #1 Each ORM is differentYou may be an expert when it comes to a particular ORM. But then you may change a project to some that use another one or doesn't use ORM at all. You're starting from scratch.<div style=\"text-align: center",
+            "start": 866,
+            "end": 1265
+          },
+          {
+            "text": " max-width: 100%;\">    <img alt=\"You know nothing gif\" src=\"https://media.giphy.com/media/NCTbhL8AG2s8g/giphy.gif\" style=\"max-width: 100%\" /></div>ORMs may be great, fast, have a small learning curve. However, I don't believe there are ORMs that are easy to learn and to be mastered. Anyways. OR",
+            "start": 1266,
+            "end": 1561
+          },
+          {
+            "text": " are so different. Even when it comes to the same platform. Take a look at the following code snippets. These are Sequelize and TypeORM. Both made for NodeJS.ts// TypeORM@Entity(\"users\")export class Users \\{  @PrimaryGeneratedColumn(\\{    type: \"int\",    name: \"id\",  })  id: number;  @Column(\"varchar\", \\{    nullable:",
+            "start": 1562,
+            "end": 1881
+          },
+          {
+            "text": ",    length: 50,    name: \"name\",  })  name: string | null;}\\`\\`\\`\\`\\`\\`ts// Sequelizeexport const Users = sequelize.define(  \"users\",  \\{    id: \\{      type: DataTypes.INTEGER(11),      allowNull: false,      primaryKey: true",
+            "start": 1882,
+            "end": 2109
+          },
+          {
+            "text": "      autoIncrement: true,    },    name: \\{      type: DataTypes.STRING(50),      allowNull: true,    },  },  \\{    tableName: \"users\",  });The most significant advantage of SQL over ORMs is that once you learn it you can use that knowledge in any SQL dialect. It may differ a little between database systems",
+            "start": 2110,
+            "end": 2419
+          },
+          {
+            "text": " but those are not huge differences.### #2 It may be easier to switch to another database engineLet��s be honest — that doesn��t happen often. But when it does, ORMs may be handy. Even if it won��t be like on the picture below it still may be quite easier than doing so without using ORM. Surely there will be less refactoring.<div style=\"text-align: center\"><img alt=\"Switch databases\" src=\"https",
+            "start": 2420,
+            "end": 2817
+          },
+          {
+            "text": "cdn-images-1.medium.com/max/2000/1*wdLeXbFP75W_zQ_jpr_trg.png\" style=\"width: 400px; max-width: 100%\" /></div>### #3 ORMs are not reliableThey simply can��t do everything. I remember putting fragments of raw SQL into Ecto query just because I wasn��t able to achieve something. So.. no matter of using OR",
+            "start": 2818,
+            "end": 3121
+          },
+          {
+            "text": " you still need to learn SQL. Turns out there��s no escape from it.### #4 ORMs speed up developmentWith them, developers don��t have to write repetitive SQL queries, wrappers and so on. A lot of boilerplate can be eliminated.### #5 ORMs slow down developmentYep. That also can be true. All depends on the developers' experience, size of the project and ORM itself. When I��m working with databases and I need",
+            "start": 3122,
+            "end": 3530
+          },
+          {
+            "text": " write some more complicated query, I first try to test it in the console. When I have all the edge cases tested I use it in the project. It saves me time since debugging a query through the application is far more complex. And with ORM debugging is not so easy anymore. I need to test it via application then read the logs to find the generated query and check what went wrong.### #6 Shield for SQL injection attacksThat��s semi-true. Yes, by not",
+            "start": 3531,
+            "end": 3978
+          },
+          {
+            "text": " anything directly to query ORMs do reduce chances of SQL injections but that��s nothing you can��t achieve with raw SQL. Furthermore, if you put plain SQL into ORM queries that��s not the case for ORMs anymore.## Wrapping upRecently I tried to use both TypeORM and Sequelize since they are trending in NodeJS world right now. The learning curve was huge. As I mentioned before with TypeORM I accidentally dropped the database. I",
+            "start": 3979,
+            "end": 4408
+          },
+          {
+            "tokens": [
+              " some",
+              " bugs",
+              " in",
+              " database",
+              " models",
+              " definitions",
+              ".",
+              " But",
+              " once",
+              " I",
+              " learned",
+              " my",
+              " faults",
+              " and",
+              " dig",
+              " deeper",
+              " into",
+              " it",
+              " I",
+              " did",
+              " find",
+              " some",
+              " virtues",
+              ".",
+              " Not",
+              " enough",
+              " to",
+              " give",
+              " up",
+              " on",
+              " SQL",
+              ",",
+              " though",
+              ".",
+              " I",
+              " still",
+              " prefer",
+              " writing",
+              " these",
+              " raw",
+              " SQL",
+              " queries",
+              ".",
+              " Like",
+              " a",
+              " dinosaur",
+              "."
+            ],
+            "start": 4409,
+            "end": 4409,
+            "text": " some bugs in database models definitions. But once I learned my faults and dig deeper into it I did find some virtues. Not enough to give up on SQL, though. I still prefer writing these raw SQL queries. Like a dinosaur."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Parsing JSON with OCaml",
+      "path": "parsing-json-with-ocaml.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "In this article, I��m going to share a little bit of knowledge introducing a brief example of parsing data in OCaml using ocamllex and menhir in a step-by-step tutorial. For those opting to use the repository, you can get it here.First of all, let me explain it in two words what actually is that parsing thing.We��re gonna learn a little bit more about parsing and grammars further. Let��s go",
+            "start": 0,
+            "end": 393
+          },
+          {
+            "text": "## Project setupIt may kind of tone down your enthusiasm, but we have to do some less exhilarating things. I regard it as the most annoying part of starting projects due to hitting difficulties one after another. So that I��m going to write down all the steps that need to be done hoping I��ll kind of mitigate your effort and annoyance. What��s more, I don��t even assume that you have OCaml installed!So let��s get",
+            "start": 394,
+            "end": 810
+          },
+          {
+            "text": "ly through it.## Installing OCaml and opam### Linuxsh\\<your-package-manager> install ocaml (or -S in case of Arch)\\<your-package-manager> install opamopam init### macOSshbrew install ocamlbrew install opamopam init### WindowsThe newest OCaml installer for WindowsYou probably would like to have some assistant for editing OCaml code. Merlin is the one that will provide you with the features",
+            "start": 811,
+            "end": 1202
+          },
+          {
+            "text": " in modern IDEs : error reporting, auto-completion, source browsing and much more. You can install it by typing:shopam install merlinopam user-setup installopam initHint: I��ve come across some problems with installing it on macOS, because OCaml version installed with brew was not consistent with the one that was expected to successfully install merlin. I resolved it by switching to previous version of OCaml.shopam switch \\<compiler",
+            "start": 1203,
+            "end": 1639
+          },
+          {
+            "text": "version-that-opam-will-ask-for>To list all available OCaml compilers:shopam switch list --all## Installing other stuffMenhir is a parser generator. It compiles LR(1) grammar specifications down to OCaml code.shopam install menhirYojson will help us in handling JSON data.sh   opam install yojson## Parsing, lexing, codingOkay, so we are finally ready to",
+            "start": 1640,
+            "end": 1993
+          },
+          {
+            "text": " some code!<div style=\"text-align: center; max-width: 100%\"><img style=\"max-width: 100%\" alt=\"dancing\" src=\"https://cdn-images-1.medium.com/max/2000/1*HOzx5DF3BxuQVS9PZF00aA.gif\" /></div>But before coding, let��s get through some crucial definitions.Parsing is broken down into two",
+            "start": 1994,
+            "end": 2275
+          },
+          {
+            "text": ":- lexing — converting a stream of characters into a stream of tokens,- parsing — converting a stream of tokens into the final representation, the form of a tree-like data structure called an abstract syntax tree.In this tutorial, we��ll be parsing JSON object. We need to think about JSON as a sequence of tokens(values) that can be represented by some type. Let��s create json.ml file and write down following type there.ocamltype value = \\[",
+            "start": 2276,
+            "end": 2719
+          },
+          {
+            "text": " | \\`Assoc of (string \\* value) list  | \\`Bool of bool  | \\`Float of float  | \\`Int of int  | \\`List of value list  | \\`Null  | \\`String of string]Let��s consider the short example of JSON object and its AST based on our value definition:Example of ASTExample of AST## Defining a parserFor now, we need a file with suffix .mly which",
+            "start": 2720,
+            "end": 3052
+          },
+          {
+            "text": " be filled with parser specification. It ought to consist two sections. In the first one, we will put declarations, including token and type specifications. The second is for specifying the grammar of the language to be parsed.Let��s start by declaring the list of tokens. For JSON, we need tokens for numbers, strings, identifiers, and punctuation:ocaml%token \\<int> INT%token \\<float> FLOAT%token \\<string> ID%token \\",
+            "start": 3053,
+            "end": 3472
+          },
+          {
+            "text": "string> STRING%token TRUE%token FALSE%token NULL%token LEFT\\_BRACE%token RIGHT\\_BRACE%token LEFT\\_BRACK%token RIGHT\\_BRACK%token COLON%token COMMA%token EOFThe \\<type> means that the token carries a value. Each of the INT, FLOAT, ID and STRING carry some value in specified type, whereas the rest is not associated with any value.### Desc",
+            "start": 3473,
+            "end": 3811
+          },
+          {
+            "text": " grammarOkay, we can move on to the second part of parser specification which is describing grammar.To generate a parser we will use menhir. It turns grammar specifications to the OCaml code. Menhir expresses grammars as a context-free.As you may assumed we��ll also declare the start symbol. Then we end the declaration section of the parser with %% symbol.ocaml%start \\<Json.value option> prog%%Now we can start specifying",
+            "start": 3812,
+            "end": 4236
+          },
+          {
+            "text": " productions. In menhir, productions are organised into rules, where each rule lists all the possible productions for a given nonterminal symbols. Here, for example, is the rule for prog:ocamlprog:  | EOF       \\{ None }  | v = value \\{ Some v }  ;So let��s write the rule for value and see where we can possibly go with it.value:  | LEFT\\_BR",
+            "start": 4237,
+            "end": 4579
+          },
+          {
+            "text": "; obj = obj\\_fields; RIGHT\\_BRACE \\{ \\`Assoc obj  }  | LEFT\\_BRACK; vl = list\\_fields; RIGHT\\_BRACK \\{ \\`List vl    }  | s = STRING                                \\{ \\`String s  ",
+            "start": 4580,
+            "end": 4758
+          },
+          {
+            "text": "  | i = INT                                   \\{ \\`Int i      }  | x = FLOAT                                 \\{ \\`Float x    }",
+            "start": 4759,
+            "end": 4885
+          },
+          {
+            "text": " | TRUE                                      \\{ \\`Bool true  }  | FALSE                                     \\{ \\`Bool false }  | NULL  ",
+            "start": 4886,
+            "end": 5021
+          },
+          {
+            "text": "                                   \\{ \\`Null       } ;### Parsing sequencesMenhir provides an extended standard library of built-in rules to simplify handling lists (they are described in not-so-pleasant-to-read menhir manual).We will use separated\\_list to parse both JSON objects and",
+            "start": 5022,
+            "end": 5307
+          },
+          {
+            "text": " with one rule:ocamlprog:  | v = value \\{ Some v }  | EOF       \\{ None   } ;value:  | LEFT\\_BRACE; obj = obj\\_fields; RIGHT\\_BRACE \\{ \\`Assoc obj  }  | LEFT\\_BRACK; vl = list\\_fields; RIGHT\\_BRACK \\{ \\`List vl   ",
+            "start": 5308,
+            "end": 5521
+          },
+          {
+            "text": "  | s = STRING                                \\{ \\`String s   }  | i = INT                                   \\{ \\`Int i      }  | x",
+            "start": 5522,
+            "end": 5653
+          },
+          {
+            "text": " FLOAT                                 \\{ \\`Float x    }  | TRUE                                      \\{ \\`Bool true  }  | FALSE   ",
+            "start": 5654,
+            "end": 5785
+          },
+          {
+            "text": "                                 \\{ \\`Bool false }  | NULL                                      \\{ \\`Null       } ;obj\\_fields:  ",
+            "start": 5786,
+            "end": 5915
+          },
+          {
+            "text": " obj = separated\\_list(COMMA, obj\\_field)    \\{ obj } ;obj\\_field:    k = STRING; COLON; v = value              \\{ (k, v) } ;list\\_fields:    vl = separated\\_list(COMMA, value)         \\{ vl } ;At",
+            "start": 5916,
+            "end": 6112
+          },
+          {
+            "text": " point, we have two files: parser.mly andjson.ml, so we can invoke menhir by using corebuild to generate our parser.shcorebuild -use-menhir short\\_parser.mliWe have a lot of new files now! And since we started our parsing thing backward let��s jump to the beginning now — lexing.## Defining a lexerNow we can define a lexer, using ocamllex, to convert",
+            "start": 6113,
+            "end": 6464
+          },
+          {
+            "text": " input text into a stream of tokens. Ocamllex produces a lexical analyser from a set of regular expressions. We need to create lexer.mll file and place the lexer specification there. We��ll walk through the definitions of a lexer step by step.OCaml PreludeThe first section is optional. We can define utility functions or set up the environment by opening useful modules or define exceptions. They need to be put in curly braces. Sample code with next\\",
+            "start": 6465,
+            "end": 6917
+          },
+          {
+            "text": "line function for tracing the location of tokens is presented below.ocaml\\{  open Lexing  open Parser  exception SyntaxError of string  let next\\_line lexbuf =    let pos = lexbuf.lex\\_curr\\_p \\*\\*in\\*\\*      lexbuf.lex\\_curr\\_p \\<-        \\{ pos\\_with\\_",
+            "start": 6918,
+            "end": 7172
+          },
+          {
+            "text": "\\_bol = lexbuf.lex\\_curr\\_pos;              pos\\_lnum = pos.pos\\_lnum + 1        }}Regular ExpressionsThe second section is a collection of named regular expressions. The syntax is quite specific and it��s something between OCaml syntax and normal regular expression syntax.ocamllet int = '-'? \\['0'",
+            "start": 7173,
+            "end": 7472
+          },
+          {
+            "text": "9'] \\['0'-'9']\\*let digit = \\['0'-'9']let frac = '.' digit\\*let exp = \\['e' 'E'] \\['-' '+']? digit+let float = digit\\* frac? exp?let white = \\[' ' '\\t']+let newline = '\\r' | '\\n' | \"\\r\\n\"let id = \\['a'-'z'",
+            "start": 7473,
+            "end": 7678
+          },
+          {
+            "text": "A'-'Z' '\\_'] \\['a'-'z' 'A'-'Z' '0'-'9' '\\_']Lexing RulesThe lexing rules are functions that consume the data and produce OCaml expressions that are evaluated to tokens. These OCaml expressions can be quite complicated, using side effects and invoking other rules as part of the body of the rule. Let��s look at the read rule for parsing a JSON expression:ocaml",
+            "start": 7679,
+            "end": 8039
+          },
+          {
+            "text": " read =  parse  | white    \\{ read lexbuf }  | newline  \\{ next\\_line lexbuf; read lexbuf }  | int      \\{ INT (int\\_of\\_string (Lexing.lexeme lexbuf)) }  | float    \\{ FLOAT (float\\_of\\_string (Lexing.lexeme lexbuf)) }  | \"true\"   \\",
+            "start": 8040,
+            "end": 8273
+          },
+          {
+            "text": " TRUE }  | \"false\"  \\{ FALSE }  | \"null\"   \\{ NULL }  | '\"'      \\{ read\\_string (Buffer.create 17) lexbuf }  | '\\{'      \\{ LEFT\\_BRACE }  | '}'      \\{ RIGHT\\_BRACE }  | '\\['      \\{ LEFT\\",
+            "start": 8274,
+            "end": 8464
+          },
+          {
+            "text": "BRACK }  | ']'      \\{ RIGHT\\_BRACK }  | ':'      \\{ COLON }  | ','      \\{ COMMA }  | \\_ \\{ raise (SyntaxError (\"Unexpected char: \" ^ Lexing.lexeme lexbuf)) }  | eof      \\{ EOF }The read rule resembles match statement with regular expression on the",
+            "start": 8465,
+            "end": 8715
+          },
+          {
+            "text": " side and value of the rule on the right side. Lexbuf parameter correspond to the input — position in input file and matched text.The first white \\{ read lexbuf } calls the lexer recursively skipping the input whitespaces. The second action newline does almost the same but it adds the number of the line using the function that was defined earlier in the first section of that lexing part. The third action specifies what to do in case of matching input with int. By using",
+            "start": 8716,
+            "end": 9189
+          },
+          {
+            "text": "int\\_of\\_string (Lexing.lexeme lexbuf)) the rule will return complete string matched by the regular expression converted to the int type. The next actions are created in ananalogous way.Recursive rulesOur last step is to define the second lexer that handles strings that we will merge with previous rule read declaration.ocamlread\\_string buf =  parse  | '\"'       \\{ STRING (Buffer.contents",
+            "start": 9190,
+            "end": 9581
+          },
+          {
+            "text": ") }  | \\[^ '\"' '\\\\\\\\']+    \\{ Buffer.add\\_string buf (Lexing.lexeme lexbuf);      read\\_string buf lexbuf    }The action \\[^ '\"' 'he']+ matches normal input that does not contain a double quote or backslash and adds it to the buffer that will be returned in case of the terminated double quote.## Bringing it all togetherWe are",
+            "start": 9582,
+            "end": 9909
+          },
+          {
+            "text": " with the parsing part. What else we need to do is to blend lexer and parser together and write the main function that takes an input file, parse it and returns the result.Let��s create main.ml file with main functions which looks like that:ocamllet () =  let filename = Sys.argv(0) in  let in\\_channel = In\\_channel.create filename in  let lexbuf = Lexing.from\\_channel in",
+            "start": 9910,
+            "end": 10283
+          },
+          {
+            "text": "_channel in  lexbuf.lex\\_curr\\_p \\<-  \\{ lexbuf.lex\\_curr\\_p with pos\\_fname = filename };  parse\\_and\\_print lexbuf;  In\\_channel.close in\\_channel;What we do in here is getting a filename from arguments passed in the command line, then we open the channel from which we will get stuff to parse and we attach current position and",
+            "start": 10284,
+            "end": 10614
+          },
+          {
+            "text": " to lexbuf. The next step is to parse and print eventual errors, so we need parse\\_and\\_print function and a few helpers.ocamllet print\\_position out\\_channel lexbuf =  let pos = lexbuf.lex\\_curr\\_p in  fprintf out\\_channel \"%s:%d:%d\"         pos.pos\\_fname pos.pos\\_lnum (",
+            "start": 10615,
+            "end": 10888
+          },
+          {
+            "text": ".pos\\_cnum - pos.pos\\_bol + 1)let parse\\_with\\_error lexbuf =  try Parser.prog Lexer.read lexbuf with  SyntaxError msg ->    fprintf stderr \"%a: %s\\n\" print\\_position lexbuf msg; None  | Parser.Error ->    fprintf stderr \"%a: syntax error\\n\" print\\_position lex",
+            "start": 10889,
+            "end": 11150
+          },
+          {
+            "text": ";    exit (-1)let rec parse\\_and\\_print lexbuf =  match parse\\_with\\_error lexbuf with  Some value -> parse\\_and\\_print lexbuf  | None -> ()In print\\_position function, we extract filename and detailed error position to print it to out\\_channel. parse\\_with\\_error use defined earlier prog and read to parse our input, picking up the errors. It returns None in",
+            "start": 11151,
+            "end": 11511
+          },
+          {
+            "text": " of SyntaxError, exits the program when encounters Parser.Error . If error doesn��t occur the function returns parsed value with tag Some as we defined it in parser specification. That��s why we match its result in parse\\_and\\_print function with Some value and None. When the first variant is fulfilled we call the function recursively to parse the rest of the input. Otherwise, we return a unit omitting the other half.Now, we are ready",
+            "start": 11512,
+            "end": 11950
+          },
+          {
+            "tokens": [
+              " build",
+              " our",
+              " program",
+              " with",
+              " following",
+              " command",
+              ":",
+              "sh",
+              "oc",
+              "aml",
+              "build",
+              " -",
+              "use",
+              "-",
+              "men",
+              "h",
+              "ir",
+              " -",
+              "tag",
+              " thread",
+              " -",
+              "use",
+              "-",
+              "oc",
+              "am",
+              "lf",
+              "ind",
+              " -",
+              "quiet",
+              " -",
+              "pkg",
+              " core",
+              " main",
+              ".",
+              "native",
+              "Then",
+              " we",
+              " are",
+              " able",
+              " to",
+              " run",
+              " our",
+              " program",
+              " with",
+              ":",
+              "sh",
+              "./",
+              "main",
+              ".",
+              "native",
+              " \\",
+              "*",
+              "some",
+              "\\",
+              "_",
+              "test",
+              "\\",
+              "_",
+              "file",
+              "\\",
+              "*",
+              "For",
+              " wrong",
+              "-",
+              "defined",
+              " JSON",
+              " object",
+              ",",
+              " ex",
+              ".",
+              " \\",
+              "{",
+              " \"",
+              "super",
+              "hero",
+              "\"",
+              " :",
+              " \"",
+              "Thor",
+              "\";",
+              " }",
+              " the",
+              " result",
+              " is",
+              ":",
+              "sh",
+              "test",
+              ".",
+              "json",
+              ":",
+              "2",
+              ":",
+              "17",
+              ":",
+              " U",
+              "nexpected",
+              " char",
+              ":",
+              " ;"
+            ],
+            "start": 11951,
+            "end": 11951,
+            "text": " build our program with following command:shocamlbuild -use-menhir -tag thread -use-ocamlfind -quiet -pkg core main.nativeThen we are able to run our program with:sh./main.native \\*some\\_test\\_file\\*For wrong-defined JSON object, ex. \\{ \"superhero\" : \"Thor\"; } the result is:shtest.json:2:17: Unexpected char: ;"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Persistent data structures thanks to recursive type aliases",
+      "path": "persistent-data-structures.mdx",
+      "content": {
+        "chunks": [
+          {
+            "tokens": [
+              "I",
+              " hope",
+              " the",
+              " above",
+              " benchmarks",
+              " speak",
+              " for",
+              " themselves",
+              ".",
+              " It",
+              "'s",
+              " kind",
+              " of",
+              " funny",
+              " because",
+              " I",
+              " expected",
+              " a",
+              " cons",
+              " list",
+              " map",
+              " to",
+              " be",
+              " a",
+              " little",
+              " bit",
+              " slower",
+              ",",
+              " but",
+              " it",
+              " surprisingly",
+              " fast",
+              ".",
+              " If",
+              " you",
+              " know",
+              " why",
+              " let",
+              " me",
+              " know",
+              " �",
+              "�",
+              "##",
+              " Resources",
+              " �",
+              "�",
+              "�",
+              "Ch",
+              "angel",
+              "og",
+              "Pers",
+              "istent",
+              " data",
+              " structures",
+              "Cons"
+            ],
+            "start": 0,
+            "end": 0,
+            "text": "I hope the above benchmarks speak for themselves. It's kind of funny because I expected a cons list map to be a little bit slower, but it surprisingly fast. If you know why let me know ��## Resources ���ChangelogPersistent data structuresCons"
+          }
+        ]
+      }
+    },
+    {
+      "title": "How not to do your developer portfolio in five steps",
+      "path": "portfolio.mdx",
+      "content": {
+        "chunks": [
+          {
+            "tokens": [
+              "Hi",
+              ",",
+              " I",
+              "�",
+              "�",
+              "m",
+              " O",
+              "la",
+              ",",
+              " and",
+              " I",
+              " still",
+              " don",
+              "�",
+              "�",
+              "t",
+              " have",
+              " my",
+              " portfolio",
+              " done",
+              ".",
+              " But",
+              " at",
+              " least",
+              " I",
+              " know",
+              " why",
+              "."
+            ],
+            "start": 0,
+            "end": 0,
+            "text": "Hi, I��m Ola, and I still don��t have my portfolio done. But at least I know why."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Colour it please as Red-Black Trees",
+      "path": "red-black-tree.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "We have something like binary search trees. Really simple data structure. But we have also plenty of different tree-like structures: splays, AVLs, red-black trees and so on. Why is that? Why are BSTs not enough? Namely, the reason is that they can grow uneven beyond our control. So, in the worst case, the time complexity for search may be linear, which by and large make no point for using tree data structure. For sure we won�",
+            "start": 0,
+            "end": 429
+          },
+          {
+            "text": "t be satisfied with the BST looking like that:Some ugly BST ��\\_Some ugly BST ��\\_And any attempts for preventing it may be expensive and unpractical. Only imagine how great it would be to have a tree with the assurance that its height remains as O(log n) after any sequence of deletions and insertions. That��s why for time complexity satisfaction we need something that takes care of itself and makes itself evenly distributed. Let me introduce Red-Black",
+            "start": 430,
+            "end": 886
+          },
+          {
+            "text": ".In Red-Black Tree, we assume that the leaves don��t store any additional information besides that they��re leaves. And from property number 2 they are all black. An example of Red-Black-Tree:## The height of the Red-Black TreeAs mentioned earlier what we care the most about in trees data structures is the height of the tree. The bigger it is the longer search query is going to take. So to ascertain if these two-colour trees are really",
+            "start": 887,
+            "end": 1326
+          },
+          {
+            "text": " good idea we want to state the maximum height that a tree can obtain.In case you wonder why is that there comes the explanation. But let��s enter some useful fact beforehand.The maximum height of the tree is just the number of nodes in the longest path from the tree root to the leaf. But from property number 4 we know that each path from the root to the leaf must contain the same number of black nodes. That implies that the number of the black nodes is restricted by the",
+            "start": 1327,
+            "end": 1802
+          },
+          {
+            "text": " of the shortest path from the root to the leaf (this means that the shortest path contain only black nodes).Assume the shortest path from the root to the leaf has height k. Then we have:- There are k+1 nodes in the path at height k- There is a complete binary subtree of height k (this is the shortest path, right?)Let��s look a the example for the shortest path at height 2:Suppose this complete binary subtree has n nodes,",
+            "start": 1803,
+            "end": 2228
+          },
+          {
+            "text": " using the fact that n=2^(k+1)−1, the number of nodes in the path from the root to leaf is: k+1= log ���(n+1) and this is the maximum number of black nodes in any path from the root to leaf.Okay, that��s something but that��s not what we wanted yet. We need to establish the number of nodes in the longest path from the root to leaf. We know that",
+            "start": 2229,
+            "end": 2575
+          },
+          {
+            "text": " path will contain log(n+1) black nodes, but how many red ones? From property number 3 we have that a red node must have black node children. This restricts the maximum number of red nodes to being placed between the black nodes:So the length of the longest path is:max number of black nodes + max number of red nodes = 2log(n+1)#proved## InsertionIn Red-Black Trees after inserting an element two types of actions are used to",
+            "start": 2576,
+            "end": 3002
+          },
+          {
+            "text": " balancing and bring back violated properties:The insert strategy consists of two steps. The first is inserting an element like in the ordinary binary search tree, marked as red. It may violate property number 3, which tells that each red node must have black node children. That��s when the second step comes, in which we need to use the previously introduced actions (recolouring and rotations). Here we have to check for the colour of the inserted node��s uncle. Take a look",
+            "start": 3003,
+            "end": 3480
+          },
+          {
+            "text": " the picture describing a relationships between nodes in the tree.Okay, so suppose we inserted a node X, which violated Red-Black Tree properties. Time for recover. We have four possible scenarios:I. Inserted element X is a root. As we insert new elements marked as red and from the property number 2 we know that the root must be black, the solution here is to change colour of X from red to black.II. X��s uncle is red. The solution for this",
+            "start": 3481,
+            "end": 3924
+          },
+          {
+            "text": " regards changing the colours of X��s father and uncle to black and X��s grandfather to red. Then it calls recovering procedure on X��s grandfather (If X would be a child of C the solution would be analogous).III. X��s uncle is black (triangle). Now we are performing a single rotation on X��s father and as the result we��re going to obtain case IV. After rotation we call recovering procedure on X��s",
+            "start": 3925,
+            "end": 4327
+          },
+          {
+            "text": " (the one before rotation — node C in the picture below).IV. X��s uncle is black (line). This case solution assume two steps. The first is changing the colours of X��s grandfather to red, and X��s father to black. Then in the second step we perform rotation of X��s grandfather. After that we call recovering procedure on X��s father.## DeletionLike Insertion, recolouring and rotations are used to",
+            "start": 4328,
+            "end": 4726
+          },
+          {
+            "text": " the Red-Black properties. In insert operation, we needed to check colour of uncle to decide the appropriate case. In delete operation, on the other hand, we check colour of sibling. Another difference between insert and delete operations is the property which is violated afterward. In insertion, it was property number 3 (red nodes have black children). In deletion, the main violated property is property number 4 (the one about the same number of black nodes in any path from some node to leaf). Delet",
+            "start": 4727,
+            "end": 5232
+          },
+          {
+            "text": " of a black node may cause deletion of a black node from some root-to-leaf path.The deletion strategy comes that way: standard BST delete and Red-Black properties recovering. There is also something like double black that needs some explanation.So, when a black node is deleted and replaced by a black child, the child is marked as double black as we want to pass deleted black colour. The main task then becomes to convert this double black to single black.Before we start analysing Red",
+            "start": 5233,
+            "end": 5720
+          },
+          {
+            "text": "Black properties recovery, let��s recall deleting a node from binary search tree. There are three possible cases for deleting node X:I. X is a leaf. It��s the simplest one. We just need to remove it.II. X has one child. More complicated. We need to copy the child to the X��s father and delete the child.III. X has two children. A little bit more complicated. Now we want to find inorder successor of the",
+            "start": 5721,
+            "end": 6125
+          },
+          {
+            "text": " (the smallest node in the right subtree) and then copy its contents to the X��s father recursively call delete operation for X��s successor in X��s right subtree.Now we can go to recovering part. Let X be the node to be deleted and Y be the node that replaces X in the tree. Like in post insert recovery we have some cases. Two, namely. And a lot of subcases…I. Either X or Y is red",
+            "start": 6126,
+            "end": 6509
+          },
+          {
+            "text": " They can��t be both red as there cannot be two consecutive red nodes in Red-Black tree. We mark the replaced child as black, which make no change in number of black nodes in any path that contain newly marked node.No replacement caseNo replacement caseII. Both X and Y are black. Firstly we need to colour Y as double black. Now our task reduces to convert this double black to single black. Note that If X is leaf, then Y is NULL and colour of",
+            "start": 6510,
+            "end": 6955
+          },
+          {
+            "text": " is considered as black. So the deletion of a black leaf also causes a double black. So while we still have a double black on some node and that node is not the root (in case of root we can just remove the double black) we are going to perform recovery on following subcases:a) Sibling S is black and at least one of sibling��s children is red - we need to perform rotation on the sibling. Let R be the red child of S. This sub",
+            "start": 6956,
+            "end": 7383
+          },
+          {
+            "text": " can be divided in four subsubcases depending upon positions of S and R. In each of them some actions will be performed, which I��m going to describe on pictures.a.1 Right-right case: S is right child of its parent and R is right child of S.a.2 Right-left Case: S is right child of its parent and R is left child of S.a.3 Left-left case: S is left child of its parent and R",
+            "start": 7384,
+            "end": 7757
+          },
+          {
+            "text": " left child of S. The actions taken in that case are analogous to the right-right case.a.4 Left-right case: S is left child of its parent and R is right child of S. The actions taken in that case are analogous to the right-left case.b) Sibling is black and its both children are black. The solution is to perform recolouring, and then recur for the parent if parent is black. If parent was red, then we don�",
+            "start": 7758,
+            "end": 8165
+          },
+          {
+            "text": "t need to recur for it, we can simply make it black (red + double black = single black).c) Sibling is red: Here we are going to perform a rotation to move X��s sibling up and recolour X��s sibling and parent. This mainly converts the tree to black sibling case (by rotation) and leads to case a) or b). This divided in two subsubcases.c.1 Right case: S is right child of its parent",
+            "start": 8166,
+            "end": 8547
+          },
+          {
+            "text": " Here we left rotate the X��s father.c.2 Left case: S is left child of its parent. This is mirror of right right case shown in picture above.## Real world applications of Red-Black TreesSo, we��ve just got some Red-Black theory, but one may ask is this really useful? In fact, it pretty is. They are common in the Linux kernel. For example in a process scheduler or for keeping track of the virtual memory segments",
+            "start": 8548,
+            "end": 8962
+          },
+          {
+            "tokens": [
+              " a",
+              " process",
+              ".",
+              " They",
+              " are",
+              " also",
+              " used",
+              " in",
+              " map",
+              ",",
+              " multim",
+              "ap",
+              ",",
+              " mult",
+              "is",
+              "et",
+              " from",
+              " C",
+              "++",
+              " STL",
+              " and",
+              " java",
+              ".",
+              "util",
+              ".",
+              "Tree",
+              "Map",
+              " ,",
+              " java",
+              ".",
+              "util",
+              ".",
+              "Tree",
+              "Set",
+              " from",
+              " Java",
+              ".",
+              " Besides",
+              " they",
+              " are",
+              " use",
+              " in",
+              " K",
+              "-",
+              "mean",
+              " clust",
+              "ering",
+              " algorithm",
+              " for",
+              " reducing",
+              " time",
+              " complexity",
+              ".",
+              " What",
+              "�",
+              "�",
+              "s",
+              " more",
+              " MySQL",
+              " uses",
+              " Red",
+              "-",
+              "Black",
+              " Trees",
+              " for",
+              " indexes",
+              " on",
+              " tables",
+              ".",
+              " That",
+              " makes",
+              " some",
+              " significant",
+              " us",
+              "ages",
+              ",",
+              " doesn",
+              "�",
+              "�",
+              "t",
+              " it",
+              "?"
+            ],
+            "start": 8963,
+            "end": 8963,
+            "text": " a process. They are also used in map, multimap, multiset from C++ STL and java.util.TreeMap , java.util.TreeSet from Java. Besides they are use in K-mean clustering algorithm for reducing time complexity. What��s more MySQL uses Red-Black Trees for indexes on tables. That makes some significant usages, doesn��t it?"
+          }
+        ]
+      }
+    },
+    {
+      "title": "WIP: Semantic search",
+      "path": "semantic-search.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "IntroductionI was recently looking for a small AI-related side project and decided to enhance my blog by adding a semantic search. Semantic search is a system that can understand the meaning of words in documents and return results that are more relevant to the user's intent.With no prior AI knowledge and experience, and heavily inspired by YouTube semantic search, I used OpenAI and Pinecone and was able to quickly and easily build a semantic search model for my blog that understands the meaning of the documents and returns",
+            "start": 0,
+            "end": 529
+          },
+          {
+            "tokens": [
+              " relevant",
+              " results",
+              ".",
+              " It",
+              "�",
+              "�",
+              "s",
+              " been",
+              " a",
+              " nice",
+              " exercise",
+              ",",
+              " I",
+              "�",
+              "�",
+              "ve",
+              " learned",
+              " some",
+              " new",
+              " stuff",
+              " (",
+              "added",
+              " a",
+              " bunch",
+              " of",
+              " new",
+              " words",
+              " to",
+              " my",
+              " dictionary",
+              " �",
+              "��",
+              ").",
+              " I",
+              "'m",
+              " quite",
+              " happy",
+              " with",
+              " the",
+              " results",
+              " so",
+              " I",
+              "�",
+              "�",
+              "m",
+              " writing",
+              " this",
+              " post",
+              " to",
+              " go",
+              " over",
+              " the",
+              " steps",
+              " I",
+              " took",
+              " to",
+              " achieve",
+              " that",
+              ".",
+              "Mist",
+              "akes",
+              ":"
+            ],
+            "start": 530,
+            "end": 530,
+            "text": " relevant results. It��s been a nice exercise, I��ve learned some new stuff (added a bunch of new words to my dictionary ���). I'm quite happy with the results so I��m writing this post to go over the steps I took to achieve that.Mistakes:"
+          }
+        ]
+      }
+    },
+    {
+      "title": "How I speed up a query 1000 times",
+      "path": "speed-up-query.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "Catchy title, isn��t it? ���In this article, I want to present a solution I applied some time ago, that drastically improved queries performance. Please notice that it won��t be a guide how to do something, but only one of the probably many ways of achieving better execution times; it may be even considered as a kind of hacky, nevertheless it worked so that I want to share it.You probably know this kind of feature in web apps where",
+            "start": 0,
+            "end": 435
+          },
+          {
+            "text": " can type some text into the input and filter by whatever you want; by stuff that might be not even related in the terms of filtering by. For example — name and surname — I consider it related because it typically lay somewhere next to each other in the database (at least I would imagine so). But filtering by name, surname, and event\\_id someone attended five years ago — it sounds like a harder thing to be handled on the backend.The problem I had and needed to solve was",
+            "start": 436,
+            "end": 910
+          },
+          {
+            "text": " having a database table with about ten columns consisting of several million rows and a frontend app displaying this table where the client expected to be able to filter by the content of almost every column. And it had to be a full-text search. We were using MySQL but the solution I��ll present also applies to other database systems. The fragment of the query looked somehow like this:sql    SELECT \\* FROM x    WHERE    ...    MATCH",
+            "start": 911,
+            "end": 1348
+          },
+          {
+            "text": " AGAINST \"input\" OR    MATCH b AGAINST \"input\" OR    MATCH c AGAINST \"input\" OR    MATCH d AGAINST \"input\" OR    MATCH e AGAINST \"input\" OR    MATCH f AGAINST \"input\" OR    ...Of course for that huge amount of data, it was really slow. For every filtering, this big query had to be executed twice — for extracting the",
+            "start": 1349,
+            "end": 1666
+          },
+          {
+            "text": " and for counting the data. There were many request timeouts and omnipresent disappointment of the filtering feature.What made a trick was introducing yet another column:sql    ALTER TABLE x        ADD search\\_params text GENERATED ALWAYS AS (    concat\\_ws(',', a, b, c, d, e, f)) STORED;Then dropping every full-text key from remaining columns and adding one to search\\",
+            "start": 1667,
+            "end": 2038
+          },
+          {
+            "text": "params column.It allowed simplifying the query to use only one MATCH AGAINST:sql    SELECT \\* FROM x    WHERE    ...    MATCH search\\_params AGAINST \"input\" OR    ...The results were impressive:> Query execution time before: 1.39911400 ms> Query execution time after: 0.00153200 msI spent some time staring at those numbers, they made this kind of impression on me",
+            "start": 2039,
+            "end": 2403
+          },
+          {
+            "tokens": [
+              " And",
+              " what",
+              "�",
+              "�",
+              "s",
+              " more",
+              " important",
+              " —",
+              " I",
+              " gained",
+              " some",
+              " rest",
+              " —",
+              " no",
+              " more",
+              " client",
+              " complaints",
+              " about",
+              " slow",
+              " filtering",
+              ".",
+              " �",
+              "�",
+              "�"
+            ],
+            "start": 2404,
+            "end": 2404,
+            "text": " And what��s more important — I gained some rest — no more client complaints about slow filtering. ���"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Adding Stripe to a Blitz application",
+      "path": "stripe-with-blitz.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "Disclaimer: you won't find a complete solution in this blog post. I'll talk about something that worked for my project and how I dealt with adding Stripe. I'm doing it 1) as a part of build in public\\*, 2) hoping it can be helpful for somebody. It's also not a tutorial — I will go through the data flow, database model, and other things related to adding Stripe to a Blitz project. If you decide to do something similar, make sure it",
+            "start": 0,
+            "end": 434
+          },
+          {
+            "text": " your particular use case!\\*## IntroductionI'm currently building Commont — a hosted platform for comments. You can think of it as a headless Disqus alternative. Commont gives you an SDK, API, or a React hook to connect to from your frontend application, as well as an admin panel where you can manage your comments — hide them, delete, create new projects, etc.The application is built with Blitz — The Fullstack React Framework. I'm assuming that if you",
+            "start": 435,
+            "end": 890
+          },
+          {
+            "text": " reading this blog post, you've already heard about Blitz — if not, go check out the docs!I wanted to make money out of that, which meant I needed to integrate a payment system. After a little bit of research, I decided to go with Stripe. (Paddle was a strong alternative, and in my next side project, I'm definitely going to try Lemon Squeezy.)## Pricing modelMy pricing model assumes a free plan, where you can have one project and up",
+            "start": 891,
+            "end": 1327
+          },
+          {
+            "text": " ~1000(?) comments. If you want to create more projects and have unlimited comments, you can upgrade to a paid plan. It assumes a flat fee for ~10(?) projects, and if that's not enough, you can pay for additional projects.<div style=\"text-align: center; width: 100%;\">  <img src=\"/content/stripe-with-blitz/pricing.png\" width=\"100%\" /></div>## What information do I need",
+            "start": 1328,
+            "end": 1698
+          },
+          {
+            "text": " Stripe?I have a Users table in the database, where I store basic info about the users, their projects, and soon also their SaaS subscriptions. When it comes to subscriptions, I need to know the following:- Whether a user has a subscription created with Stripe,- If yes, what's the current billing period,- If yes, what is the status of the subscription — is it active, was it canceled, etc.?- What is the corresponding Stripe subscription's id.I",
+            "start": 1699,
+            "end": 2145
+          },
+          {
+            "text": " to store this information in a Subscriptions table looking somehow like this:<iframe width=\"100%\" height=\"500px\" style=\"box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); border-radius:15px;\" allowtransparency=\"true\" allowfullscreen=\"true\" scrolling=\"no\" title=\"Embedded DrawSQL IFrame\" frameborder=\"0\" src=\"https://drawsql.app/aleksandra",
+            "start": 2146,
+            "end": 2479
+          },
+          {
+            "text": "sikora/diagrams/commont-partial-schema-1/embed\" />## Stripe CheckoutI wanted to offload as much as possible to Stripe, so I decided to use Stripe Checkout:> The quickest way to build conversion-optimised payment forms, hosted on Stripe.> Checkout creates a secure, Stripe-hosted payment page that lets you collect payments quickly.To use Stripe's Checkout, we have to:-",
+            "start": 2480,
+            "end": 2849
+          },
+          {
+            "text": " a Stripe account,- Create a new checkout session with the Stripe SDK on the backend,- Get an URL from the newly created session and redirect the user to this URL.Stripe docs already perfectly describe all of it, so I won't go into details. Stripe's documentation is one of the best I ever saw, and I think you can find all the information you want there. I recommend checking out those two links to learn more about subscriptions with Checkout and sample integrations:-",
+            "start": 2850,
+            "end": 3320
+          },
+          {
+            "text": "scriptions with Checkout- Integration builderAs I mentioned, this post is not a tutorial. It's more of a dev diary of how to put it all together with a Blitz application.The following steps cover what to do on the Blitz project side to add Stripe. For how to create a Stripe account and product, check out Stripe's docs.### Installing Stripe's dependenciesshyarn add stripe @stripe/stripe-jsThe former library provides convenient",
+            "start": 3321,
+            "end": 3750
+          },
+          {
+            "text": " to the Stripe API from the application's backend. The latter lets us use Stripe's API in the browser.### Creating a new checkout session on the backendI'm using a Blitz mutation to create a server function that handles new Stripe's checkout sessions.> Blitz mutations are plain, asynchronous JavaScript functions that always run on the server.>> https://blitzjs.com/docs/mutation-resolversIn this function, I'm doing the following:- Initializing Stripe with",
+            "start": 3751,
+            "end": 4209
+          },
+          {
+            "text": " secret key. You can read about Stripe's keys here.- Using Blitz resolver to make sure users using this mutation are authorized.- Creating a new session with stripe.checkout.sessions.create and passing a config object.ts// app/dashboard/mutations/createCheckoutSession.tsimport \\{ resolver } from \"blitz\";import Stripe from \"stripe\";const stripe = new Stripe(process.env.STRIPE\\_SECRET",
+            "start": 4210,
+            "end": 4595
+          },
+          {
+            "text": "export default resolver.pipe(resolver.authorize(), async (\\_, ctx) => \\{  const session = await stripe.checkout.sessions.create(\\{    mode: \"subscription\",    payment\\_method\\_types: \\[\"card\"],    line\\_items: \\[      \\{        price: \"price\\_1JN...\", ",
+            "start": 4596,
+            "end": 4848
+          },
+          {
+            "text": "      quantity: 1,      },    ],    success\\_url: \\`$\\{process.env.HOST\\_URL}/settings?checkout-success=true\\`,    cancel\\_url: \\`$\\{process.env.HOST\\_URL}/settings\\`,  });  return \\{    sessionId: session.id,  };});###",
+            "start": 4849,
+            "end": 5068
+          },
+          {
+            "text": "pe Checkout on the frontendWhat all do we have to do on the frontend? We need a button to trigger the mutation we just talked about. We also need to redirect to Stripe so that users can fill in all the data and actually buy the product.I have a tiny component, CreateSubscription, where I'm doing the following:- Initialize a createCheckoutMutation,- Initialize a createCheckout function that will be called on a button's click. Inside of",
+            "start": 5069,
+            "end": 5507
+          },
+          {
+            "text": " function, I'm calling the mutation and waiting for a result.- Once I have the session id from a successfull mutation call, I'm using stripe.redirectToCheckout and pass the id. That moves the user to Stripe's website, where they can complete the checkout.tsximport \\{ useMutation } from \"blitz\";import \\{ Stripe, loadStripe } from \"@stripe/stripe-js\";import createCheckoutSession from \"",
+            "start": 5508,
+            "end": 5894
+          },
+          {
+            "text": "content/stripe-with-blitz/mutations/createCheckoutSession\";let stripePromise;const getStripe = () => \\{  if (!stripePromise) \\{    stripePromise = loadStripe(process.env.NEXT\\_PUBLIC\\_STRIPE\\_PK);  }  return stripePromise;};export const CreateSubscription = () => \\{  const \\[createCheckout",
+            "start": 5895,
+            "end": 6185
+          },
+          {
+            "text": "utation, \\{ error }] = useMutation(    createCheckoutSession  );  if (error) \\{    throw error;  }  const createCheckout = async () => \\{    const res = await createCheckoutMutation();    const stripe = await getStripe();    await stripe.redirectToCheckout(\\{      sessionId: res.sessionId,  ",
+            "start": 6186,
+            "end": 6478
+          },
+          {
+            "text": " });  };  return \\<button onClick=\\{createCheckout}>Upgrade plan\\</button>;};#### Is it all?Looks like it. Users can successfully create a subscription. If I go to Stripe's dashboard, I'll be able to see users' data. But we don't have a way to tell whether a particular user is on a paid plan in the application. We have no link between our users and Stripe's customers. As said before,",
+            "start": 6479,
+            "end": 6865
+          },
+          {
+            "text": " need to fill the Subscription table in our backend to be able to:- Identify paid customers,- Display information about the user's plan.That's where Stripe webhooks come into play.### Stripe webhooksWebhooks allow us to receive event notifications about all kinds of actions happening with our account, e.g., new subscriptions, successful payments, failed payments, subscription cancels, and many more. Our application can perform some actions on all of those events—for example",
+            "start": 6866,
+            "end": 7344
+          },
+          {
+            "text": " update the database after a new subscription is created.To handle those events, we need a new API endpoint.I'm creating one in app/api directory:(This code is quite simplified for the sake of this article.)ts// app/api/webhook.tsimport \\{ BlitzApiRequest, BlitzApiResponse } from \"blitz\";import Stripe from \"stripe\";const stripe = new Stripe(process.env.STRIPE\\_SECRET);const",
+            "start": 7345,
+            "end": 7721
+          },
+          {
+            "text": "Secret = process.env.STRIPE\\_WEBHOOK\\_SECRET;const getRawData = (req: BlitzApiRequest): Promise\\<string> => \\{  return new Promise((resolve) => \\{    let buffer = \"\";    req.on(\"data\", (chunk) => \\{      buffer += chunk;    });    req.on(\"end\", () => \\",
+            "start": 7722,
+            "end": 7974
+          },
+          {
+            "text": "      resolve(Buffer.from(buffer).toString());    });  });};const webhook = async (req: BlitzApiRequest, res: BlitzApiResponse) => \\{  const rawData: string = await getRawData(req);  let event: Stripe.Event;  const signature = req.headers\\[\"stripe-signature\"];  try \\{    event = stripe.webhooks.",
+            "start": 7975,
+            "end": 8271
+          },
+          {
+            "text": "Event(rawData, signature!, endpointSecret);  } catch (err) \\{    res.statusCode = 400;    res.setHeader(\"Content-Type\", \"application/json\");    res.end(JSON.stringify(\\{ error: \"Webhook signature verification failed\" }));    return;  }  switch (event.type) \\{    // handle different events    default:   ",
+            "start": 8272,
+            "end": 8576
+          },
+          {
+            "text": "  console.log(        \\`\\[STRIPE WEBHOOK]: Unhandled event type $\\{event.type}, id: $\\{event.id}.\\`      );  }  res.statusCode = 200;  res.setHeader(\"Content-Type\", \"application/json\");  res.end(JSON.stringify(\\{ event: event.type }));};export default webhook;export",
+            "start": 8577,
+            "end": 8843
+          },
+          {
+            "text": " config = \\{  api: \\{    bodyParser: false,  },};So, what's going on here? Let's take a look at the webhook function.1. First, I'm extracting the request body. Since Stripe needs the raw body, I have a little getRawData helper. I'm also exporting a config object at the end of the file with bodyParser set to false. (There are a few other workarounds for this: https",
+            "start": 8844,
+            "end": 9210
+          },
+          {
+            "text": "github.com/stripe/stripe-node/issues/341.)2. Then, I'm using stripe.webhooks.constructEvent and passing a signature from a request and my webhook secret. I'm doing it to verify the events that Stripe sends. You can read more about why it's important here.3. I have a switch statement in which I'll handle particular events.4. In the end, I'm returning a 200 response to acknowledge receipt of the",
+            "start": 9211,
+            "end": 9607
+          },
+          {
+            "text": ".### What are all the events we need to handle?There can be plenty of events coming from Stripe, but we don't necessarily have to care about all of them. In some cases, you may want to know about all updates to a customer profile, payments methods, etc. In my application, I don't. I only want to know a bit about the subscription and its status. Let's see what happens when a user successfully creates a subscription. These are all the events that the",
+            "start": 9608,
+            "end": 10060
+          },
+          {
+            "text": "hook receives:<div style=\"text-align: center; align-items:center; justify-content:center; display:flex; width: 100%;\"><div style=\"width: 400px;\">  <img src=\"/content/stripe-with-blitz/flow.png\" width={400} /></div></div>I marked the ones that are crucial for my application.It doesn't mean that the webhook only needs to handle three events. There are",
+            "start": 10061,
+            "end": 10412
+          },
+          {
+            "text": " few more that I need to take care of: payment failures, subscription cancels, subscription updates (e.g., after changing quantity). However, let's focus on those three for now.Note: this is an arbitrary order that I got after one of many executions of creating a new subscription. Stripe does not guarantee an order of events.> https://stripe.com/docs/webhooks/best-practices#event-ordering:>> Stripe does not guarantee delivery",
+            "start": 10413,
+            "end": 10842
+          },
+          {
+            "text": " events in the order in which they are generated. For example, creating a subscription might generate the following events:>> - customer.subscription.created> - invoice.created> - invoice.paid> - charge.created (if there's a charge)>> Your endpoint should not expect delivery of these events in this order and should handle this accordingly.#### Updating the databaseWhat should happen when I receive one of those events? I want to upsert data in the Subscriptions table.",
+            "start": 10843,
+            "end": 11314
+          },
+          {
+            "text": " Upsert: An operation that inserts rows into a database table if they do not already exist, or updates them if they do.Why upsert? Because I can't rely on the order and assume that any of those events can be first. Hence each one of them should trigger:- Create a subscription if there's no subscription with a given id,- Update data in a subscription entry otherwise.Even if invoice.paid event comes first, I still want to create a new entry and then update missing data",
+            "start": 11315,
+            "end": 11786
+          },
+          {
+            "text": " customer.subscription.updated and customer.subscription.created.The data I get from invoice.paid is of type Stripe.Invoice, and from the remaining two, I get Stripe.Subscription. Nevertheless, the code will look fairly similar, somehow like this:tscase \"customer.subscription.created\":  const subscription = event.data.object as Stripe.Subscription  await db.subscription.upsert(\\{    create:",
+            "start": 11787,
+            "end": 12180
+          },
+          {
+            "text": "{      subscriptionId: subscription.id,      status: subscription.status,      ...otherImportantData,    },    where: \\{ subscriptionId },    update: \\{      status: subscriptionData.status,      ...otherImportantData,    },  })  breakOkay. But what about the user? We still don't have a way",
+            "start": 12181,
+            "end": 12472
+          },
+          {
+            "text": " link those subscriptions to the users from our system. While there are multiple ways to do it, I'm going to show you what worked best for me.In the createCheckoutSession.ts file, I'm passing one more piece of information to the stripe.checkout.sessions.create function — a metadata object with a user\\_id property.tsconst session = await stripe.checkout.sessions.create(\\{  subscription\\_data: \\{   ",
+            "start": 12473,
+            "end": 12873
+          },
+          {
+            "text": ": \\{      user\\_id: ctx.session.userId,    },    // ...  },});It allows me to extract the user's id from Stripe.Subscription objects:tscase \"customer.subscription.created\":  const subscriptionData = event.data.object as Stripe.Subscription  userId = subscriptionData.metadata.user\\_idThe final webhook's flow looks in the following",
+            "start": 12874,
+            "end": 13205
+          },
+          {
+            "tokens": [
+              ":",
+              "##",
+              " Summary",
+              "Okay",
+              ",",
+              " that",
+              "'s",
+              " it",
+              "!",
+              " As",
+              " promised",
+              ",",
+              " this",
+              " wasn",
+              "'t",
+              " a",
+              " tutorial",
+              ",",
+              " and",
+              " this",
+              " article",
+              " is",
+              " not",
+              " sufficient",
+              " to",
+              " add",
+              " a",
+              " Stri",
+              "pe",
+              " integration",
+              ".",
+              " However",
+              ",",
+              " I",
+              " hope",
+              " it",
+              " will",
+              " answer",
+              " a",
+              " few",
+              " doubts",
+              " you",
+              " might",
+              " have",
+              " had",
+              " about",
+              " Stri",
+              "pe",
+              " and",
+              " Blitz",
+              " integration",
+              "!",
+              " If",
+              " you",
+              " recently",
+              " did",
+              " the",
+              " same",
+              " and",
+              " want",
+              " to",
+              " share",
+              " your",
+              " thoughts",
+              " and",
+              " feedback",
+              ",",
+              " you",
+              " can",
+              " reach",
+              " out",
+              " to",
+              " me",
+              " on",
+              " Twitter",
+              "."
+            ],
+            "start": 13206,
+            "end": 13206,
+            "text": ":## SummaryOkay, that's it! As promised, this wasn't a tutorial, and this article is not sufficient to add a Stripe integration. However, I hope it will answer a few doubts you might have had about Stripe and Blitz integration! If you recently did the same and want to share your thoughts and feedback, you can reach out to me on Twitter."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Most tech content is bullshit",
+      "path": "tech-content-consumer.mdx",
+      "content": {
+        "chunks": [
+          {
+            "tokens": [
+              "Don",
+              "'t",
+              " consume",
+              ".",
+              " Create",
+              ".",
+              " Ask",
+              " questions",
+              ".",
+              " Stay",
+              " curious",
+              "."
+            ],
+            "start": 0,
+            "end": 0,
+            "text": "Don't consume. Create. Ask questions. Stay curious."
+          }
+        ]
+      }
+    },
+    {
+      "title": "Type inference under the hood",
+      "path": "type-inference.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "If you're into functional programming, you might have heard about Hindley-Milner. If not, it's a type system that is the basis for most of the statically typed functional languages like Haskell, OCaml, SML, or F#.Here you can read some more about it, because in this article I won't go into the details of H-M itself; I'll focus on the type inference algorithm for H-M based type systems.Nevertheless, it would be a",
+            "start": 0,
+            "end": 415
+          },
+          {
+            "text": " if I blew my chance telling you my take on its most compelling aspects.One of them is its completeness. Meaning it won't go easy on you if you'd try to bypass it. You can't tell it: shut up, I really want to do this typecast. It would yell, break your program at the compile-time, and make you want to stay away from it. But what doesn��t kill you makes you stronger. You can gain confidence — if your program",
+            "start": 416,
+            "end": 826
+          },
+          {
+            "text": " compiles, it probably works. (It's what I was saying to myself back when I was coding in Haskell). It not only allows you to catch errors earlier but often prevents them.Another great feature is the ability to infer the type of expression without explicit declarations. That's pretty much what's this article is going to be about. I'll do some overview of how type inference works for Hindley Milner type systems. Some of the examples are going to be in Haskell, but they are",
+            "start": 827,
+            "end": 1303
+          },
+          {
+            "text": " enough that no prior knowledge of Haskell is required. I aim to explain how the type inference algorithm for Hindley-Milner based type systems works under the hood without diving into in-depth details and formal definitions.## A word on functionsAs I said, some examples in the article are in Haskell, so here comes a wrapping up about Haskell's functions.In Haskell, functions are first-class citizens, meaning that they don't thumb their noses at the other data types. There's nothing special",
+            "start": 1304,
+            "end": 1799
+          },
+          {
+            "text": " them. We treat them just as we treat other data types.All functions in Haskell take one argument. More specifically — they take one argument at the time. Let's take a look at the possibly most common example one could get:hsadd :: Integer -> Integer -> Integeradd x y = x + yHow to read it in Haskellish?> Add is a function that takes an integer and returns the function that takes an integer and returns an integer.Let's put the brackets for more read",
+            "start": 1800,
+            "end": 2253
+          },
+          {
+            "text": ".> Add is a function that takes an integer and returns the (function that takes an integer and returns integer).hsadd :: Integer -> (Integer -> Integer)Like all the functions in Haskell, Add is curried.Currying converts a function that takes n arguments into n functions that take one argument each.Since all functions in Haskell take exactly one argument, you can think aboutfun a b c = ... as the syntactic sugar for binding a lambda functions to fun: fun = \\a",
+            "start": 2254,
+            "end": 2716
+          },
+          {
+            "text": " \\b -> \\c -> ....## Type inferenceType inference means that types in a program can be deduced without explicit type annotations. The idea is that some information may not be specified, but the type inference algorithm can fill the gaps by determining the types from their usage.<div style=\"text-align: center; max-width: 100%\"><img style=\"max-width: 100%\" alt=\"dancing\" src=\"https://media.giphy.com/media/12",
+            "start": 2717,
+            "end": 3124
+          },
+          {
+            "text": "UbkX6p4xOO4/giphy.gif\" /></div>Type inference was first invented by Haskell Curry and Robert Feys (for some lambda calculus stuff). Then J. Roger Hindley extended this algorithm, and couples years later, Robin Milner independently developed an equivalent algorithm — for the ML programming languages. Although practical type inference was developed for ML, it applies to other languages.There is a broad spectrum to what degree a language can infer types, and in",
+            "start": 3125,
+            "end": 3587
+          },
+          {
+            "text": ", almost no language supports full type inference. Core ML is very close, but it has some limitations when it comes to higher rank types.Type inference supports polymorphism. The algorithm uses type variables as placeholders for types that are not known. Sometimes the type-inference algorithm may resolve all type variables and determine that they must be equal to specific types. Still, in other cases, the type of a function may not be constrained by the way the function is defined. In these cases, the",
+            "start": 3588,
+            "end": 4094
+          },
+          {
+            "text": " may be applied to any arguments whose types match the form given by a type expression containing type variable.### The idea behind type inferenceLet's say we have some simple function:hsinc x = x + 1We know that the type of (+) is Int -> Int -> Int. Moreover, we also know that 1 has type Int. Having that knowledge, we can deduce that type of x must be Int. That implies that the type of inc is Int -> Int.Now let's take",
+            "start": 4095,
+            "end": 4517
+          },
+          {
+            "text": " look at another example and following reasoning:hsf (g, h) = g(h(0))- h is applied to 0 :: Int- Based on ��️ we can deduce type of h: h :: Int -> a, where a is some unknown type (type variable).- g is a function that takes what h returns and return another thingy of the unknown type: g :: a -> b.- Putting it altogether the first argument of f is going to be a ->",
+            "start": 4518,
+            "end": 4883
+          },
+          {
+            "text": " and the second Int -> a.- Hence, function f takes the pair of (f, g) returns the same type the function g does which leads us to its final type:hsf :: (a -> b, Int -> a) -> b## Type inference vs type-checkingThese terms are sometimes confused, so I'd like to clarify what's the difference before we go further.### Standard type checkingjsint f(int x) \\{ return x \\* x }int g(",
+            "start": 4884,
+            "end": 5260
+          },
+          {
+            "text": " x) \\{ return x \\* f(x) }What type checker does is examining the body of each function and then using declared types by the programmer is they match. Take a look at the above example. It would go through every usage of f and g functions and check two things:- If the parameter is always of an integer type,- If the functions return integers.### Type inferencejsi̶n̶t̶ f(i̶n̶t̶ x) \\{ return",
+            "start": 5261,
+            "end": 5650
+          },
+          {
+            "text": " \\* x }i̶n̶t̶ g(i̶n̶t̶ x) \\{ return x \\* f(x) }What the type inference algorithm does is different. It goes through the program, examines the code without type information, and tries to infer the most general types that could have been declared.## Type inference algorithmThe algorithm consists of three steps:1. Assign a type or type variable to the expression and each subexpression. For known expressions, like",
+            "start": 5651,
+            "end": 6064
+          },
+          {
+            "text": ", - and so on, use the types known for these expressions. Otherwise, use type variables — placeholders for not known types.2. Generate a set of constraints on types, using the parse tree of the expression. These constraints are something like this:   > if a function is applied to an integer, then the type of its argument is integer.3. Solve these constraints by unification — an algorithm for solving equations based on substitutions.Now, let's see this algorithm",
+            "start": 6065,
+            "end": 6530
+          },
+          {
+            "text": " action ���## Examples### #1We're going to start with a straightforward example, similar to what we had before. Below there's a parse tree of the expression.<div style=\"display: flex; justify-content: center; width: 100%\">  <div style=\"text-align: center; width: 400px\">    <img src=\"/content/type-inference/1.1.png\" />  </div></div>The root indicates",
+            "start": 6531,
+            "end": 6882
+          },
+          {
+            "text": " we have a function declaration here. The children are the expression bounded to the parent. In that case, we have add and x. The plus operator is treated as the prefix operator, not as the infix one. The nodes @ stand for function applications.> (+) 2 x is equivalent to x + 2. In Haskell, putting brackets around the operator converts it to the prefix function.1. In the first step, we're assigning type variables to each expression. Each occurrence of a bound",
+            "start": 6883,
+            "end": 7345
+          },
+          {
+            "text": " must have the same type; in our case, variable x has the same type (t1) as a binding node.<div style=\"display: flex; justify-content: center; width: 100%\">  <div style=\"text-align: center; width: 400px\">    <img src=\"/content/type-inference/1.2.png\" />  </div></div>\\*\\*2. Now we're generating a set of constraints",
+            "start": 7346,
+            "end": 7661
+          },
+          {
+            "text": " types.\\*\\*Let's gather all the constraints we can have at this point.- t3 = Int because 2 is of type Int.- t2 = Int -> Int -> Int, because the algorithm knows types of elementary functions like (+).- Variable nodes don't introduce any constraints, because the algorithm does not know anything but the values they represent, so for example: x stays as t1.- @ nodes. If we have an expression like fun x, then we say that fun is",
+            "start": 7662,
+            "end": 8088
+          },
+          {
+            "text": " to x and fun is of a function type. What's more, the type of the whole expression fun x must be the same as the return type of fun. In our parse tree @ stands for fun a.<div style=\"display: flex; justify-content: center; width: 100%\">  <div style=\"text-align: center; width: 400px\">    <img src=\"/content/type-inference/1.3.png\" />  </",
+            "start": 8089,
+            "end": 8425
+          },
+          {
+            "text": "></div>\\*\\*3. Final step — solving the constraints by unification.\\*\\*The following list of constraints is just what we got from the second step.<div class=\"gatsby-highlight\" data-language=\"sh\">  <pre style=\"    margin: 0;    padding-left: 10px;    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;",
+            "start": 8426,
+            "end": 8746
+          },
+          {
+            "text": "   font-size: 1em;    text-align: left;    white-space: pre;    word-spacing: normal;    word-break: normal;    word-wrap: normal;    line-height: 1.2em;    -moz-tab-size: 4;    -o-tab-size: 4;    tab-size: 4",
+            "start": 8747,
+            "end": 8955
+          },
+          {
+            "text": "    -webkit-hyphens: none;    -ms-hyphens: none;    hyphens: none;    color: black !important; background: white !important;\">    <code>1° t0 = t1 -> t62° t4 = t1 -> t63° t2 = t3 -> t44° t2 = Int -> (Int -> Int)5° t3 = Int   ",
+            "start": 8956,
+            "end": 9181
+          },
+          {
+            "text": "code>  </pre></div>Now, from the 4° and 5° we can imply the following equation:<div class=\"gatsby-highlight\" data-language=\"sh\">  <pre style=\"    margin: 0;    padding-left: 10px;    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;    font-size: 1em;  ",
+            "start": 9182,
+            "end": 9457
+          },
+          {
+            "text": " text-align: left;    white-space: pre;    word-spacing: normal;    word-break: normal;    word-wrap: normal;    line-height: 1.2em;    -moz-tab-size: 4;    -o-tab-size: 4;    tab-size: 4;    -webkit-hyphens: none;",
+            "start": 9458,
+            "end": 9672
+          },
+          {
+            "text": "   -ms-hyphens: none;    hyphens: none;    color: black !important; background: white !important;\">    <code>6° t4 = Int -> Int    (from 3° and 4°)    </code>  </pre></div>We still have t1 and t6 unsolved but thanks to the new equation 6° and 2° we can imply:<div class=\"g",
+            "start": 9673,
+            "end": 9945
+          },
+          {
+            "text": "by-highlight\" data-language=\"sh\">  <pre style=\"    margin: 0;    padding-left: 10px;    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;    font-size: 1em;    text-align: left;    white-space: pre;    word-spacing: normal;    word",
+            "start": 9946,
+            "end": 10199
+          },
+          {
+            "text": "break: normal;    word-wrap: normal;    line-height: 1.2em;    -moz-tab-size: 4;    -o-tab-size: 4;    tab-size: 4;    -webkit-hyphens: none;    -ms-hyphens: none;    hyphens: none;    color: black !important; background:",
+            "start": 10200,
+            "end": 10421
+          },
+          {
+            "text": " !important;\">    <code>8° t1 = Int    (from 2° and 7°)9° t6 = Int    (from 2° and 7°)    </code>  </pre></div>Hurrah! We have it all solved ���<div class=\"gatsby-highlight\" data-language=\"sh\">  <pre style=\"    margin: 0;    padding",
+            "start": 10422,
+            "end": 10654
+          },
+          {
+            "text": "left: 10px;    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;    font-size: 1em;    text-align: left;    white-space: pre;    word-spacing: normal;    word-break: normal;    word-wrap: normal;    line-height: 1.2em;  ",
+            "start": 10655,
+            "end": 10897
+          },
+          {
+            "text": " -moz-tab-size: 4;    -o-tab-size: 4;    tab-size: 4;    -webkit-hyphens: none;    -ms-hyphens: none;    hyphens: none;    color: black !important; background: white !important;\">    <code>t0 = Int -> Intt1 = Intt2 = Int -> Int ->",
+            "start": 10898,
+            "end": 11128
+          },
+          {
+            "text": "t3 = Intt4 = Int -> Intt6 = Int    </code>  </pre></div>### #2Polymorphic functions this time. I won't go into much details, hopefully you got the idea after the first example.<div style=\"display: flex; justify-content: center; width: 100%\">  <div style=\"text-align: center; width: 400px\">    <img src=\"/content/type-in",
+            "start": 11129,
+            "end": 11448
+          },
+          {
+            "text": "/2.1.png\" />  </div></div>1. Assigning type variables to each expression.<div style=\"display: flex; justify-content: center; width: 100%\">  <div style=\"text-align: center; width: 500px\">    <img src=\"/content/type-inference/2.2.png\" />  </div></div>2. Generating a set of constraints on types.<div style=\"display",
+            "start": 11449,
+            "end": 11761
+          },
+          {
+            "text": " flex; justify-content: center; width: 100%\">  <div style=\"text-align: center; width: 500px\">    <img src=\"/content/type-inference/2.3.png\" />  </div></div>\\*\\*3. Solving the constraints by unification.\\*\\*This is what we have on start:<div class=\"gatsby-highlight\" data-language=\"sh\">  <",
+            "start": 11762,
+            "end": 12050
+          },
+          {
+            "text": " style=\"    margin: 0;    padding-left: 10px;    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;    font-size: 1em;    text-align: left;    white-space: pre;    word-spacing: normal;    word-break: normal;    word-wrap: normal;",
+            "start": 12051,
+            "end": 12302
+          },
+          {
+            "text": "   line-height: 1.2em;    -moz-tab-size: 4;    -o-tab-size: 4;    tab-size: 4;    -webkit-hyphens: none;    -ms-hyphens: none;    hyphens: none;    color: black !important; background: white !important;\">    <code>1° t",
+            "start": 12303,
+            "end": 12521
+          },
+          {
+            "text": " = t2 -> t62° t0 = t3 -> t63° t3 = (t1, t2)    </code>  </pre></div>Thanks to the equation 3°, we can substitute t3 in equation 1°:<div class=\"gatsby-highlight\" data-language=\"sh\">  <pre style=\"    margin: 0;    padding-left: 10px;    font-family",
+            "start": 12522,
+            "end": 12768
+          },
+          {
+            "text": " Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;    font-size: 1em;    text-align: left;    white-space: pre;    word-spacing: normal;    word-break: normal;    word-wrap: normal;    line-height: 1.2em;    -moz-tab-size: 4; ",
+            "start": 12769,
+            "end": 13004
+          },
+          {
+            "text": "  -o-tab-size: 4;    tab-size: 4;    -webkit-hyphens: none;    -ms-hyphens: none;    hyphens: none;    color: black !important; background: white !important;\">    <code>4° t0 = (t1, t2) -> t6    </code>  </pre></div>And then",
+            "start": 13005,
+            "end": 13229
+          },
+          {
+            "text": " 1° to substitute t1 in 4°:<div class=\"gatsby-highlight\" data-language=\"sh\">  <pre style=\"    margin: 0;    padding-left: 10px;    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;    font-size: 1em;    text-align: left;    white-space:",
+            "start": 13230,
+            "end": 13488
+          },
+          {
+            "text": ";    word-spacing: normal;    word-break: normal;    word-wrap: normal;    line-height: 1.2em;    -moz-tab-size: 4;    -o-tab-size: 4;    tab-size: 4;    -webkit-hyphens: none;    -ms-hyphens: none;   ",
+            "start": 13489,
+            "end": 13690
+          },
+          {
+            "text": "hens: none;    color: black !important; background: white !important;\">    <code>5° t0 = (t2 -> t6, t2) -> t6    </code>  </pre></div>And the above stands for the type of our polymorphic function! ���## ComplexityThe time complexity for this algorithm was \\[proven] to be exponential. However, it's mostly linear in practice, but",
+            "start": 13691,
+            "end": 14020
+          },
+          {
+            "tokens": [
+              " in",
+              " the",
+              " depth",
+              " of",
+              " polymorph",
+              "ic",
+              " declarations",
+              ".",
+              "\\",
+              "[",
+              "proven",
+              "]:",
+              " https",
+              "://",
+              "dl",
+              ".",
+              "ac",
+              "m",
+              ".",
+              "org",
+              "/",
+              "doi",
+              "/",
+              "10",
+              ".",
+              "11",
+              "45",
+              "/",
+              "96",
+              "709",
+              ".",
+              "9",
+              "67",
+              "48",
+              "##",
+              " Summary",
+              "As",
+              " I",
+              " wrote",
+              " at",
+              " the",
+              " beginning",
+              ",",
+              " it",
+              " was",
+              " supposed",
+              " to",
+              " be",
+              " a",
+              " super",
+              " brief",
+              " inference",
+              " algorithm",
+              " explanation",
+              ".",
+              " I",
+              " hope",
+              " somebody",
+              " can",
+              " benefit",
+              " from",
+              " this",
+              ".",
+              "Thank",
+              " you",
+              " for",
+              " your",
+              " attention",
+              "!",
+              "Feel",
+              " free",
+              " to",
+              " correct",
+              " me",
+              " if",
+              " I",
+              " got",
+              " something",
+              " wrong",
+              " �",
+              "��"
+            ],
+            "start": 14021,
+            "end": 14021,
+            "text": " in the depth of polymorphic declarations.\\[proven]: https://dl.acm.org/doi/10.1145/96709.96748## SummaryAs I wrote at the beginning, it was supposed to be a super brief inference algorithm explanation. I hope somebody can benefit from this.Thank you for your attention!Feel free to correct me if I got something wrong ���"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Developing VS Code extensions",
+      "path": "vscode-extensions.mdx",
+      "content": {
+        "chunks": [
+          {
+            "text": "This article is based on the talk I gave at #1 Wrocław TypeScript Meetup.## TL;DRIf you want to skip the guide and go straight to the code, check out the repo. Otherwise, read on!## What is VS Code?I hope that most of you at least heard about VS Code. For those who didn��t — VS Code is a lightweight, cross-platform development environment created by Microsoft, that runs on Electron. VS Code describes",
+            "start": 0,
+            "end": 403
+          },
+          {
+            "text": " as just a code editor but with various extensions that the user can install it comes near to being a fully integrated development environment (IDE).At the core of VS Code lays an API that provides an extensible model that is relatively easy for developers to build on. Almost every part can be customized and extended through the Extension API. VS Code was built with a guiding principle to make it easily developed by its user and many of the core features are also build as extensions.Extension API is a really formidable",
+            "start": 404,
+            "end": 928
+          },
+          {
+            "text": ". List of things that you can achieve using it is impressive. You can, for example, change the look, colors, add custom components to the UI, support new languages, insert your own app into the VS Code thanks to webviews, support debugging, add a new docked panel on the left bar and much, much more.## Why build an extension?### Just for fun �������️There��s a lot you can do with Extension API to play",
+            "start": 929,
+            "end": 1332
+          },
+          {
+            "text": " experiment with how VS Code looks and works. Was there something that kept triggering you? You can change it. Something that was missing? You can add it. And on top of that, you can play a little with TypeScript and there��s no such thing as too much TypeScript fun.### Learning ���There��s always a bit of knowledge that comes with writing code. So by creating an extension not only will you learn how VS code works but also you will gain",
+            "start": 1333,
+            "end": 1773
+          },
+          {
+            "text": " overall programming skills.### Fame ���You can create an extension that everyone will love and end up giving something back to the community. And there��s a lot of GitHub stars coming along with that.## How to create an extension?To generate an extension there are two tools needed — yeoman, that helps to kickstart a new project, and vscode-generator-code, which is a generator build with yeoman by VS Code team. The generator scaffolds a",
+            "start": 1774,
+            "end": 2214
+          },
+          {
+            "text": " ready for development. I��m assuming that you have npm already installed. And VS Code. Although, I once saw someone creating a VS Code extension in Notepad++, so maybe VS Code is not a mandatory thing ���.Anyway, typing yo code in the terminal, it will open some nice looking generator that will ask a couple of questions.yo code!And these things are:- What type of extension is it going to be? In this article, I will only describe the",
+            "start": 2215,
+            "end": 2652
+          },
+          {
+            "text": " kind — TypeScript extension.- What will be the name of it? Use your imagination. I will go with test. Literally no imagination, sorry ���.- What will be the identifier? Can be the same as the name.- What��s the description? It can be filled later on.- What��s the publisher name? You can type anything for now. Your handle for example. I��ll provide a decent explanation later in the article.- Should it initialize a git repository",
+            "start": 2653,
+            "end": 3085
+          },
+          {
+            "text": " Why not.## What��s inside of the extension?Let��s go through the project structure and see what was generated.Generated files structureI��ll focus on two things in there: package.json and src directory. So starting with a package.json you can see that there are two sections:- Information needed by VS Code to create an extension — at the top- Information needed by npm to download proper dependencies and build the project — at the bottomA couple of these",
+            "start": 3086,
+            "end": 3543
+          },
+          {
+            "text": " are quite self-explanatory like \\_name, description, publisher — they were provided while generating a project.Let��s take a look at these fields that were not set in the generator:- main: tells what��s the extension entry point, where to find it- engines: states which versions of VS Code the extension will support- categories: allows to set the type of the extension. It can be one of the following:  Languages, Snippets, Linters",
+            "start": 3544,
+            "end": 3977
+          },
+          {
+            "text": " Themes, Debuggers, Formatters, Keymaps, Other- contributes: things specified in there will be exposed to the user configuration entries, for example, new commands that will be added to the command palette or new keybindings- activationEvents: specifies when the activation event happens — when the extension will be loaded to VS Code. In contrast to some other IDEs that require a lot of time and annoyance to start, VS Code starts almost immediately, like in a couple of seconds, even",
+            "start": 3978,
+            "end": 4464
+          },
+          {
+            "text": " you have hundreds of extensions installed. That��s because VS Code loads the extensions in a lazy way — only if they are needed. So if you specify the activation event as onCommand it will be loaded after the first usage. But if you want the extension to be loaded from the beginning you have to set it to \\* . It contributes to the goal of having VS Code as lightweight as possible.As we went through package.json, let��s take a look at src/",
+            "start": 4465,
+            "end": 4908
+          },
+          {
+            "text": "ension.ts now.Notice vscode.command.registerCommand. This function will provide an implementation for the command that was declared in package.json. It takes two arguments, the first is the name of the command to register. The second parameter is a function that will be executed when the command is run. So, what will happen if the user will try to run Say Hello :- If it��s the first time of running this command — the activate function has not been executed",
+            "start": 4909,
+            "end": 5369
+          },
+          {
+            "text": " VS Code was launched — then activate is called- The activate function will register the command- If the command the user called is already registered then that command itself is executedThe role of deactivate is to do some clean up before the extension becomes deactivated.In src/ there��s also test/ directory, but I will skip a detailed explanation in this article because the VS Code extensions tests are another big topic.To see if it��s all working properly you can click F5.",
+            "start": 5370,
+            "end": 5851
+          },
+          {
+            "text": " will open the Extension Development Host where your extension is already installed. Now you can find Say Hello in the command palette, run it and expect Hello World message to be shown.## A little bit more complex example\\_Hello World example was cool, but nothing really happened here ��. So, I��ve come up with some more or less real-life extension. It��s still very simple, but I��ll use more of VS Code Extensions API.So, first",
+            "start": 5852,
+            "end": 6284
+          },
+          {
+            "text": " what will be the extension about? Some of us may have this problem when after hours of debugging some not so decent words sneak into the console logs. It may be quite a shame to accidentally commit them and let everybody in your team see your real nature. So, the extension will be censoring all the bad words from the console logs ���.Let��s run yo code again.Ok, so how can I purify the console logs? Well, first things first, I have",
+            "start": 6285,
+            "end": 6721
+          },
+          {
+            "text": " know what��s a bad word and what��s not. And there��s a library for that! ���I��ll use nodejs-profanity-util that will both detect and censor all profanities. So what I only need to care about is how to extract the console logs and how to apply some changes to the document in VS Code.I��ll create a function purifyLogs that will consist of the whole extension implementation. So",
+            "start": 6722,
+            "end": 7102
+          },
+          {
+            "text": " let��s start!VS Code Extension API gives me access to the currently active editor so that I can get to the content of the associated text document.Then I need to get some information about the file and the logs. I have a function that in a nutshell, for each console log, returns an object consisting of the number of bad words, the purified version, and the vscode.Range, which has two attributes: start and end position of the console log. The signature of",
+            "start": 7103,
+            "end": 7562
+          },
+          {
+            "text": " function is as follows:I��m also creating an instance of the vscode.WorkspaceEdit class which will allow me to do some textual changes in the document. Having information about logs and theWorkspaceEdit instance I can replace bad words with their purified substitutes for each log that is not courteous.To display some extra information about the number of censored words, I��ll also count them.In the end, I��m applying the changes made to the document",
+            "start": 7563,
+            "end": 8017
+          },
+          {
+            "text": " Once it��s executed I��m displaying the proper message to the user and saving the document.Then, of course, I need to register this with registerCommand.And the last but not least – update the package.json.Let��s see how it works!Yay, seems to work! ���You can check out the whole implementation in the repo.## Publishing the extensionOkay, so there��s a working extension, but now I��d",
+            "start": 8018,
+            "end": 8405
+          },
+          {
+            "text": " people to start using it. Especially, since I know some that may benefit from this ���There are two ways of sharing the extension. But in either way, you need to install vsce tool first:    npm install -g vsceIt will, among the other things, perform some checks and one of them is to make sure there��s a proper README.md. It at least needs to differ somehow from the generated one. Don��t forget to",
+            "start": 8406,
+            "end": 8806
+          },
+          {
+            "text": " it.### Creating a VSIX deployment packageThis is the first way of sharing your extension. VSIX package it��s a .vsix file that contains one or more Visual Studio extensions. Once you have it you can send this package to whoever you want.    vsce packageThe command above will create a .vsix file in the current directory. Then you can find Extensions: Install from VSIX in the command palette and provide a newly created file.### Publishing an extension",
+            "start": 8807,
+            "end": 9261
+          },
+          {
+            "text": " the VS Code marketplace.The first thing needed to do is to create a new publisher – an identity who can publish extensions to the Visual Studio Code Marketplace. To do it you need to have something called a personal access token (PAT) from Azure DevOps. If you don��t have an account in there, create one. It��s free. Once you have one and you��re on your organization page, find your avatar (or acronym) in the top right corner",
+            "start": 9262,
+            "end": 9691
+          },
+          {
+            "text": " go to the Security page. Notice the big blue button with a New Token label and click it. It will open a modal where are basically three things you need to do:1. Provide a name for the token1. Choose All accessible organizations in the Organizations dropdown1. In the Scopes section find Marketplace and check all the checkboxesClick Create. Don��t forget to copy a newly created token, you��re not going to see it anymore. To create a publisher",
+            "start": 9692,
+            "end": 10137
+          },
+          {
+            "text": " need to type the following command in the terminal:    vsce create-publisher \\_publisher-name\\_Now, using the same tool, the extension can be easily published:    vsce publish -p \\_token\\_If you don��t want to provide a token every time you can make vsce remember it. After executing the command below it will ask for a token, but then it will be remembered.    vsce login",
+            "start": 10138,
+            "end": 10511
+          },
+          {
+            "text": " Wrapping upVS Code is great ��� It��s lightweight, fully customizable and makes a nice playground to do cool stuff.Building an extension is easy ��� As you��ve seen there��s no big knowledge required to do an extension. You can achieve really cool stuff in a couple lines of code.There��s plenty of reasons to build one ���️ Who doesn��t want to create something cool that will make things easier for other developers",
+            "start": 10512,
+            "end": 10930
+          },
+          {
+            "tokens": [
+              "If",
+              " you",
+              " want",
+              " to",
+              " take",
+              " a",
+              " look",
+              " at",
+              " the",
+              " whole",
+              " project",
+              " the",
+              " code",
+              " is",
+              " available",
+              " here",
+              " and",
+              " you",
+              " can",
+              " also",
+              " find",
+              " it",
+              " in",
+              " the",
+              " marketplace",
+              ".",
+              "##",
+              " References",
+              "Doc",
+              "s",
+              " with",
+              " examples",
+              "Other",
+              " awesome",
+              " docs",
+              "Ext",
+              "ensions",
+              " samples",
+              " on",
+              " GitHub"
+            ],
+            "start": 10931,
+            "end": 10931,
+            "text": "If you want to take a look at the whole project the code is available here and you can also find it in the marketplace.## ReferencesDocs with examplesOther awesome docsExtensions samples on GitHub"
+          }
+        ]
+      }
+    }
+  ]
+}

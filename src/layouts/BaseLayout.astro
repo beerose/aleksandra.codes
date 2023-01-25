@@ -3,6 +3,7 @@ import InitColorScheme from "../lib/color-scheme/InitColorScheme.astro";
 import { Commands } from "../lib/Commands";
 import GrainOverlay from "../lib/GrainOverlay/GrainOverlay.astro";
 import { Link } from "../lib/Link";
+import SocialCardMetaTags from "../lib/SocialCardMetaTags.astro";
 import type { PostFrontmatter, TalkFrontmatter } from "../types";
 
 import "../global-styles/base.css";
@@ -16,9 +17,10 @@ interface Props {
   activePage: "writing" | "speaking" | "home";
   description?: string;
   children: astroHTML.JSX.Element;
+  ogImage?: string;
 }
 
-const { title, description, activePage } = Astro.props;
+const { title, description, activePage, ogImage } = Astro.props;
 
 const posts = (await Astro.glob<PostFrontmatter>("../../posts/*.mdx")).map(
   (p) => ({
@@ -28,7 +30,7 @@ const posts = (await Astro.glob<PostFrontmatter>("../../posts/*.mdx")).map(
   })
 );
 posts.sort((a, b) => {
-  return new Date(a.date).getTime() - new Date(b.date).getTime();
+  return new Date(b.date).getTime() - new Date(a.date).getTime();
 });
 
 const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
@@ -45,12 +47,16 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script
       type="module"
       src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1.4.0/lite-youtube.js"
     ></script>
     <meta name="viewport" content="width=device-width" />
+
+    <SocialCardMetaTags ogImage={ogImage} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
     <title>{title}</title>
     <meta
       name="description"
@@ -90,22 +96,28 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
           noUnderline
           class={activePage === "home"
             ? "font-semibold text-gray-600 dark:text-gray-300 mr-auto"
-            : "mr-auto"}>/</Link
+            : "mr-auto"}
         >
+          /
+        </Link>
         <Link
           href="/writing"
           noUnderline
           class={activePage === "writing"
             ? "font-semibold text-gray-600 dark:text-gray-300 !mx-auto"
-            : "!mx-auto"}>WRITING</Link
+            : "!mx-auto"}
         >
+          WRITING
+        </Link>
         <Link
           href="/speaking"
           noUnderline
           class={activePage === "speaking"
             ? "font-semibold text-gray-600 dark:text-gray-300 ml-auto"
-            : "ml-auto"}>SPEAKING</Link
+            : "ml-auto"}
         >
+          SPEAKING
+        </Link>
       </div>
       <header class="flex justify-between mx-1 items-center">
         <slot name="header-content">

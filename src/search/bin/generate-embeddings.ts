@@ -3,10 +3,9 @@ import * as fs from "fs";
 
 import dotenv from "dotenv";
 import { Configuration, OpenAIApi } from "openai";
-import { PineconeClient } from "pinecone-client";
 
-import { BLOG_NAME, PineconeMetadata, PostDetails } from "../types";
-import { upsertPostsContent } from "../upsertPostsContent";
+import { BLOG_NAME, PostDetails } from "../types";
+import { getEmbeddingsForPostContent } from "../getEmbeddings";
 
 dotenv.config();
 
@@ -30,20 +29,33 @@ async function main() {
     })
   );
 
-  const pinecone = new PineconeClient<PineconeMetadata>({
-    apiKey: process.env.PINECONE_API_KEY as string,
-    baseUrl: process.env.PINECONE_BASE_URL as string,
-    namespace: process.env.PINECONE_NAMESPACE as string,
-  });
-
   const { items }: { items: PostDetails[] } = JSON.parse(
     fs.readFileSync(`./${BLOG_NAME}.json`, "utf-8")
   );
 
-  await upsertPostsContent(items, {
-    openai,
-    pinecone,
-  });
+  for (const item of items) {
+    try {
+      console.log(`Processing post: ${item.title}...`);
+      const itemEmbeddings = await getEmbeddingsForPostContent({
+        id: item.path,
+        content: item.content,
+        title: item.title,
+        openai,
+      });
+
+      console.log(
+        `Generated ${itemEmbeddings.length} vectors for post: ${item.title}`
+      );
+
+      fs.writeFileSync(
+        `./vectors/${item.path}.json`,
+        JSON.stringify({ itemEmbeddings }, null, 2),
+        "utf-8"
+      );
+    } catch (err) {
+      console.error(`Error processing post: ${item.title}`, err);
+    }
+  }
 }
 
 main().catch((err) => {

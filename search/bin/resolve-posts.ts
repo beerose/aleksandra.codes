@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-import { titleCase } from "../../lib/titleCase";
+import { titleCase } from "../../src/lib/titleCase";
 import { mdxToPlainText } from "../mdxToPlainText";
 import { splitIntoChunks } from "../splitIntoChunks";
 import type { PostDetails } from "../types";

@@ -89,19 +89,38 @@ export async function getEmbeddingsForPostContent({
 
   const vectors: PineconeVector[] = [];
 
-  for (const pendingVector of pendingVectors) {
-    const { data: embed } = await openai.createEmbedding({
-      input: pendingVector.input,
-      model,
-    });
+  while (pendingVectors.length) {
+    // We have 20 RPM on Free Trial, and 60 RPM on Pay-as-you-go plan, so we'll do exponential backoff.
+    let timeout = 10_000;
+    const pendingVector = pendingVectors.shift()!;
+    try {
+      const { data: embed } = await openai.createEmbedding({
+        input: pendingVector.input,
+        model,
+      });
 
-    const vector: PineconeVector = {
-      id: pendingVector.id,
-      metadata: pendingVector.metadata,
-      values: embed.data[0]?.embedding || [],
-    };
+      const vector: PineconeVector = {
+        id: pendingVector.id,
+        metadata: pendingVector.metadata,
+        values: embed.data[0]?.embedding || [],
+      };
 
-    vectors.push(vector);
+      vectors.push(vector);
+    } catch (err: unknown) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "status" in err &&
+        err.status === 429
+      ) {
+        pendingVectors.unshift(pendingVector);
+        timeout *= 2;
+        console.log("Rate limit exceeded, retrying in", timeout, "ms");
+        await new Promise((resolve) => setTimeout(resolve, timeout));
+      } else {
+        throw err;
+      }
+    }
   }
 
   return vectors;

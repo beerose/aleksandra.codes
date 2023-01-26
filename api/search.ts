@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 import { PineconeClient } from "pinecone-client";
 
-import { openaiEmbeddingModel, PineconeMetadata } from "../src/search/types";
+import { openaiEmbeddingModel, PineconeMetadata } from "../search/types";
 
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
 const PINECONE_BASE_URL = process.env.PINECONE_BASE_URL;

@@ -4,8 +4,8 @@ import * as fs from "fs";
 import dotenv from "dotenv";
 import { Configuration, OpenAIApi } from "openai";
 
-import { BLOG_NAME, PostDetails } from "../types";
 import { getEmbeddingsForPostContent } from "../getEmbeddings";
+import { BLOG_NAME, PostDetails } from "../types";
 
 dotenv.config();
 

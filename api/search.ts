@@ -26,12 +26,14 @@ export default async function search(request: Request, response: any) {
     );
     const query = searchParams.get("q");
 
-    const openai = new OpenAIApi(new Configuration({ apiKey: OPENAI_API_KEY }));
+    const openai = new OpenAIApi(
+      new Configuration({ apiKey: OPENAI_API_KEY as string })
+    );
 
     const pinecone = new PineconeClient<PineconeMetadata>({
-      apiKey: PINECONE_API_KEY,
-      baseUrl: PINECONE_BASE_URL,
-      namespace: PINECONE_NAMESPACE,
+      apiKey: PINECONE_API_KEY as string,
+      baseUrl: PINECONE_BASE_URL as string,
+      namespace: PINECONE_NAMESPACE as string,
     });
 
     if (!query || typeof query !== "string") {

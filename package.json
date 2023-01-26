@@ -1,6 +1,7 @@
 {
   "name": "@zaduma/astro-starter",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "packageManager": "pnpm@7.25.0",
   "scripts": {

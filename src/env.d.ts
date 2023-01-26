@@ -1,7 +1,5 @@
 /// <reference types="@astrojs/image/client" />
 
-declare module "remark-mdx-to-plain-text" {}
-
 interface ImportMetaEnv {
   /**
    * - `https://localhost:3000/` in development

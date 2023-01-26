@@ -15,8 +15,7 @@ export async function getEmbeddingsForPostContent({
   openai,
   model = openaiEmbeddingModel,
   maxInputTokens = MAX_INPUT_TOKENS,
-}: // concurrency = 4,
-{
+}: {
   content: PostContent;
   title: string;
   id: string;
@@ -89,9 +88,9 @@ export async function getEmbeddingsForPostContent({
 
   const vectors: PineconeVector[] = [];
 
+  let timeout = 10_000;
   while (pendingVectors.length) {
     // We have 20 RPM on Free Trial, and 60 RPM on Pay-as-you-go plan, so we'll do exponential backoff.
-    let timeout = 10_000;
     const pendingVector = pendingVectors.shift()!;
     try {
       const { data: embed } = await openai.createEmbedding({
@@ -107,16 +106,11 @@ export async function getEmbeddingsForPostContent({
 
       vectors.push(vector);
     } catch (err: unknown) {
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "status" in err &&
-        err.status === 429
-      ) {
+      if (rateLimitExceeded(err)) {
         pendingVectors.unshift(pendingVector);
-        timeout *= 2;
-        console.log("Rate limit exceeded, retrying in", timeout, "ms");
+        console.log("OpenAI rate limit exceeded, retrying in", timeout, "ms");
         await new Promise((resolve) => setTimeout(resolve, timeout));
+        timeout *= 2;
       } else {
         throw err;
       }
@@ -124,6 +118,18 @@ export async function getEmbeddingsForPostContent({
   }
 
   return vectors;
+}
+
+function rateLimitExceeded(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof err["response"] === "object" &&
+    err["response"] !== null &&
+    "status" in err.response &&
+    err.response.status === 429
+  );
 }
 
 function getNumTokensEstimate(input: string): number {

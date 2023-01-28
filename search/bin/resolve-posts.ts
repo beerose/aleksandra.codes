@@ -5,7 +5,7 @@ import { mdxToPlainText } from "../mdxToPlainText";
 import { splitIntoChunks } from "../splitIntoChunks";
 import type { PostDetails } from "../types";
 
-const getTitle = (content: string, path: string) => {
+const getTitle = (content: string, path: string): string => {
   const title = /(?<=title: ).*/.exec(content)?.[0];
   if (title) {
     return title.replace(/"/g, "");

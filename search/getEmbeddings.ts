@@ -1,4 +1,5 @@
 import type { OpenAIApi } from "openai";
+import { isRateLimitExceeded } from "./isRateLimitExceeded";
 
 import {
   MAX_INPUT_TOKENS,
@@ -106,7 +107,7 @@ export async function getEmbeddingsForPostContent({
 
       vectors.push(vector);
     } catch (err: unknown) {
-      if (rateLimitExceeded(err)) {
+      if (isRateLimitExceeded(err)) {
         pendingVectors.unshift(pendingVector);
         console.log("OpenAI rate limit exceeded, retrying in", timeout, "ms");
         await new Promise((resolve) => setTimeout(resolve, timeout));
@@ -118,18 +119,6 @@ export async function getEmbeddingsForPostContent({
   }
 
   return vectors;
-}
-
-function rateLimitExceeded(err: unknown): boolean {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "response" in err &&
-    typeof err["response"] === "object" &&
-    err["response"] !== null &&
-    "status" in err.response &&
-    err.response.status === 429
-  );
 }
 
 function getNumTokensEstimate(input: string): number {

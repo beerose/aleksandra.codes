@@ -27,7 +27,7 @@ async function main() {
     const plainText = await mdxToPlainText(rawContent);
 
     const chunks = splitIntoChunks(plainText);
-    console.log(`Split post ${title} into ${chunks.length} chunks`);
+    console.log(`Split post ${title} into ${chunks.length} chunks\n`);
 
     const postDetail = {
       title,

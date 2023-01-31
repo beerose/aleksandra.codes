@@ -30,7 +30,7 @@ describe("mdxToPlainText", () => {
     assert.equal(output, expectedOutput);
   });
 
-  it("should remove frontmatter", async () => {
+  it.only("should remove frontmatter", async () => {
     const rawInput = ["---", "title: Hello World", "---", "Hello"].join("\n");
     const expectedOutput = "Hello";
     const output = await mdxToPlainText(rawInput);

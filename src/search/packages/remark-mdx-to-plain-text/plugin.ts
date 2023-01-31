@@ -105,6 +105,8 @@ export const remarkMdxToPlainText: Plugin<[], Root> = () => {
   function stripOne(node: Node): Node | Node[] {
     let result: Node | Node[] = node;
 
+    console.log(">>", node.type);
+
     if (node.type in handlers) {
       const handler = handlers[node.type];
       if (handler) result = handler(result);

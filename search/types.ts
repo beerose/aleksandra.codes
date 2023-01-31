@@ -34,6 +34,5 @@ export type Chunk = {
   end: number;
 };
 
-export const BLOG_NAME = "aleksandra-codes";
 export const openaiEmbeddingModel = "text-embedding-ada-002";
 export const MAX_INPUT_TOKENS = 100;

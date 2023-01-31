@@ -1,12 +1,12 @@
-import { remark } from "remark";
-import remarkFrontmatter from "remark-frontmatter";
-import remarkGfm from "remark-gfm";
-import remarkMdx from "remark-mdx";
-import remarkSmartypants from "remark-smartypants";
-
 import { remarkMdxToPlainText } from "./plugin";
 
 export const mdxToPlainText = async (rawContent: string) => {
+  const remark = (await import("remark")).remark;
+  const remarkFrontmatter = (await import("remark-frontmatter")).default;
+  const remarkGfm = (await import("remark-gfm")).default;
+  const remarkMdx = (await import("remark-mdx")).default;
+  const remarkSmartypants = (await import("remark-smartypants")).default;
+
   try {
     const vfile = await remark()
       .use(remarkFrontmatter)

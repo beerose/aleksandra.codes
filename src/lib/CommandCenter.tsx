@@ -1,3 +1,4 @@
+import debounce from "lodash.debounce";
 import {
   children,
   createContext,
@@ -28,6 +29,11 @@ const fetchResults = async (query: string) => {
   return res as Result;
 };
 
+const debouncedFetchResults = debounce(fetchResults, 1000, {
+  trailing: true,
+  leading: true,
+});
+
 type CommandCenterCtx = {
   listId: string;
   inputId: string;
@@ -36,7 +42,6 @@ type CommandCenterCtx = {
   isSelected: (command: string) => boolean;
   matchesFilter: (command: string) => boolean;
   onInput: (filter: string) => void;
-  setSemanticMatches: (matches: { title: string; score: number }[]) => void;
 };
 const CommandCenterCtx = createContext<CommandCenterCtx>({
   inputId: "",
@@ -46,7 +51,6 @@ const CommandCenterCtx = createContext<CommandCenterCtx>({
   isSelected: () => false,
   matchesFilter: () => true,
   onInput: () => {},
-  setSemanticMatches: () => {},
 });
 
 const useCtx = () => useContext(CommandCenterCtx);
@@ -91,21 +95,12 @@ export function CommandCenter(props: CommandCenterProps) {
   const [selectedCommand, selectCommand] = createSignal<string>("");
   const isSelected = createSelector(selectedCommand);
 
-  const [semanticMatches, setSemanticMatches] = createSignal<
-    { title: string; score: number }[]
-  >([]);
-
-  const [result] = createResource(inputValue, fetchResults);
-
-  createEffect(() => {
-    if (result()) {
-      setSemanticMatches(result() || []);
-    }
-  });
+  const [result] = createResource(inputValue, debouncedFetchResults);
 
   const match = (option: string, pattern: string) => {
-    if (semanticMatches().length > 0) {
-      return semanticMatches().some((match) =>
+    const matches = result();
+    if (matches && matches.length > 0) {
+      return matches.some((match) =>
         match.title.toLowerCase().includes(option.toLowerCase())
       );
     }
@@ -184,7 +179,6 @@ export function CommandCenter(props: CommandCenterProps) {
         },
         isSelected,
         matchesFilter,
-        setSemanticMatches,
         onInput: (pattern) => {
           onInput(pattern);
 

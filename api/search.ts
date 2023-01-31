@@ -23,7 +23,7 @@ export default async function search(request: Request, response: any) {
       namespace: process.env.PINECONE_NAMESPACE as string,
     });
 
-    const result = await semanticQuery(query, openai, pinecone);
+    const result = await semanticQuery(query || "", openai, pinecone);
 
     const matchedPosts = result.matches.map((match) => ({
       path: match.metadata.id,

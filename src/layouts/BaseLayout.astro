@@ -30,7 +30,7 @@ const posts = (await Astro.glob<PostFrontmatter>("../../posts/*.mdx")).map(
   })
 );
 posts.sort((a, b) => {
-  return new Date(b.date).getTime() - new Date(a.date).getTime();
+  return new Date(a.date).getTime() - new Date(b.date).getTime();
 });
 
 const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))

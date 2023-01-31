@@ -1,8 +1,10 @@
+import debounce from "lodash.debounce";
 import {
   children,
   createContext,
   createEffect,
   createMemo,
+  createResource,
   createSelector,
   createSignal,
   createUniqueId,
@@ -15,6 +17,18 @@ import {
 
 import { Dialog, DialogProps } from "./Dialog";
 
+const fetchResults = async (query: string) => {
+  type Result = {
+    path: string;
+    score: number;
+    title: string;
+  }[];
+  if (!query) return [] as Result;
+
+  const res = await (await fetch(`api/search?q=${query}`)).json();
+  return res as Result;
+};
+
 type CommandCenterCtx = {
   listId: string;
   inputId: string;
@@ -22,8 +36,8 @@ type CommandCenterCtx = {
   open: () => void;
   isSelected: (command: string) => boolean;
   matchesFilter: (command: string) => boolean;
-  matchesSemantics: (command: string, matches: string[]) => boolean;
   onInput: (filter: string) => void;
+  setSemanticMatches: (matches: { title: string; score: number }[]) => void;
 };
 const CommandCenterCtx = createContext<CommandCenterCtx>({
   inputId: "",
@@ -32,8 +46,8 @@ const CommandCenterCtx = createContext<CommandCenterCtx>({
   open: () => {},
   isSelected: () => false,
   matchesFilter: () => true,
-  matchesSemantics: () => true,
   onInput: () => {},
+  setSemanticMatches: () => {},
 });
 
 const useCtx = () => useContext(CommandCenterCtx);
@@ -78,14 +92,25 @@ export function CommandCenter(props: CommandCenterProps) {
   const [selectedCommand, selectCommand] = createSignal<string>("");
   const isSelected = createSelector(selectedCommand);
 
-  const match = (option: string, pattern: string) => {
-    return option.toLowerCase().includes(pattern.toLowerCase());
-  };
+  const [semanticMatches, setSemanticMatches] = createSignal<
+    { title: string; score: number }[]
+  >([]);
 
-  const matchesSemantics = (option: string, matches: string[]) => {
-    return matches.some(
-      (match) => match.toLowerCase() === option.toLowerCase()
-    );
+  const [result] = createResource(inputValue, fetchResults);
+
+  createEffect(() => {
+    if (result()) {
+      setSemanticMatches(result() || []);
+    }
+  });
+
+  const match = (option: string, pattern: string) => {
+    if (semanticMatches().length > 0) {
+      return semanticMatches().some((match) =>
+        match.title.toLowerCase().includes(option.toLowerCase())
+      );
+    }
+    return option.toLowerCase().includes(pattern.toLowerCase());
   };
 
   const matchesFilter = createSelector<string, string>(inputValue, match);
@@ -160,7 +185,7 @@ export function CommandCenter(props: CommandCenterProps) {
         },
         isSelected,
         matchesFilter,
-        matchesSemantics,
+        setSemanticMatches,
         onInput: (pattern) => {
           onInput(pattern);
 

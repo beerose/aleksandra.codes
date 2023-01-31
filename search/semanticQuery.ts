@@ -7,8 +7,6 @@ import { openaiEmbeddingModel, PineconeMetadata } from "./types";
 export interface SemanticQueryOptions {
   /** Default: 10 */
   limit?: number;
-  /** Default: true */
-  includeMetadata?: boolean;
   /** Default: false */
   includeValues?: boolean;
 }
@@ -42,8 +40,8 @@ export async function semanticQuery(
 
   const response = await pinecone.query({
     vector: embed.data[0].embedding,
-    topK: options?.limit ?? 10,
-    includeMetadata: options?.includeMetadata ?? true,
+    topK: options?.limit ?? 3,
+    includeMetadata: true,
     includeValues: options?.includeValues ?? false,
   });
 

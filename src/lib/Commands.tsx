@@ -244,7 +244,9 @@ export function CommandsPalette({
             </CommandGroup>
           </Match>
           <Match when={page() === "search"}>
-            <CommandGroup heading={<GroupHeading>Posts</GroupHeading>}>
+            <CommandGroup
+              heading={<GroupHeading>Semantic Search Result</GroupHeading>}
+            >
               {posts.map((p) => (
                 <CommandItem href={p.href}>{p.title}</CommandItem>
               ))}

@@ -1,44 +1,23 @@
-import { assert } from "console";
-
-import { Configuration, CreateEmbeddingResponse, OpenAIApi } from "openai";
+import { CreateEmbeddingResponse, OpenAIApi } from "openai";
 import { PineconeClient } from "pinecone-client";
 
 import { isRateLimitExceeded } from "./isRateLimitExceeded";
 import { openaiEmbeddingModel, PineconeMetadata } from "./types";
 
-export async function semanticQuery(query: string | null) {
-  assert(process.env.OPENAI_API_KEY, "process.env.OPENAI_API_KEY is required");
-  assert(
-    process.env.PINECONE_API_KEY,
-    "process.env.PINECONE_API_KEY is required"
-  );
-  assert(
-    process.env.PINECONE_BASE_URL,
-    "process.env.PINECONE_BASE_URL is required"
-  );
-  assert(
-    process.env.PINECONE_NAMESPACE,
-    "process.env.PINECONE_NAMESPACE is required"
-  );
-
-  if (!query || typeof query !== "string") {
-    throw new Error(`Invalid query: ${query}`);
-  }
-
-  const openai = new OpenAIApi(
-    new Configuration({
-      apiKey: process.env.OPENAI_API_KEY as string,
-    })
-  );
-
-  const pinecone = new PineconeClient<PineconeMetadata>({
-    apiKey: process.env.PINECONE_API_KEY as string,
-    baseUrl: process.env.PINECONE_BASE_URL as string,
-    namespace: process.env.PINECONE_NAMESPACE as string,
-  });
-
-  console.log(`Creating embedding for query: ${query}...`);
-
+export interface SemanticQueryOptions {
+  /** Default: 10 */
+  limit?: number;
+  /** Default: true */
+  includeMetadata?: boolean;
+  /** Default: false */
+  includeValues?: boolean;
+}
+export async function semanticQuery(
+  query: string,
+  openai: OpenAIApi,
+  pinecone: PineconeClient<PineconeMetadata>,
+  options?: SemanticQueryOptions
+) {
   let embed: CreateEmbeddingResponse | null = null;
   try {
     embed = (
@@ -63,9 +42,9 @@ export async function semanticQuery(query: string | null) {
 
   const response = await pinecone.query({
     vector: embed.data[0].embedding,
-    topK: 10,
-    includeMetadata: true,
-    includeValues: false,
+    topK: options?.limit ?? 10,
+    includeMetadata: options?.includeMetadata ?? true,
+    includeValues: options?.includeValues ?? false,
   });
 
   return response;

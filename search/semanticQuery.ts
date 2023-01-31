@@ -1,5 +1,5 @@
-import { CreateEmbeddingResponse, OpenAIApi } from "openai";
-import { PineconeClient } from "pinecone-client";
+import type { CreateEmbeddingResponse, OpenAIApi } from "openai";
+import type { PineconeClient } from "pinecone-client";
 
 import { isRateLimitExceeded } from "./isRateLimitExceeded";
 import { openaiEmbeddingModel, PineconeMetadata } from "./types";

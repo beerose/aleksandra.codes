@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from "openai";
 import { PineconeClient } from "pinecone-client";
 
 import { semanticQuery } from "../search/semanticQuery";
-import { PineconeMetadata } from "../search/types";
+import type { PineconeMetadata } from "../search/types";
 
 export default async function search(request: Request, response: any) {
   try {

@@ -64,7 +64,8 @@ export const asidesPlugin: Plugin<[AsidesPluginOptions], Root, Root> = (
   };
 };
 
-interface RootContentMap extends hast.RootContentMap {
+interface RootContentMap
+  extends Omit<hast.RootContentMap, "mdxJsxFlowElement"> {
   mdxJsxFlowElement: MdxJsxFlowElement;
 }
 
@@ -75,7 +76,8 @@ interface Root {
   children: RootContent[];
 }
 
-interface ElementContentMap extends hast.ElementContentMap {
+interface ElementContentMap
+  extends Omit<hast.ElementContentMap, "mdxJsxFlowElement"> {
   mdxJsxFlowElement: MdxJsxFlowElement;
 }
 

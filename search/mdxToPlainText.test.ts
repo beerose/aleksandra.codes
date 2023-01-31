@@ -23,14 +23,14 @@ describe("mdxToPlainText", () => {
     assert.equal(output, expectedOutput);
   });
 
-  it("should remove code blocks", async () => {
+  it.only("should remove code blocks", async () => {
     const rawInput = ["```", "Bagel", "```"].join("\n");
     const expectedOutput = "Bagel";
     const output = await mdxToPlainText(rawInput);
     assert.equal(output, expectedOutput);
   });
 
-  it.only("should remove frontmatter", async () => {
+  it("should remove frontmatter", async () => {
     const rawInput = ["---", "title: Hello World", "---", "Hello"].join("\n");
     const expectedOutput = "Hello";
     const output = await mdxToPlainText(rawInput);

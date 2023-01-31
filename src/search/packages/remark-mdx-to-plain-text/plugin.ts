@@ -1,4 +1,4 @@
-import type { Content, Paragraph, Parent, PhrasingContent, Text } from "mdast";
+import type { Code, Content, Paragraph, Parent, Text } from "mdast";
 import type { Root } from "remark-mdx";
 import type { Plugin } from "unified";
 
@@ -16,6 +16,8 @@ const defaultHandlers: Partial<Record<Node["type"], Handler>> = {
   heading: paragraph,
   text,
   inlineCode: text,
+  code: text,
+
   image,
   imageReference: image,
   break: lineBreak,
@@ -29,7 +31,6 @@ const defaultHandlers: Partial<Record<Node["type"], Handler>> = {
   link: children,
   linkReference: children,
 
-  code: empty,
   thematicBreak: empty,
   html: empty,
   table: empty,
@@ -77,7 +78,7 @@ function image(
   return { type: "text", value: node.alt || title || "" };
 }
 
-function text(node: Text): Text {
+function text(node: Text | Code): Text {
   return { type: "text", value: node.value };
 }
 

@@ -22,6 +22,7 @@ type CommandCenterCtx = {
   open: () => void;
   isSelected: (command: string) => boolean;
   matchesFilter: (command: string) => boolean;
+  matchesSemantics: (command: string, matches: string[]) => boolean;
   onInput: (filter: string) => void;
 };
 const CommandCenterCtx = createContext<CommandCenterCtx>({
@@ -31,6 +32,7 @@ const CommandCenterCtx = createContext<CommandCenterCtx>({
   open: () => {},
   isSelected: () => false,
   matchesFilter: () => true,
+  matchesSemantics: () => true,
   onInput: () => {},
 });
 
@@ -78,6 +80,12 @@ export function CommandCenter(props: CommandCenterProps) {
 
   const match = (option: string, pattern: string) => {
     return option.toLowerCase().includes(pattern.toLowerCase());
+  };
+
+  const matchesSemantics = (option: string, matches: string[]) => {
+    return matches.some(
+      (match) => match.toLowerCase() === option.toLowerCase()
+    );
   };
 
   const matchesFilter = createSelector<string, string>(inputValue, match);
@@ -152,6 +160,7 @@ export function CommandCenter(props: CommandCenterProps) {
         },
         isSelected,
         matchesFilter,
+        matchesSemantics,
         onInput: (pattern) => {
           onInput(pattern);
 

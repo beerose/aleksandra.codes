@@ -9,7 +9,13 @@ export default async function search(request: Request, response: any) {
 
     const result = await semanticQuery(query);
 
-    await response.send(result);
+    const matchedPosts = result.matches.map((match) => ({
+      path: match.metadata.id,
+      score: match.score,
+      title: match.metadata.title,
+    }));
+
+    await response.send(matchedPosts);
   } catch (err: unknown) {
     console.error(err);
 

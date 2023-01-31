@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { titleCase } from "../../src/lib/titleCase";
 import { mdxToPlainText } from "../mdxToPlainText";
 import { splitIntoChunks } from "../splitIntoChunks";
-import type { PostDetails } from "../types";
+import { BLOG_NAME, PostDetails } from "../types";
 
 const getTitle = (content: string, path: string): string => {
   const title = /(?<=title: ).*/.exec(content)?.[0];
@@ -40,7 +40,7 @@ async function main() {
   }
 
   fs.writeFileSync(
-    `./aleksandra-codes.json`,
+    `./${BLOG_NAME}.json`,
     JSON.stringify({ items: postDetails }, null, 2),
     "utf-8"
   );

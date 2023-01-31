@@ -1,6 +1,8 @@
 import { assert } from "console";
+
 import { Configuration, CreateEmbeddingResponse, OpenAIApi } from "openai";
 import { PineconeClient } from "pinecone-client";
+
 import { isRateLimitExceeded } from "./isRateLimitExceeded";
 import { openaiEmbeddingModel, PineconeMetadata } from "./types";
 

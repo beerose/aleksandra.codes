@@ -21,3 +21,30 @@ stuff (added a bunch of new words to my dictionary 😅). I'm quite happy with t
 results so I’m writing this post to go over the steps I took to achieve that.
 
 Mistakes:
+
+Steps:
+
+1. Processing the content:
+
+- go over all the blogposts
+- get stuff like title and raw text (stripping the mdx stuff)
+
+- split each blogpost into chunks
+  - each chunk has 100 tokens
+    - what is a token?
+  - each chunk stores text, start, and end (could also store header)
+- saving the (post, chunks) info in a file
+
+2. Generating embeddings
+
+- for each processed blog post
+  - use OpenAI to create vector embeddings
+    - what are embeddings
+    - what are vectors
+
+3. Upsert vectors to pinecone along with metadata
+
+4. Query:
+
+- create embedding for query
+- send request to pinecone with the embedding

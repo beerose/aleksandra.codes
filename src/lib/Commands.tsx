@@ -62,7 +62,7 @@ export function CommandsPalette({
   posts: { title: string; href: string }[];
   talks: { title: string; href: string }[];
 }) {
-  type CommandsPage = "posts" | "theme" | undefined;
+  type CommandsPage = "posts" | "theme" | "search" | undefined;
   const [page, setPage] = createSignal<CommandsPage>();
   let dialog: HTMLDialogElement | undefined;
 
@@ -101,6 +101,14 @@ export function CommandsPalette({
       () => {
         if (dialog && !dialog.open) dialog.showModal();
         setPage("theme");
+      },
+    ],
+    [
+      "alt+s",
+      () => {
+        if (dialog && !dialog.open) dialog.showModal();
+        document.getElementById(INPUT_ID)?.focus();
+        setPage("search");
       },
     ],
     [
@@ -189,9 +197,12 @@ export function CommandsPalette({
               <CommandItem shortcut="alt+t" onClick={handleShortcut}>
                 Set Theme
               </CommandItem>
-              <CommandGroup heading={<GroupHeading>Posts</GroupHeading>}>
+              <CommandGroup heading={<GroupHeading>Search</GroupHeading>}>
                 <CommandItem shortcut="alt+slash" onClick={handleShortcut}>
-                  Search Posts & Talks
+                  Search by title
+                </CommandItem>
+                <CommandItem shortcut="alt+s" onClick={handleShortcut}>
+                  Semantic search
                 </CommandItem>
               </CommandGroup>
               <CommandGroup heading={<GroupHeading>Links</GroupHeading>}>
@@ -228,6 +239,13 @@ export function CommandsPalette({
             </CommandGroup>
             <CommandGroup heading={<GroupHeading>Talks</GroupHeading>}>
               {talks.map((p) => (
+                <CommandItem href={p.href}>{p.title}</CommandItem>
+              ))}
+            </CommandGroup>
+          </Match>
+          <Match when={page() === "search"}>
+            <CommandGroup heading={<GroupHeading>Posts</GroupHeading>}>
+              {posts.map((p) => (
                 <CommandItem href={p.href}>{p.title}</CommandItem>
               ))}
             </CommandGroup>

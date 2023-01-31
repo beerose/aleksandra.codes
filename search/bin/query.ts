@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 
 import { semanticQuery } from "../semanticQuery";
 
-export const openaiEmbeddingModel = "text-embedding-ada-002";
-
 dotenv.config();
 
 async function main() {

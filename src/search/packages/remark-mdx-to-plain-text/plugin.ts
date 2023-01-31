@@ -17,6 +17,7 @@ const defaultHandlers: Partial<Record<Node["type"], Handler>> = {
   text,
   inlineCode: text,
   code: text,
+  paragraph,
 
   image,
   imageReference: image,
@@ -43,6 +44,10 @@ const defaultHandlers: Partial<Record<Node["type"], Handler>> = {
 
   footnoteReference: empty,
   footnoteDefinition: empty,
+
+  mdxjsEsm: empty,
+  mdxJsxTextElement: empty,
+  mdxJsxFlowElement: empty,
 };
 
 /**
@@ -105,8 +110,6 @@ export const remarkMdxToPlainText: Plugin<[], Root> = () => {
 
   function stripOne(node: Node): Node | Node[] {
     let result: Node | Node[] = node;
-
-    console.log(">>", node.type);
 
     if (node.type in handlers) {
       const handler = handlers[node.type];

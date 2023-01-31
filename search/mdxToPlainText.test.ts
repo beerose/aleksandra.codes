@@ -1,6 +1,6 @@
 import { assert, describe, it } from "vitest";
 
-import { mdxToPlainText } from "./mdxToPlainText";
+import { mdxToPlainText } from "./packages/remark-mdx-to-plain-text/mdxToPlainText";
 
 describe("mdxToPlainText", () => {
   it("should remove ###", async () => {

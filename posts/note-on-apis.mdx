@@ -1,0 +1,79 @@
+---
+title: "There's more than one API solution"
+tags: note, opinionated
+excerpt: ""
+date: 2023-01-31
+---
+
+I'm kind of sick of all the "tRCP vs GraphQL", "tRPC will kill REST", "REST and
+GraphQL are dead", and other click baits.
+
+With every new API solution, the previous one was supposed to be dead. REST is
+believed to be deep in the grave, killed by almighty GraphQL. SOAP was
+supposedly killed by REST. Yet, people are still using it. How's that possible?
+
+And guess what. RPC was said to be dead over thirty years ago.
+[A whole long paper](https://www.semanticscholar.org/paper/A-Critique-of-the-Remote-Procedure-Call-Paradigm-Tanenbaum-Renesse/e12557a7582881a62040eee68bff0f51c4381473)
+was written on how much RPC sucks. And now what? It's suddenly the best thing
+that ever happened to web dev, and we should forget about everything else?
+
+I hate that it seems that there can be a place for just one API solution at a
+time. Yes, there are cycles in technology, and some stuff is more hyped at a
+given time than others, but it's not like all the other stuff is suddenly BAD.
+
+Why is RPC popular now? Because other parts of technology evolved. Because full
+stack JS/TS applications became a thing thanks to Next, Remix, etc. And there
+was a need for something as simple as RPC (which was meant to be the simplest
+way of dealing with APIs). It is, in fact, a good solution for the monolith,
+full-stack apps with small teams that need to iterate fast. Will it be suitable
+for something else? Could be. Do you have to use it EVERYWHERE else just because
+it appeared to be awesome for your full-stack Next.js project and yell at people
+that GraphQL is long gone? Most likely, no.
+
+Some of the problems that were a huge deal with RPC years ago are not
+necessarily relevant anymore. Some are, but many are fine **in the context of
+full-stack typescript apps**. Let's look at some of them from
+[the paper](https://www.semanticscholar.org/paper/A-Critique-of-the-Remote-Procedure-Call-Paradigm-Tanenbaum-Renesse/e12557a7582881a62040eee68bff0f51c4381473):
+
+- Client & Server being tightly coupled — look above — _in the context of full
+  stack TS apps_. You already made the decision to make it tightly coupled.
+
+- Having to use the same language — oh shit, no, not TypeScript everywhere.
+  Again: look above.
+
+- Need to learn all the procedure names — not a problem with TypeScript and
+  auto-completion.
+
+  By the way, one of the reasons why REST was preferred over RPC is that it's
+  supposed to be easier to learn. Learning RPC API is like learning a
+  programming library — you have to familiarise yourself with the method names,
+  custom parameters and responses. In contrast, REST is supposed to be like
+  learning a database schema. Well, not anymore.
+
+- Having to use multi-threaded servers — we have event loop, web workers.
+  Browsers are multi-threaded. Again, not a problem.
+
+- Parameters marshalling — we're navigating the same language, so not a problem
+  either. Stuff like SuperJson helps otherwise.
+
+- Exception handling — it's always a tough one, but tools like react-query can
+  help with that.
+
+—--
+
+One more thing. I saw in a few places that tRPC (or Blitz RPC) REMOVES the API
+layer. Not true. There's still an HTTP call (even if it's nicely abstracted
+away). That's actually another thing for which RPC was criticized: the whole
+transparency promise (local calls = remote calls). We shouldn't treat all the
+calls the same. The remote ones do come with their issues — network latency,
+different errors, and different performance. Let's think about it as "almost as
+local calls". But we should never say that "this RPC call is the same as calling
+a function in JavaScript". Because it may look like it is, but it's not. And we
+can't forget about the things that happen underneath.
+
+As Waldo et al. said in
+[A note on distributed computing](https://scholar.harvard.edu/files/waldo/files/waldo-94.pdf):
+
+> Distributed objects are different from local objects, and keeping that
+> difference visible will keep the programmer from forgetting the difference and
+> making mistakes.

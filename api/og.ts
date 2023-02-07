@@ -8,8 +8,8 @@ import { ImageResponse } from "@vercel/og";
 import type * as React from "react";
 
 const author = {
-  name: "Yours Truly",
-  avatarSrc: "https://i.pravatar.cc/256?u=30",
+  name: "Aleksandra Sikora",
+  avatarSrc: "https://www.instagram.com/p/CePvQIcNUmH/",
 };
 
 type Author = typeof author;

@@ -7,7 +7,7 @@ import SocialCardMetaTags from "../lib/SocialCardMetaTags.astro";
 import type { PostFrontmatter, TalkFrontmatter } from "../types";
 
 import "../global-styles/base.css";
-import "../global-styles/prose.css";
+import "../lib/prose/prose.css";
 import "../global-styles/controls.css";
 import "../global-styles/integrations.css";
 import "../global-styles/font.css";
@@ -22,13 +22,14 @@ interface Props {
 
 const { title, description, activePage, ogImage } = Astro.props;
 
-const posts = (await Astro.glob<PostFrontmatter>("../../posts/*.mdx")).map(
-  (p) => ({
+const posts = (await Astro.glob<PostFrontmatter>("../../posts/**/*.mdx"))
+  .filter((p) => (import.meta.env.PROD ? !p.frontmatter.draft : true))
+  .map((p) => ({
     href: p.frontmatter.path,
     title: p.frontmatter.title,
     date: p.frontmatter.date,
-  })
-);
+  }));
+
 posts.sort((a, b) => {
   return new Date(b.date).getTime() - new Date(a.date).getTime();
 });
@@ -87,51 +88,60 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
     <InitColorScheme />
   </head>
   <body>
+    <<<<<<< HEAD
     <div class="mx-auto flex flex-col justify-between">
       <div
         class="grid grid-cols-3 w-full border-b border-gray-400 dark:border-gray-500 text-sm px-1 text-gray-400 dark:text-gray-500"
+        <div
+        class="max-w-container mx-auto px-4"
       >
-        <Link
-          href="/"
-          noUnderline
-          class={activePage === "home"
-            ? "font-semibold text-gray-600 dark:text-gray-300 mr-auto"
-            : "mr-auto"}
+        <header
+          class="flex justify-between items-center -mt-2"
+          style={{ height: "37.5px" }}
         >
-          /
-        </Link>
-        <Link
-          href="/writing"
-          noUnderline
-          class={activePage === "writing"
-            ? "font-semibold text-gray-600 dark:text-gray-300 !mx-auto"
-            : "!mx-auto"}
-        >
-          WRITING
-        </Link>
-        <Link
-          href="/speaking"
-          noUnderline
-          class={activePage === "speaking"
-            ? "font-semibold text-gray-600 dark:text-gray-300 ml-auto"
-            : "ml-auto"}
-        >
-          SPEAKING
-        </Link>
+          >>>>>> hasparus >
+          <Link
+            href="/"
+            noUnderline
+            class={activePage === "home"
+              ? "font-semibold text-gray-600 dark:text-gray-300 mr-auto"
+              : "mr-auto"}
+          >
+            /
+          </Link>
+          <Link
+            href="/writing"
+            noUnderline
+            class={activePage === "writing"
+              ? "font-semibold text-gray-600 dark:text-gray-300 !mx-auto"
+              : "!mx-auto"}
+          >
+            WRITING
+          </Link>
+          <Link
+            href="/speaking"
+            noUnderline
+            class={activePage === "speaking"
+              ? "font-semibold text-gray-600 dark:text-gray-300 ml-auto"
+              : "ml-auto"}
+          >
+            SPEAKING
+          </Link>
+        </header>
+        <header class="flex justify-between mx-1 items-center">
+          <slot name="header-content">
+            <Link class="text-sm" href="/">← back</Link>
+          </slot>
+          <Commands
+            hide={activePage === "home"}
+            client:load
+            talks={talks}
+            posts={posts}
+          />
+        </header>
+        <slot />
+        <GrainOverlay opacity={1} />
       </div>
-      <header class="flex justify-between mx-1 items-center">
-        <slot name="header-content">
-          <Link class="text-sm" href="/">← back</Link>
-        </slot>
-        <Commands
-          hide={activePage === "home"}
-          client:load
-          talks={talks}
-          posts={posts}
-        />
-      </header>
-      <slot />
-      <GrainOverlay opacity={1} />
     </div>
   </body>
 </html>

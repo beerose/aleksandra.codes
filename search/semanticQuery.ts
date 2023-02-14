@@ -40,7 +40,7 @@ export async function semanticQuery(
 
   const response = await pinecone.query({
     vector: embed.data[0].embedding,
-    topK: options?.limit ?? 3,
+    topK: options?.limit ?? 10,
     includeMetadata: true,
     includeValues: options?.includeValues ?? false,
   });

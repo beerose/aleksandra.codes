@@ -1,4 +1,3 @@
-import debounce from "lodash.debounce";
 import {
   children,
   createContext,
@@ -17,6 +16,7 @@ import {
 
 import { Dialog, DialogProps } from "./Dialog";
 
+// TODO: Move this somewhere else, and move CommandCenter to a library.
 const fetchResults = async (query: string) => {
   type Result = {
     path: string;
@@ -29,10 +29,10 @@ const fetchResults = async (query: string) => {
   return res as Result;
 };
 
-const debouncedFetchResults = debounce(fetchResults, 1000, {
-  trailing: true,
-  leading: true,
-});
+// const debouncedFetchResults = debounce(fetchResults, 1000, {
+//   trailing: true,
+//   leading: true,
+// });
 
 type CommandCenterCtx = {
   listId: string;
@@ -95,16 +95,18 @@ export function CommandCenter(props: CommandCenterProps) {
   const [selectedCommand, selectCommand] = createSignal<string>("");
   const isSelected = createSelector(selectedCommand);
 
-  const [result] = createResource(inputValue, debouncedFetchResults);
+  const [getSearchResult] = createResource(inputValue, fetchResults);
 
   const match = (option: string, pattern: string) => {
-    const matches = result();
-    if (matches && matches.length > 0) {
-      return matches.some((match) =>
-        match.title.toLowerCase().includes(option.toLowerCase())
-      );
-    }
-    return option.toLowerCase().includes(pattern.toLowerCase());
+    const semanticSearchResults = getSearchResult();
+
+    const matchesInput = option.toLowerCase().includes(pattern.toLowerCase());
+    // If we have semantic search results, we want to show those as well as string matches.
+    // TODO:
+    const isSemanticSearchResult =
+      semanticSearchResults?.some((match) => match.title === option) || false;
+
+    return matchesInput || isSemanticSearchResult;
   };
 
   const matchesFilter = createSelector<string, string>(inputValue, match);
@@ -239,6 +241,8 @@ export function CommandGroup(props: CommandGroupProps) {
 export interface CommandItemProps extends JSX.HTMLAttributes<HTMLElement> {
   children: JSX.Element;
   href?: string | undefined;
+
+  // alwaysVisible?:
 }
 
 export function CommandItem(props: CommandItemProps) {
@@ -272,9 +276,18 @@ export function CommandItem(props: CommandItemProps) {
 
     const selected = isSelected(text);
     res.ariaSelected = String(selected);
-    res.style.display = matchesFilter(text) ? "" : "none";
 
-    if (selected) res.scrollIntoView({ block: "center", behavior: "smooth" });
+    const isVisible = matchesFilter(text);
+
+    res.style.display = isVisible ? "" : "none";
+    res.role = isVisible ? "option" : "none";
+
+    if (selected) {
+      setTimeout(
+        () => res.scrollIntoView({ block: "center", behavior: "smooth" }),
+        0
+      );
+    }
   });
 
   return res;

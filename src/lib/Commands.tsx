@@ -198,11 +198,11 @@ export function CommandsPalette({
                 Set Theme
               </CommandItem>
               <CommandGroup heading={<GroupHeading>Search</GroupHeading>}>
-                <CommandItem shortcut="alt+slash" onClick={handleShortcut}>
+                {/* <CommandItem shortcut="alt+slash" onClick={handleShortcut}>
                   Search by title
-                </CommandItem>
+                </CommandItem> */}
                 <CommandItem shortcut="alt+s" onClick={handleShortcut}>
-                  Semantic search
+                  Search
                 </CommandItem>
               </CommandGroup>
               <CommandGroup heading={<GroupHeading>Links</GroupHeading>}>
@@ -244,11 +244,18 @@ export function CommandsPalette({
             </CommandGroup>
           </Match>
           <Match when={page() === "search"}>
-            <CommandGroup
-              heading={<GroupHeading>Semantic Search Result</GroupHeading>}
-            >
+            <CommandGroup heading={<GroupHeading>Search Results</GroupHeading>}>
               {posts.map((p) => (
                 <CommandItem href={p.href}>{p.title}</CommandItem>
+              ))}
+            </CommandGroup>
+            <CommandGroup
+              heading={<GroupHeading>Semantic Search Results</GroupHeading>}
+            >
+              {posts.map((p) => (
+                <CommandItem alwaysVisible href={p.href}>
+                  {p.title}
+                </CommandItem>
               ))}
             </CommandGroup>
           </Match>
@@ -259,7 +266,9 @@ export function CommandsPalette({
 }
 
 interface CommonCommandItemProps
-  extends Omit<CommandCenterItemProps, "onClick"> {}
+  extends Omit<CommandCenterItemProps, "onClick"> {
+  alwaysVisible?: boolean;
+}
 export type CommandItemProps = CommonCommandItemProps &
   (
     | {

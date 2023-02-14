@@ -31,7 +31,14 @@ export default async function search(request: Request, response: any) {
       title: match.metadata.title,
     }));
 
-    await response.send(matchedPosts);
+    const uniquePosts: typeof matchedPosts = [];
+    for (const post of matchedPosts) {
+      if (!uniquePosts.some((uniquePost) => uniquePost.path === post.path)) {
+        uniquePosts.push(post);
+      }
+    }
+
+    await response.send(uniquePosts);
   } catch (err: unknown) {
     console.error(err);
 

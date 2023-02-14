@@ -1,7 +1,6 @@
 {
   "name": "@zaduma/astro-starter",
   "version": "0.0.1",
-  "type": "module",
   "private": true,
   "packageManager": "pnpm@7.25.0",
   "scripts": {
@@ -35,6 +34,7 @@
     "@vercel/og": "^0.0.21",
     "astro": "^1.9.2",
     "astro-eslint-parser": "^0.9.5",
+    "cac": "^6.7.14",
     "eslint-plugin-markdown": "^3.0.0",
     "estree-util-value-to-estree": "^2.0.0",
     "gpt3-tokenizer": "^1.1.4",
@@ -51,6 +51,7 @@
     "sharp": "^0.31.3",
     "solid-js": "^1.4.3",
     "tailwindcss": "^3.2.4",
+    "tiny-glob": "^0.2.9",
     "unified": "^10.1.2",
     "unist-util-visit": "^4.1.1",
     "vercel": "^28.10.1",

@@ -2,8 +2,11 @@ import { assert } from "console";
 import dotenv from "dotenv";
 import { Configuration, OpenAIApi } from "openai";
 import { PineconeClient } from "pinecone-client";
-import { PineconeMetadata } from "../types";
 import * as fs from "fs";
+import glob from "tiny-glob";
+import cac from "cac";
+
+import type { PineconeMetadata } from "../types";
 import { titleCase } from "../../src/lib/titleCase";
 import { mdxToPlainText } from "../remark-mdx-to-plain-text/mdxToPlainText";
 import { splitIntoChunks } from "../splitIntoChunks";
@@ -19,51 +22,7 @@ const getTitle = (content: string, path: string): string => {
   return titleCase(path.replace(/-/g, " ").replace(/\.mdx$/, ""));
 };
 
-function args(argv: string[]) {
-  argv = argv.slice(2);
-
-  const parsedArgs: Record<string, string | number | boolean> = {};
-  let argName: string;
-  let argValue: string | number | boolean;
-
-  argv.forEach(function (arg) {
-    const match = arg.match(/([^=\s]+)=?\s*(.*)/);
-    match?.splice(0, 1);
-
-    if (!match || !match[0]) {
-      return;
-    }
-
-    argName = match[0];
-
-    if (argName.indexOf("-") === 0) {
-      argName = argName.slice(argName.slice(0, 2).lastIndexOf("-") + 1);
-    }
-
-    if (match[1] && match[1] !== "") {
-      argValue =
-        parseFloat(match[1]).toString() === match[1] ? +match[1] : match[1];
-    } else {
-      argValue = true;
-    }
-
-    parsedArgs[argName] = argValue;
-  });
-
-  return parsedArgs;
-}
-
-async function main() {
-  const parsedArgs = args(process.argv);
-  const postsDir = parsedArgs["postsDir"] || parsedArgs["d"];
-  if (!postsDir) {
-    console.error(`\
-Usage: zaduma-search --postsDir=<postDir>
-Example: 
-  zaduma-search --postDir=./posts
-  zaduma-search -d=./posts`);
-    process.exit(1);
-  }
+async function main(postsDir: string) {
   assert(process.env.OPENAI_API_KEY, "OPENAI_API_KEY is required");
   assert(process.env.PINECONE_API_KEY, "PINECONE_API_KEY is required");
   assert(process.env.PINECONE_BASE_URL, "PINECONE_BASE_URL is required");
@@ -90,13 +49,14 @@ Example:
   });
 
   console.log("Resolving posts...");
-  const posts = fs.readdirSync(postsDir);
-  for (const post of posts) {
-    if (!post.endsWith(".mdx")) continue;
+  const files = await glob(`${postsDir}/**/*.{mdx, md}`);
+  console.log(`Found ${files.length} posts.`);
+  for (const post of files) {
+    if (!post.endsWith(".mdx") && !post.endsWith(".md")) continue;
 
     console.log(`Processing post: ${post}...`);
 
-    const rawContent = fs.readFileSync(`./posts/${post}`, "utf-8");
+    const rawContent = fs.readFileSync(post, "utf-8");
     const title = getTitle(rawContent, post);
     const plainText = await mdxToPlainText(rawContent);
 
@@ -126,7 +86,32 @@ Example:
   }
 }
 
-main().catch((err) => {
-  console.error("error", err);
+const cli = cac("@beerose/semantic-search");
+
+cli
+  .command(
+    "index <dir>",
+    "Process files with your content and upload them to Pinecone"
+  )
+  .example("index ./posts")
+  .action(async (postsDir) => {
+    await main(postsDir).catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+  });
+
+cli.help();
+
+try {
+  cli.parse(process.argv, { run: false });
+  cli.runMatchedCommand();
+} catch (error: any) {
+  if (error.name === "CACError") {
+    console.error(error.message + "\n");
+    cli.outputHelp();
+  } else {
+    console.log(error.stack);
+  }
   process.exit(1);
-});
+}

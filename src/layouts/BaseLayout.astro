@@ -7,7 +7,7 @@ import SocialCardMetaTags from "../lib/SocialCardMetaTags.astro";
 import type { PostFrontmatter, TalkFrontmatter } from "../types";
 
 import "../global-styles/base.css";
-import "../global-styles/prose.css";
+import "../lib/prose/prose.css";
 import "../global-styles/controls.css";
 import "../global-styles/integrations.css";
 import "../global-styles/font.css";
@@ -22,13 +22,14 @@ interface Props {
 
 const { title, description, activePage, ogImage } = Astro.props;
 
-const posts = (await Astro.glob<PostFrontmatter>("../../posts/*.mdx")).map(
-  (p) => ({
+const posts = (await Astro.glob<PostFrontmatter>("../../posts/**/*.mdx"))
+  .filter((p) => (import.meta.env.PROD ? !p.frontmatter.draft : true))
+  .map((p) => ({
     href: p.frontmatter.path,
     title: p.frontmatter.title,
     date: p.frontmatter.date,
-  })
-);
+  }));
+
 posts.sort((a, b) => {
   return new Date(a.date).getTime() - new Date(b.date).getTime();
 });

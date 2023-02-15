@@ -1,5 +1,5 @@
 export const config = {
-  runtime: "experimental-edge",
+  runtime: "edge",
 };
 
 export default (_req: Request) => new Response("ok");

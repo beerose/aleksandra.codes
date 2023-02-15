@@ -29,6 +29,23 @@ import { Shortcut } from "./Shortcut";
 
 const INPUT_ID = "command-input";
 
+const fetchSearchResults = async (query: string) => {
+  type Result = {
+    path: string;
+    score: number;
+    title: string;
+  }[];
+  if (!query) return [] as Result;
+
+  const res = await (await fetch(`api/search?q=${query}`)).json();
+  return res as Result;
+};
+
+// const debouncedFetchResults = debounce(fetchResults, 1000, {
+//   trailing: true,
+//   leading: true,
+// });
+
 export function Commands({
   hide = false,
   posts,
@@ -249,7 +266,7 @@ export function CommandsPalette({
                 <CommandItem href={p.href}>{p.title}</CommandItem>
               ))}
             </CommandGroup>
-            <CommandGroup
+            {/* <CommandGroup
               heading={<GroupHeading>Semantic Search Results</GroupHeading>}
             >
               {posts.map((p) => (
@@ -257,7 +274,7 @@ export function CommandsPalette({
                   {p.title}
                 </CommandItem>
               ))}
-            </CommandGroup>
+            </CommandGroup> */}
           </Match>
         </Switch>
       </CommandList>

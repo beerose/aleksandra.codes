@@ -249,7 +249,7 @@ export interface CommandItemProps extends JSX.HTMLAttributes<HTMLElement> {
   children: JSX.Element;
   href?: string | undefined;
 
-  // alwaysVisible?:
+  alwaysVisible?: boolean;
 }
 
 export function CommandItem(props: CommandItemProps) {
@@ -284,7 +284,7 @@ export function CommandItem(props: CommandItemProps) {
     const selected = isSelected(text);
     res.ariaSelected = String(selected);
 
-    const isVisible = matchesFilter(text);
+    const isVisible = props.alwaysVisible || matchesFilter(text);
 
     res.style.display = isVisible ? "" : "none";
     res.role = isVisible ? "option" : "none";

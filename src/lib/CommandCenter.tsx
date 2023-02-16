@@ -55,6 +55,7 @@ type CommandCenterCtx = {
   onInput: (filter: string) => void;
   selectOption: (element: HTMLElement) => void;
   onSelectedUnmount: () => void;
+  getInputValue: () => string;
 };
 const CommandCenterCtx = createContext<CommandCenterCtx>({
   inputId: "",
@@ -66,16 +67,17 @@ const CommandCenterCtx = createContext<CommandCenterCtx>({
   onInput: () => {},
   selectOption: () => {},
   onSelectedUnmount: () => {},
+  getInputValue: () => "",
 });
 
-const useCtx = () => useContext(CommandCenterCtx);
+export const useCommandCenterCtx = () => useContext(CommandCenterCtx);
 
 export interface CommandCenterTriggerProps
   extends JSX.ButtonHTMLAttributes<HTMLButtonElement> {
   onClick?: (event: MouseEvent) => void;
 }
 export function CommandCenterTrigger(props: CommandCenterTriggerProps) {
-  const ctx = useCtx();
+  const ctx = useCommandCenterCtx();
 
   return (
     <button
@@ -217,6 +219,7 @@ export function CommandCenter(props: CommandCenterProps) {
         },
         selectOption: (element) => selectCommand(getCommandText(element)),
         onSelectedUnmount: () => selectCommand(""),
+        getInputValue: inputValue,
       }}
     >
       {props.children}
@@ -231,7 +234,7 @@ export interface CommandGroupProps {
 
 export function CommandGroup(props: CommandGroupProps) {
   const headingId = createUniqueId();
-  const { matchesFilter } = useCtx();
+  const { matchesFilter } = useCommandCenterCtx();
 
   const kids = children(() => props.children);
   const allChildrenAreHidden = createMemo(() => {
@@ -270,7 +273,8 @@ export interface CommandItemProps extends JSX.HTMLAttributes<HTMLElement> {
 
 export function CommandItem(props: CommandItemProps) {
   const [own, rest] = splitProps(props, ["href"]);
-  const { isSelected, matchesFilter, onSelectedUnmount } = useCtx();
+  const { isSelected, matchesFilter, onSelectedUnmount } =
+    useCommandCenterCtx();
 
   const res = (
     own.href ? (
@@ -325,7 +329,7 @@ export interface CommandInputProps
 }
 
 export function CommandInput(props: CommandInputProps) {
-  const ctx = useCtx();
+  const ctx = useCommandCenterCtx();
 
   return (
     <input
@@ -357,7 +361,7 @@ export interface CommandCenterDialogProps extends DialogProps {
 }
 
 export function CommandCenterDialog(props: CommandCenterDialogProps) {
-  const ctx = useCtx();
+  const ctx = useCommandCenterCtx();
 
   return (
     <Dialog
@@ -383,7 +387,7 @@ function getCommandText(element: HTMLElement) {
 export function CommandList(
   props: Omit<JSX.HTMLAttributes<HTMLDivElement>, "id">
 ) {
-  const { listId, isSelected, selectOption } = useCtx();
+  const { listId, isSelected, selectOption } = useCommandCenterCtx();
 
   createRenderEffect(() => {
     const nothingSelected = isSelected("");

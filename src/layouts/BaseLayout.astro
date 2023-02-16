@@ -22,7 +22,7 @@ interface Props {
 
 const { title, description, activePage, ogImage } = Astro.props;
 
-const posts = (await Astro.glob<PostFrontmatter>("../../posts/**/*.mdx"))
+const posts = (await Astro.glob<PostFrontmatter>("../../posts/*.mdx"))
   .filter((p) => (import.meta.env.PROD ? !p.frontmatter.draft : true))
   .map((p) => ({
     href: p.frontmatter.path,

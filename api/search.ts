@@ -1,4 +1,4 @@
-import { PineconeMetadata, semanticQuery } from "@beerose/semantic-search";
+import { type PineconeMetadata, semanticQuery } from "@beerose/semantic-search";
 import { Configuration, OpenAIApi } from "openai";
 import { PineconeClient } from "pinecone-client";
 

@@ -1,4 +1,3 @@
-import pDebounce from "p-debounce";
 import {
   children,
   createContext,
@@ -17,33 +16,6 @@ import {
 } from "solid-js";
 
 import { Dialog, DialogProps } from "./Dialog";
-
-// TODO: Move this somewhere else, and move CommandCenter to a library.
-let abortController: AbortController | undefined;
-const fetchResults = pDebounce(async (query: string) => {
-  type Result = { path: string; score: number; title: string }[];
-  if (!query) return [] as Result;
-
-  if (abortController) abortController.abort();
-  abortController = new AbortController();
-
-  let res: Response;
-  try {
-    res = await fetch(`/api/search?q=${query}`, {
-      signal: abortController.signal,
-    });
-  } catch (err: any) {
-    if (err.name === "AbortError") return [] as Result;
-    throw err;
-  }
-
-  return (await res.json()) as Result;
-}, 300);
-
-// const debouncedFetchResults = debounce(fetchResults, 1000, {
-//   trailing: true,
-//   leading: true,
-// });
 
 type CommandCenterCtx = {
   listId: string;
@@ -111,25 +83,10 @@ export function CommandCenter(props: CommandCenterProps) {
   const [inputValue, onInput] = createSignal("");
   const [selectedCommand, selectCommand] = createSignal<string>("");
   const isSelected = createSelector(selectedCommand);
-
-  const [getSearchResult] = createResource(inputValue, fetchResults);
-
-  createEffect(() => {
-    console.log(getSearchResult(), `loading=${getSearchResult.loading}`);
-  });
-
   const match = (option: string, pattern: string) => {
-    console.log("match called with", option, pattern);
-
-    const semanticSearchResults = getSearchResult();
-
     const matchesInput = option.toLowerCase().includes(pattern.toLowerCase());
-    // If we have semantic search results, we want to show those as well as string matches.
-    // TODO:
-    const isSemanticSearchResult =
-      semanticSearchResults?.some((match) => match.title === option) || false;
 
-    return matchesInput || isSemanticSearchResult;
+    return matchesInput;
   };
 
   const matchesFilter = createSelector<string, string>(inputValue, match);
@@ -230,6 +187,7 @@ export function CommandCenter(props: CommandCenterProps) {
 export interface CommandGroupProps {
   heading?: JSX.Element;
   children: JSX.Element;
+  ignoreMatch?: boolean;
 }
 
 export function CommandGroup(props: CommandGroupProps) {
@@ -238,6 +196,8 @@ export function CommandGroup(props: CommandGroupProps) {
 
   const kids = children(() => props.children);
   const allChildrenAreHidden = createMemo(() => {
+    if (props.ignoreMatch) return false;
+
     const ks = (Array.isArray(kids()) ? kids() : [kids()]) as HTMLElement[];
 
     return ks.every((element) => !matchesFilter(getCommandText(element)));
@@ -276,8 +236,9 @@ export function CommandItem(props: CommandItemProps) {
   const { isSelected, matchesFilter, onSelectedUnmount } =
     useCommandCenterCtx();
 
-  const res = (
-    own.href ? (
+  let res: HTMLElement;
+  if (own.href) {
+    res = (
       <a
         href={own.href}
         role="option"
@@ -286,7 +247,9 @@ export function CommandItem(props: CommandItemProps) {
       >
         {props.children}
       </a>
-    ) : (
+    ) as HTMLElement;
+  } else if (rest.onclick) {
+    res = (
       <button
         type="button"
         role="option"
@@ -295,8 +258,18 @@ export function CommandItem(props: CommandItemProps) {
       >
         {props.children}
       </button>
-    )
-  ) as HTMLElement;
+    ) as HTMLElement;
+  } else {
+    res = (
+      <div
+        role="option"
+        aria-selected="false"
+        {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
+      >
+        {props.children}
+      </div>
+    ) as HTMLElement;
+  }
 
   createEffect(() => {
     const text = getCommandText(res);
@@ -304,7 +277,7 @@ export function CommandItem(props: CommandItemProps) {
     const selected = isSelected(text);
     res.ariaSelected = String(selected);
 
-    const isVisible = matchesFilter(text);
+    const isVisible = props.alwaysVisible || matchesFilter(text);
 
     res.style.display = isVisible ? "" : "none";
     res.role = isVisible ? "option" : "none";

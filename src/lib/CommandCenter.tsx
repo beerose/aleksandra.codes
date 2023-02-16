@@ -1,9 +1,11 @@
+import pDebounce from "p-debounce";
 import {
   children,
   createContext,
   createEffect,
   createMemo,
   createRenderEffect,
+  createResource,
   createSelector,
   createSignal,
   createUniqueId,
@@ -15,6 +17,33 @@ import {
 } from "solid-js";
 
 import { Dialog, DialogProps } from "./Dialog";
+
+// TODO: Move this somewhere else, and move CommandCenter to a library.
+let abortController: AbortController | undefined;
+const fetchResults = pDebounce(async (query: string) => {
+  type Result = { path: string; score: number; title: string }[];
+  if (!query) return [] as Result;
+
+  if (abortController) abortController.abort();
+  abortController = new AbortController();
+
+  let res: Response;
+  try {
+    res = await fetch(`/api/search?q=${query}`, {
+      signal: abortController.signal,
+    });
+  } catch (err: any) {
+    if (err.name === "AbortError") return [] as Result;
+    throw err;
+  }
+
+  return (await res.json()) as Result;
+}, 300);
+
+// const debouncedFetchResults = debounce(fetchResults, 1000, {
+//   trailing: true,
+//   leading: true,
+// });
 
 type CommandCenterCtx = {
   listId: string;
@@ -81,8 +110,24 @@ export function CommandCenter(props: CommandCenterProps) {
   const [selectedCommand, selectCommand] = createSignal<string>("");
   const isSelected = createSelector(selectedCommand);
 
+  const [getSearchResult] = createResource(inputValue, fetchResults);
+
+  createEffect(() => {
+    console.log(getSearchResult(), `loading=${getSearchResult.loading}`);
+  });
+
   const match = (option: string, pattern: string) => {
-    return option.toLowerCase().includes(pattern.toLowerCase());
+    console.log("match called with", option, pattern);
+
+    const semanticSearchResults = getSearchResult();
+
+    const matchesInput = option.toLowerCase().includes(pattern.toLowerCase());
+    // If we have semantic search results, we want to show those as well as string matches.
+    // TODO:
+    const isSemanticSearchResult =
+      semanticSearchResults?.some((match) => match.title === option) || false;
+
+    return matchesInput || isSemanticSearchResult;
   };
 
   const matchesFilter = createSelector<string, string>(inputValue, match);
@@ -219,6 +264,8 @@ export function CommandGroup(props: CommandGroupProps) {
 export interface CommandItemProps extends JSX.HTMLAttributes<HTMLElement> {
   children: JSX.Element;
   href?: string | undefined;
+
+  alwaysVisible?: boolean;
 }
 
 export function CommandItem(props: CommandItemProps) {
@@ -252,10 +299,17 @@ export function CommandItem(props: CommandItemProps) {
 
     const selected = isSelected(text);
     res.ariaSelected = String(selected);
-    res.style.display = matchesFilter(text) ? "" : "none";
+
+    const isVisible = matchesFilter(text);
+
+    res.style.display = isVisible ? "" : "none";
+    res.role = isVisible ? "option" : "none";
 
     if (selected) {
-      res.scrollIntoView({ block: "center", behavior: "smooth" });
+      setTimeout(
+        () => res.scrollIntoView({ block: "center", behavior: "smooth" }),
+        0
+      );
       onCleanup(() => {
         if (isSelected(text)) onSelectedUnmount();
       });

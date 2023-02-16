@@ -2,6 +2,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "module": "esnext",
+    "target": "ESNext",
     "moduleResolution": "node",
     "strict": true,
     "noUncheckedIndexedAccess": true

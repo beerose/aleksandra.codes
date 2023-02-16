@@ -29,6 +29,11 @@ import { Shortcut } from "./Shortcut";
 
 const INPUT_ID = "command-input";
 
+// const debouncedFetchResults = debounce(fetchResults, 1000, {
+//   trailing: true,
+//   leading: true,
+// });
+
 export function Commands({
   hide = false,
   posts,
@@ -62,7 +67,7 @@ export function CommandsPalette({
   posts: { title: string; href: string }[];
   talks: { title: string; href: string }[];
 }) {
-  type CommandsPage = "posts" | "theme" | undefined;
+  type CommandsPage = "posts" | "theme" | "search" | undefined;
   const [page, setPage] = createSignal<CommandsPage>();
   let dialog: HTMLDialogElement | undefined;
 
@@ -76,12 +81,6 @@ export function CommandsPalette({
     dialog?.querySelector('[aria-selected="true"]') as HTMLElement | null;
 
   const keybindings = new Map<string, () => void>([
-    [
-      "backspace",
-      () => {
-        setPage(undefined);
-      },
-    ],
     [
       "escape",
       () => {
@@ -101,6 +100,14 @@ export function CommandsPalette({
       () => {
         if (dialog && !dialog.open) dialog.showModal();
         setPage("theme");
+      },
+    ],
+    [
+      "alt+s",
+      () => {
+        if (dialog && !dialog.open) dialog.showModal();
+        document.getElementById(INPUT_ID)?.focus();
+        setPage("search");
       },
     ],
     [
@@ -127,12 +134,16 @@ export function CommandsPalette({
 
   createEffect(() => {
     const onKeydown = (event: KeyboardEvent) => {
+      console.log("onKeydown", event.key);
+
       const cmdKey = isMac() ? event.metaKey : event.ctrlKey;
       const { shiftKey, altKey } = event;
 
       const modifiers = [cmdKey && "cmd", shiftKey && "shift", altKey && "alt"];
 
       const { code, key } = parseKeys(event);
+
+      console.log({ code, key });
 
       const found =
         keybindings.get(plus(...modifiers, code)) ||
@@ -189,9 +200,12 @@ export function CommandsPalette({
               <CommandItem shortcut="alt+t" onClick={handleShortcut}>
                 Set Theme
               </CommandItem>
-              <CommandGroup heading={<GroupHeading>Posts</GroupHeading>}>
-                <CommandItem shortcut="alt+slash" onClick={handleShortcut}>
-                  Search Posts & Talks
+              <CommandGroup heading={<GroupHeading>Search</GroupHeading>}>
+                {/* <CommandItem shortcut="alt+slash" onClick={handleShortcut}>
+                  Search by title
+                </CommandItem> */}
+                <CommandItem shortcut="alt+s" onClick={handleShortcut}>
+                  Search
                 </CommandItem>
               </CommandGroup>
               <CommandGroup heading={<GroupHeading>Links</GroupHeading>}>
@@ -232,6 +246,22 @@ export function CommandsPalette({
               ))}
             </CommandGroup>
           </Match>
+          <Match when={page() === "search"}>
+            <CommandGroup heading={<GroupHeading>Search Results</GroupHeading>}>
+              {posts.map((p) => (
+                <CommandItem href={p.href}>{p.title}</CommandItem>
+              ))}
+            </CommandGroup>
+            {/* <CommandGroup
+              heading={<GroupHeading>Semantic Search Results</GroupHeading>}
+            >
+              {posts.map((p) => (
+                <CommandItem alwaysVisible href={p.href}>
+                  {p.title}
+                </CommandItem>
+              ))}
+            </CommandGroup> */}
+          </Match>
         </Switch>
       </CommandList>
     </CommandCenterDialog>
@@ -239,7 +269,9 @@ export function CommandsPalette({
 }
 
 interface CommonCommandItemProps
-  extends Omit<CommandCenterItemProps, "onClick"> {}
+  extends Omit<CommandCenterItemProps, "onClick"> {
+  alwaysVisible?: boolean;
+}
 export type CommandItemProps = CommonCommandItemProps &
   (
     | {

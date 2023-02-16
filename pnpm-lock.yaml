@@ -17,12 +17,14 @@ specifiers:
   '@astrojs/rss': ^2.1.0
   '@astrojs/solid-js': ^2.0.0
   '@astrojs/tailwind': ^3.0.0
-  '@beerose/semantic-search': 1.0.0-beta.1
+  '@beerose/semantic-search': file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz
   '@edgeandnode/eslint-config': ^1.0.3
   '@fontsource/brygada-1918': ^4.5.11
   '@fontsource/inter': ^4.5.14
   '@mdx-js/mdx': 2.2.1
+  '@solid-primitives/scheduled': ^1.2.1
   '@types/hast': 2.3.4
+  '@types/lodash.debounce': ^4.0.7
   '@types/lz-string': ^1.3.34
   '@types/node': 18.11.18
   '@types/react': ^18.0.26
@@ -35,7 +37,9 @@ specifiers:
   eslint-plugin-markdown: ^3.0.0
   estree-util-value-to-estree: ^2.0.0
   lite-youtube-embed: ^0.2.0
+  lodash.debounce: ^4.0.8
   openai: ^3.1.0
+  p-debounce: ^4.0.0
   pinecone-client: ^1.0.1
   plaiceholder: ^2.5.0
   postcss: 8.4.20
@@ -60,10 +64,12 @@ dependencies:
   '@astrojs/mdx': 0.15.0_astro@2.0.1
   '@astrojs/solid-js': 2.0.0_solid-js@1.5.7
   '@astrojs/tailwind': 3.0.0_bgk6wvini4j5nfa7w2itosrqne
-  '@beerose/semantic-search': 1.0.0-beta.1_typescript@4.9.4
+  '@beerose/semantic-search': file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz_typescript@4.9.4
   '@fontsource/brygada-1918': 4.5.11
   '@fontsource/inter': 4.5.14
   '@mdx-js/mdx': 2.2.1_xpblqcf4nverltfcba52wyvqbi
+  '@solid-primitives/scheduled': 1.2.1_solid-js@1.5.7
+  '@types/lodash.debounce': 4.0.7
   '@types/lz-string': 1.3.34
   '@types/react': 18.0.26
   '@vercel/og': 0.0.21
@@ -72,7 +78,9 @@ dependencies:
   eslint-plugin-markdown: 3.0.0_eslint@8.31.0
   estree-util-value-to-estree: 2.0.0
   lite-youtube-embed: 0.2.0
+  lodash.debounce: 4.0.8
   openai: 3.1.0
+  p-debounce: 4.0.0
   pinecone-client: 1.0.1
   plaiceholder: 2.5.0_sharp@0.31.3
   postcss: 8.4.20
@@ -539,35 +547,6 @@ packages:
       '@babel/helper-string-parser': 7.19.4
       '@babel/helper-validator-identifier': 7.19.1
       to-fast-properties: 2.0.0
-    dev: false
-
-  /@beerose/semantic-search/1.0.0-beta.1_typescript@4.9.4:
-    resolution: {integrity: sha512-6U8ULTHhRTMoqr/8qcP2fxsGpaRSFucqjfNva8TOXVVWslF16Z8KXktU9o+jn3OV0kCZl8V+svfFkBZFGVM7Qg==}
-    hasBin: true
-    dependencies:
-      '@types/mdast': 3.0.10
-      '@types/node': 18.11.18
-      cac: 6.7.14
-      dotenv: 16.0.3
-      fs: 0.0.1-security
-      gpt3-tokenizer: 1.1.5
-      node-fetch: 3.3.0
-      openai: 3.1.0
-      pinecone-client: 1.0.1
-      remark: 14.0.2
-      remark-frontmatter: 4.0.1
-      remark-gfm: 3.0.1
-      remark-mdx: 2.3.0
-      remark-smartypants: 2.0.0
-      tiny-glob: 0.2.9
-      ts-node: 10.9.1_awa2wsr5thmg3i7jqycphctjfq
-      unified: 10.1.2
-    transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - debug
-      - supports-color
-      - typescript
     dev: false
 
   /@cspotcode/source-map-support/0.8.1:
@@ -1061,6 +1040,14 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
+  /@solid-primitives/scheduled/1.2.1_solid-js@1.5.7:
+    resolution: {integrity: sha512-tV8xJuNJoWR2Kk6FPVpB8KcWjOwJDMYTC31CEW4qDrLwQHzIexJsZsV5Dh5df/YNz5gh3vpxyvBnWTgTf6o/1w==}
+    peerDependencies:
+      solid-js: ^1.6.0
+    dependencies:
+      solid-js: 1.5.7
+    dev: false
+
   /@szmarczak/http-timer/1.1.2:
     resolution: {integrity: sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==}
     engines: {node: '>=6'}
@@ -1169,6 +1156,16 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 18.11.18
+    dev: false
+
+  /@types/lodash.debounce/4.0.7:
+    resolution: {integrity: sha512-X1T4wMZ+gT000M2/91SYj0d/7JfeNZ9PeeOldSNoE/lunLeQXKvkmIumI29IaKMotU/ln/McOIvgzZcQ/3TrSA==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: false
+
+  /@types/lodash/4.14.191:
+    resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
     dev: false
 
   /@types/lz-string/1.3.34:
@@ -4458,6 +4455,10 @@ packages:
     dependencies:
       p-locate: 5.0.0
 
+  /lodash.debounce/4.0.8:
+    resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
+    dev: false
+
   /lodash.memoize/4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
     dev: true
@@ -5456,6 +5457,11 @@ packages:
   /p-cancelable/1.1.0:
     resolution: {integrity: sha512-s73XxOZ4zpt1edZYZzvhqFa6uvQc1vwUa0K0BdtIZgQMAJj9IbebH+JkgKZc9h+B05PKHLOTl4ajG1BmNrVZlw==}
     engines: {node: '>=6'}
+    dev: false
+
+  /p-debounce/4.0.0:
+    resolution: {integrity: sha512-4Ispi9I9qYGO4lueiLDhe4q4iK5ERK8reLsuzH6BPaXn53EGaua8H66PXIFGrW897hwjXp+pVLrm/DLxN0RF0A==}
+    engines: {node: '>=12'}
     dev: false
 
   /p-limit/2.3.0:
@@ -7649,4 +7655,36 @@ packages:
 
   /zwitch/2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+    dev: false
+
+  file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz_typescript@4.9.4:
+    resolution: {integrity: sha512-DGpZlkjbNuTPsGKQ33g2nSYejO1DIUatPPaQjETgHDLf3NwKBBq/IUSCzcbgwt19+kqf6Yfccp0gbrLBlIDpzA==, tarball: file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz}
+    id: file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz
+    name: '@beerose/semantic-search'
+    version: 1.0.0-beta.6
+    hasBin: true
+    dependencies:
+      '@types/mdast': 3.0.10
+      '@types/node': 18.11.18
+      cac: 6.7.14
+      dotenv: 16.0.3
+      fs: 0.0.1-security
+      gpt3-tokenizer: 1.1.5
+      node-fetch: 3.3.0
+      openai: 3.1.0
+      pinecone-client: 1.0.1
+      remark: 14.0.2
+      remark-frontmatter: 4.0.1
+      remark-gfm: 3.0.1
+      remark-mdx: 2.3.0
+      remark-smartypants: 2.0.0
+      tiny-glob: 0.2.9
+      ts-node: 10.9.1_awa2wsr5thmg3i7jqycphctjfq
+      unified: 10.1.2
+    transitivePeerDependencies:
+      - '@swc/core'
+      - '@swc/wasm'
+      - debug
+      - supports-color
+      - typescript
     dev: false

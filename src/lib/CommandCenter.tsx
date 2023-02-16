@@ -4,7 +4,6 @@ import {
   createEffect,
   createMemo,
   createRenderEffect,
-  createResource,
   createSelector,
   createSignal,
   createUniqueId,

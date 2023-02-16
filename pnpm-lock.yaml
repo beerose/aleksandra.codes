@@ -17,7 +17,7 @@ specifiers:
   '@astrojs/rss': ^2.1.0
   '@astrojs/solid-js': ^2.0.0
   '@astrojs/tailwind': ^3.0.0
-  '@beerose/semantic-search': file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz
+  '@beerose/semantic-search': 1.0.0-beta.2
   '@edgeandnode/eslint-config': ^1.0.3
   '@fontsource/brygada-1918': ^4.5.11
   '@fontsource/inter': ^4.5.14
@@ -62,7 +62,7 @@ dependencies:
   '@astrojs/mdx': 0.15.0_astro@2.0.1
   '@astrojs/solid-js': 2.0.0_solid-js@1.6.11
   '@astrojs/tailwind': 3.0.0_bgk6wvini4j5nfa7w2itosrqne
-  '@beerose/semantic-search': file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz_typescript@4.9.4
+  '@beerose/semantic-search': 1.0.0-beta.2_typescript@4.9.4
   '@fontsource/brygada-1918': 4.5.11
   '@fontsource/inter': 4.5.14
   '@mdx-js/mdx': 2.2.1_xpblqcf4nverltfcba52wyvqbi
@@ -543,6 +543,35 @@ packages:
       '@babel/helper-string-parser': 7.19.4
       '@babel/helper-validator-identifier': 7.19.1
       to-fast-properties: 2.0.0
+    dev: false
+
+  /@beerose/semantic-search/1.0.0-beta.2_typescript@4.9.4:
+    resolution: {integrity: sha512-CP6WOBJ5bvJAF4GQ8AIT0zG1YYKXHceyo6Q60LoIqH/autawcJ+++IBm2q5jpWa2z+lYQPYskvAHgrdzg3roSg==}
+    hasBin: true
+    dependencies:
+      '@types/mdast': 3.0.10
+      '@types/node': 18.11.18
+      cac: 6.7.14
+      dotenv: 16.0.3
+      fs: 0.0.1-security
+      gpt3-tokenizer: 1.1.5
+      node-fetch: 3.3.0
+      openai: 3.1.0
+      pinecone-client: 1.0.1
+      remark: 14.0.2
+      remark-frontmatter: 4.0.1
+      remark-gfm: 3.0.1
+      remark-mdx: 2.3.0
+      remark-smartypants: 2.0.0
+      tiny-glob: 0.2.9
+      ts-node: 10.9.1_awa2wsr5thmg3i7jqycphctjfq
+      unified: 10.1.2
+    transitivePeerDependencies:
+      - '@swc/core'
+      - '@swc/wasm'
+      - debug
+      - supports-color
+      - typescript
     dev: false
 
   /@cspotcode/source-map-support/0.8.1:
@@ -7637,36 +7666,4 @@ packages:
 
   /zwitch/2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
-    dev: false
-
-  file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz_typescript@4.9.4:
-    resolution: {integrity: sha512-DGpZlkjbNuTPsGKQ33g2nSYejO1DIUatPPaQjETgHDLf3NwKBBq/IUSCzcbgwt19+kqf6Yfccp0gbrLBlIDpzA==, tarball: file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz}
-    id: file:../semantic-search-cli/beerose-semantic-search-1.0.0-beta.6.tgz
-    name: '@beerose/semantic-search'
-    version: 1.0.0-beta.6
-    hasBin: true
-    dependencies:
-      '@types/mdast': 3.0.10
-      '@types/node': 18.11.18
-      cac: 6.7.14
-      dotenv: 16.0.3
-      fs: 0.0.1-security
-      gpt3-tokenizer: 1.1.5
-      node-fetch: 3.3.0
-      openai: 3.1.0
-      pinecone-client: 1.0.1
-      remark: 14.0.2
-      remark-frontmatter: 4.0.1
-      remark-gfm: 3.0.1
-      remark-mdx: 2.3.0
-      remark-smartypants: 2.0.0
-      tiny-glob: 0.2.9
-      ts-node: 10.9.1_awa2wsr5thmg3i7jqycphctjfq
-      unified: 10.1.2
-    transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - debug
-      - supports-color
-      - typescript
     dev: false

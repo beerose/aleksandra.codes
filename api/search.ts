@@ -1,4 +1,7 @@
-import { type PineconeMetadata, semanticQuery } from "@beerose/semantic-search";
+import {
+  type SemanticSearchMetadata,
+  semanticQuery,
+} from "@beerose/semantic-search";
 import { Configuration, OpenAIApi } from "openai";
 import { PineconeClient } from "pinecone-client";
 
@@ -15,7 +18,7 @@ export default async function search(request: Request, response: any) {
       })
     );
 
-    const pinecone = new PineconeClient<PineconeMetadata>({
+    const pinecone = new PineconeClient<SemanticSearchMetadata>({
       apiKey: process.env.PINECONE_API_KEY as string,
       baseUrl: process.env.PINECONE_BASE_URL as string,
       namespace: process.env.PINECONE_NAMESPACE as string,

@@ -1,5 +1,7 @@
+import pDebounce from "p-debounce";
 import {
   createEffect,
+  createResource,
   createSignal,
   JSX,
   Match,
@@ -25,15 +27,46 @@ import {
 import { DialogCloseButton } from "./Dialog";
 import { isMac } from "./isMac";
 import { Kbd } from "./Kbd";
+import { Loading } from "./Loading";
 import { parseKeys } from "./parseKeys";
 import { Shortcut } from "./Shortcut";
 
 const INPUT_ID = "command-input";
 
-// const debouncedFetchResults = debounce(fetchResults, 1000, {
-//   trailing: true,
-//   leading: true,
-// });
+export function isRateLimitExceeded(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof err["response"] === "object" &&
+    err["response"] !== null &&
+    "status" in err.response &&
+    err.response.status === 429
+  );
+}
+
+let abortController: AbortController | undefined;
+const fetchResults = pDebounce(async (query: string) => {
+  type Result = { path: string; score: number; title: string }[];
+  if (!query) return [] as Result;
+
+  if (abortController) abortController.abort();
+  abortController = new AbortController();
+
+  let res: Response;
+  try {
+    res = await fetch(`/api/search?q=${query}`, {
+      signal: abortController.signal,
+    });
+    return (await res.json()) as Result;
+  } catch (err: any) {
+    if (err.name === "AbortError") return [] as Result;
+    if (isRateLimitExceeded(err)) {
+      throw new Error("OpenAI limit exceeded. Try again later 🙏");
+    }
+    throw new Error("Something went wrong. Try again later 🙏");
+  }
+}, 300);
 
 export function Commands({
   hide = false,
@@ -70,7 +103,9 @@ export function CommandsPalette({
 }) {
   const { getInputValue } = useCommandCenterCtx();
 
-  type CommandsPage = "posts" | "theme" | "search" | undefined;
+  const [getSemanticSearchResult] = createResource(getInputValue, fetchResults);
+
+  type CommandsPage = "posts" | "theme" | undefined;
   const [page, setPage] = createSignal<CommandsPage>();
   let dialog: HTMLDialogElement | undefined;
 
@@ -109,14 +144,6 @@ export function CommandsPalette({
       () => {
         if (dialog && !dialog.open) dialog.showModal();
         setPage("theme");
-      },
-    ],
-    [
-      "alt+s",
-      () => {
-        if (dialog && !dialog.open) dialog.showModal();
-        document.getElementById(INPUT_ID)?.focus();
-        setPage("search");
       },
     ],
     [
@@ -213,10 +240,7 @@ export function CommandsPalette({
                 Set Theme
               </CommandItem>
               <CommandGroup heading={<GroupHeading>Search</GroupHeading>}>
-                {/* <CommandItem shortcut="alt+slash" onClick={handleShortcut}>
-                  Search by title
-                </CommandItem> */}
-                <CommandItem shortcut="alt+s" onClick={handleShortcut}>
+                <CommandItem shortcut="alt+slash" onClick={handleShortcut}>
                   Search
                 </CommandItem>
               </CommandGroup>
@@ -247,32 +271,50 @@ export function CommandsPalette({
             </CommandItem>
           </Match>
           <Match when={page() === "posts"}>
-            <CommandGroup heading={<GroupHeading>Posts</GroupHeading>}>
+            <CommandGroup
+              ignoreMatch
+              heading={<GroupHeading>Semantic Search Results</GroupHeading>}
+            >
+              <Switch>
+                <Match when={getSemanticSearchResult.loading}>
+                  <CommandItem alwaysVisible>
+                    <Loading />
+                  </CommandItem>
+                </Match>
+                <Match when={getSemanticSearchResult.error}>
+                  <CommandItem alwaysVisible>
+                    {getSemanticSearchResult.error.message}
+                  </CommandItem>
+                </Match>
+                <Match when={getSemanticSearchResult()}>
+                  {getSemanticSearchResult()?.map((p) => (
+                    <CommandItem alwaysVisible href={p.path}>
+                      {p.title}
+                    </CommandItem>
+                  ))}
+                </Match>
+                <Match
+                  when={
+                    !getSemanticSearchResult.loading &&
+                    !getSemanticSearchResult()?.length
+                  }
+                >
+                  <CommandItem alwaysVisible href="">
+                    No results
+                  </CommandItem>
+                </Match>
+              </Switch>
+            </CommandGroup>
+            <CommandGroup heading={<GroupHeading>Posts By Title</GroupHeading>}>
               {posts.map((p) => (
                 <CommandItem href={p.href}>{p.title}</CommandItem>
               ))}
             </CommandGroup>
-            <CommandGroup heading={<GroupHeading>Talks</GroupHeading>}>
+            <CommandGroup heading={<GroupHeading>Talks By Title</GroupHeading>}>
               {talks.map((p) => (
                 <CommandItem href={p.href}>{p.title}</CommandItem>
               ))}
             </CommandGroup>
-          </Match>
-          <Match when={page() === "search"}>
-            <CommandGroup heading={<GroupHeading>Search Results</GroupHeading>}>
-              {posts.map((p) => (
-                <CommandItem href={p.href}>{p.title}</CommandItem>
-              ))}
-            </CommandGroup>
-            {/* <CommandGroup
-              heading={<GroupHeading>Semantic Search Results</GroupHeading>}
-            >
-              {posts.map((p) => (
-                <CommandItem alwaysVisible href={p.href}>
-                  {p.title}
-                </CommandItem>
-              ))}
-            </CommandGroup> */}
           </Match>
         </Switch>
       </CommandList>
@@ -292,6 +334,7 @@ export type CommandItemProps = CommonCommandItemProps &
         onClick: (shortcut: string) => void;
       }
     | { href: string; shortcut?: never; onClick?: never }
+    | { href?: never; shortcut?: never; onClick?: never }
   );
 
 function CommandItem(props: CommandItemProps) {

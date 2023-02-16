@@ -79,7 +79,7 @@ env:
   REF_NAME: "${{ github.ref_name }}"
   IS_DEPENDABOT: ${{ secrets.IS_DEPENDABOT }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-  PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}  
+  PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
   PINECONE_BASE_URL: ${{ secrets.PINECONE_BASE_URL }}
   PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
   PINECONE_NAMESPACE: ${{ secrets.PINECONE_NAMESPACE }}

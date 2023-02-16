@@ -20,6 +20,7 @@ import {
   CommandItem as CommandCenterItem,
   CommandItemProps as CommandCenterItemProps,
   CommandList,
+  useCommandCenterCtx,
 } from "./CommandCenter";
 import { DialogCloseButton } from "./Dialog";
 import { isMac } from "./isMac";
@@ -67,6 +68,8 @@ export function CommandsPalette({
   posts: { title: string; href: string }[];
   talks: { title: string; href: string }[];
 }) {
+  const { getInputValue } = useCommandCenterCtx();
+
   type CommandsPage = "posts" | "theme" | "search" | undefined;
   const [page, setPage] = createSignal<CommandsPage>();
   let dialog: HTMLDialogElement | undefined;
@@ -84,7 +87,13 @@ export function CommandsPalette({
     [
       "escape",
       () => {
-        // setPage(undefined);
+        setPage(undefined);
+      },
+    ],
+    [
+      "backspace",
+      () => {
+        if (!getInputValue()) setPage(undefined);
       },
     ],
     [
@@ -168,15 +177,7 @@ export function CommandsPalette({
         event.preventDefault();
         setPage(undefined);
       }}
-      ref={(ref) => {
-        dialog = ref;
-        dialog?.addEventListener("cancel", (event) => {
-          if (page() !== undefined) {
-            event.preventDefault();
-            setPage(undefined);
-          }
-        });
-      }}
+      ref={(ref) => (dialog = ref)}
       class={
         "backdrop:bg-white backdrop:bg-opacity-30" +
         " dark:backdrop:bg-black dark:backdrop:bg-opacity-30" +

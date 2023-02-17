@@ -17,7 +17,7 @@ specifiers:
   '@astrojs/rss': ^2.1.0
   '@astrojs/solid-js': ^2.0.0
   '@astrojs/tailwind': ^3.0.0
-  '@beerose/semantic-search': 1.0.0-beta.4
+  '@beerose/semantic-search': 1.0.0-beta.5
   '@edgeandnode/eslint-config': ^1.0.3
   '@fontsource/brygada-1918': ^4.5.11
   '@fontsource/inter': ^4.5.14
@@ -36,6 +36,7 @@ specifiers:
   eslint-plugin-markdown: ^3.0.0
   estree-util-value-to-estree: ^2.0.0
   lite-youtube-embed: ^0.2.0
+  node-fetch: ^3.3.0
   openai: ^3.1.0
   p-debounce: ^4.0.0
   pinecone-client: ^1.0.1
@@ -62,7 +63,7 @@ dependencies:
   '@astrojs/mdx': 0.15.0_astro@2.0.1
   '@astrojs/solid-js': 2.0.0_solid-js@1.6.11
   '@astrojs/tailwind': 3.0.0_bgk6wvini4j5nfa7w2itosrqne
-  '@beerose/semantic-search': 1.0.0-beta.4_awa2wsr5thmg3i7jqycphctjfq
+  '@beerose/semantic-search': 1.0.0-beta.5
   '@fontsource/brygada-1918': 4.5.11
   '@fontsource/inter': 4.5.14
   '@mdx-js/mdx': 2.2.1_xpblqcf4nverltfcba52wyvqbi
@@ -75,6 +76,7 @@ dependencies:
   eslint-plugin-markdown: 3.0.0_eslint@8.31.0
   estree-util-value-to-estree: 2.0.0
   lite-youtube-embed: 0.2.0
+  node-fetch: 3.3.0
   openai: 3.1.0
   p-debounce: 4.0.0
   pinecone-client: 1.0.1
@@ -545,14 +547,13 @@ packages:
       to-fast-properties: 2.0.0
     dev: false
 
-  /@beerose/semantic-search/1.0.0-beta.4_awa2wsr5thmg3i7jqycphctjfq:
-    resolution: {integrity: sha512-Hmr6b0ASaGoSts//ErkdSeQ2ryWO8PdBqsWwS16vT4BC7XRDTbZJ5JQgcscWF+64RfvbNdeY3c8YEcVLT/S4dQ==}
+  /@beerose/semantic-search/1.0.0-beta.5:
+    resolution: {integrity: sha512-Q0YDCstWopp74nCSvAkO+qHNmTazSmvUaYOnXi2yvYmgQKCs5ysyMPrdZf9ugoyCWQD0wV9f8H9i0OFLPfU7LA==}
     hasBin: true
     dependencies:
       cac: 6.7.14
       dotenv: 16.0.3
       gpt3-tokenizer: 1.1.5
-      node-fetch: 3.3.0
       openai: 3.1.0
       pinecone-client: 1.0.1
       remark: 14.0.2
@@ -561,22 +562,10 @@ packages:
       remark-mdx: 2.3.0
       remark-smartypants: 2.0.0
       tiny-glob: 0.2.9
-      ts-node: 10.9.1_awa2wsr5thmg3i7jqycphctjfq
       unified: 10.1.2
     transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - '@types/node'
       - debug
       - supports-color
-      - typescript
-    dev: false
-
-  /@cspotcode/source-map-support/0.8.1:
-    resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.9
     dev: false
 
   /@edge-runtime/format/1.1.0:
@@ -914,13 +903,6 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: false
 
-  /@jridgewell/trace-mapping/0.3.9:
-    resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
-    dependencies:
-      '@jridgewell/resolve-uri': 3.1.0
-      '@jridgewell/sourcemap-codec': 1.4.14
-    dev: false
-
   /@ljharb/has-package-exports-patterns/0.0.2:
     resolution: {integrity: sha512-4/RWEeXDO6bocPONheFe6gX/oQdP/bEpv0oL4HqjPP5DCenBSt0mHgahppY49N0CpsaqffdwPq+TlX9CYOq2Dw==}
     dev: false
@@ -1090,22 +1072,6 @@ packages:
       minimatch: 3.1.2
       mkdirp: 1.0.4
       path-browserify: 1.0.1
-    dev: false
-
-  /@tsconfig/node10/1.0.9:
-    resolution: {integrity: sha512-jNsYVVxU8v5g43Erja32laIDHXeoNvFEpX33OK4d6hljo3jDhCBDhx5dhCCTMWUojscpAagGiRkBKxpdl9fxqA==}
-    dev: false
-
-  /@tsconfig/node12/1.0.11:
-    resolution: {integrity: sha512-cqefuRsh12pWyGsIoBKJA9luFu3mRxCA+ORZvA4ktLSzIuCUtWVxGIuXigEwO5/ywWFMZ2QEGKWvkZG1zDMTag==}
-    dev: false
-
-  /@tsconfig/node14/1.0.3:
-    resolution: {integrity: sha512-ysT8mhdixWK6Hw3i1V2AeRqZ5WfXg1G43mqoYlM2nc6388Fq5jcXyr5mRsqViLx/GJYdoL0bfXD8nmF+Zn/Iow==}
-    dev: false
-
-  /@tsconfig/node16/1.0.3:
-    resolution: {integrity: sha512-yOlFc+7UtL/89t2ZhjPvvB/DeAr3r+Dq58IgzsFkOAvVC6NMJXmCGjbptdXdR9qsX7pKcTL+s87FtYREi2dEEQ==}
     dev: false
 
   /@types/acorn/4.0.6:
@@ -1571,11 +1537,6 @@ packages:
 
   /acorn-walk/7.2.0:
     resolution: {integrity: sha512-OPdCF6GsMIP+Az+aWfAAOEt2/+iVDKE7oy6lJ098aoe59oAmK76qV6Gw60SbZ8jHuG2wH058GF4pLFbYamYrVA==}
-    engines: {node: '>=0.4.0'}
-    dev: false
-
-  /acorn-walk/8.2.0:
-    resolution: {integrity: sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==}
     engines: {node: '>=0.4.0'}
     dev: false
 
@@ -2309,10 +2270,6 @@ packages:
     resolution: {integrity: sha512-qRbgm0ADrsNTU66UcW47YMJjXm+ShhUP2gkoEoAShT2BHO3cb5gGqLtmWpjnM6Wx9h5hMSF4uZ+jEV/8+4KCsw==}
     requiresBuild: true
     dev: true
-
-  /create-require/1.1.1:
-    resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
-    dev: false
 
   /cross-spawn/7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
@@ -6993,37 +6950,6 @@ packages:
       code-block-writer: 10.1.1
     dev: false
 
-  /ts-node/10.9.1_awa2wsr5thmg3i7jqycphctjfq:
-    resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
-    hasBin: true
-    peerDependencies:
-      '@swc/core': '>=1.2.50'
-      '@swc/wasm': '>=1.2.50'
-      '@types/node': '*'
-      typescript: '>=2.7'
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      '@swc/wasm':
-        optional: true
-    dependencies:
-      '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.9
-      '@tsconfig/node12': 1.0.11
-      '@tsconfig/node14': 1.0.3
-      '@tsconfig/node16': 1.0.3
-      '@types/node': 18.11.18
-      acorn: 8.8.1
-      acorn-walk: 8.2.0
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.2
-      make-error: 1.3.6
-      typescript: 4.9.4
-      v8-compile-cache-lib: 3.0.1
-      yn: 3.1.1
-    dev: false
-
   /ts-node/8.9.1_typescript@4.9.4:
     resolution: {integrity: sha512-yrq6ODsxEFTLz0R3BX2myf0WBCSQh9A+py8PBo1dCzWIOcvisbyH6akNKqDHMgXePF2kir5mm5JXJTH3OUJYOQ==}
     engines: {node: '>=6.0.0'}
@@ -7303,10 +7229,6 @@ packages:
       diff: 5.1.0
       kleur: 4.1.5
       sade: 1.8.1
-    dev: false
-
-  /v8-compile-cache-lib/3.0.1:
-    resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
     dev: false
 
   /validate-html-nesting/1.1.0:

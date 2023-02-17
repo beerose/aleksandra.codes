@@ -170,8 +170,6 @@ export function CommandsPalette({
 
   createEffect(() => {
     const onKeydown = (event: KeyboardEvent) => {
-      console.log("onKeydown", event.key);
-
       const cmdKey = isMac() ? event.metaKey : event.ctrlKey;
       const { shiftKey, altKey } = event;
 

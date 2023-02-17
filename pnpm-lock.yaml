@@ -17,7 +17,7 @@ specifiers:
   '@astrojs/rss': ^2.1.0
   '@astrojs/solid-js': ^2.0.0
   '@astrojs/tailwind': ^3.0.0
-  '@beerose/semantic-search': 1.0.0-beta.5
+  '@beerose/semantic-search': 1.0.0-beta.6
   '@edgeandnode/eslint-config': ^1.0.3
   '@fontsource/brygada-1918': ^4.5.11
   '@fontsource/inter': ^4.5.14
@@ -63,7 +63,7 @@ dependencies:
   '@astrojs/mdx': 0.15.0_astro@2.0.1
   '@astrojs/solid-js': 2.0.0_solid-js@1.6.11
   '@astrojs/tailwind': 3.0.0_bgk6wvini4j5nfa7w2itosrqne
-  '@beerose/semantic-search': 1.0.0-beta.5
+  '@beerose/semantic-search': 1.0.0-beta.6
   '@fontsource/brygada-1918': 4.5.11
   '@fontsource/inter': 4.5.14
   '@mdx-js/mdx': 2.2.1_xpblqcf4nverltfcba52wyvqbi
@@ -547,14 +547,17 @@ packages:
       to-fast-properties: 2.0.0
     dev: false
 
-  /@beerose/semantic-search/1.0.0-beta.5:
-    resolution: {integrity: sha512-Q0YDCstWopp74nCSvAkO+qHNmTazSmvUaYOnXi2yvYmgQKCs5ysyMPrdZf9ugoyCWQD0wV9f8H9i0OFLPfU7LA==}
+  /@beerose/semantic-search/1.0.0-beta.6:
+    resolution: {integrity: sha512-SF0ocl4NonO7yiytNhphAOaZwuuhsiWrzhkCn+66UsiNV85vn7CoZl7W4H9KR8V6A9VSrmxYrdPmv75ldlsTZg==}
     hasBin: true
     dependencies:
+      '@clack/core': 0.1.7
+      '@clack/prompts': 0.4.3
       cac: 6.7.14
       dotenv: 16.0.3
       gpt3-tokenizer: 1.1.5
       openai: 3.1.0
+      picocolors: 1.0.0
       pinecone-client: 1.0.1
       remark: 14.0.2
       remark-frontmatter: 4.0.1
@@ -567,6 +570,23 @@ packages:
       - debug
       - supports-color
     dev: false
+
+  /@clack/core/0.1.7:
+    resolution: {integrity: sha512-hyrb8/QlcC2vJO5ZL19/Fl3YHwfPK2o2TuW1zczzFO7lBUQWePGHhJu2wc6AJOjtpbyppylCLWnFFY3sGfLJSg==}
+    dependencies:
+      picocolors: 1.0.0
+      sisteransi: 1.0.5
+    dev: false
+
+  /@clack/prompts/0.4.3:
+    resolution: {integrity: sha512-R3Ws19DbdqKarkfbvqde0v9Cfi7o/mferY4CF4ca4VOrrUXUKP0NOofKEMDzuehEdlImiaC5qs9UKnfU3p2IxQ==}
+    dependencies:
+      '@clack/core': 0.1.7
+      picocolors: 1.0.0
+      sisteransi: 1.0.5
+    dev: false
+    bundledDependencies:
+      - is-unicode-supported
 
   /@edge-runtime/format/1.1.0:
     resolution: {integrity: sha512-MkLDDtPhXZIMx83NykdFmOpF7gVWIdd6GBHYb8V/E+PKWvD2pK/qWx9B30oN1iDJ2XBm0SGDjz02S8nDHI9lMQ==}

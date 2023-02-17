@@ -6,6 +6,11 @@ import { Configuration, OpenAIApi } from "openai";
 import { PineconeClient } from "pinecone-client";
 
 export default async function search(request: Request, response: any) {
+  await import("node-fetch").then(
+    ({ default: fetch, Headers, Request, Response }) => {
+      Object.assign(globalThis, { fetch, Headers, Request, Response });
+    }
+  );
   try {
     const searchParams = new URLSearchParams(
       request.url.slice(request.url.indexOf("?"))

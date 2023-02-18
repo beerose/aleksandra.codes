@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+main {
+  z-index: 1000;
+}
+
 html {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

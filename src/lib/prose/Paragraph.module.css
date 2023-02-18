@@ -1,6 +1,4 @@
 .Paragraph {
-  @apply max-w-prose p-2 -m-2;
-
   line-height: 1.75;
   text-overflow: ellipsis;
   overflow-x: hidden;

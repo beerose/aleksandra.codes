@@ -1,11 +1,11 @@
 :root {
   --container-width: 43rem;
-  --wide-content-width: min(var(--container-width), 100vw);
+  --wide-content-width: min(var(--container-width), 90vw);
 }
 
 @media (min-width: 640px) {
   :root {
-    --wide-breakout: 0.2;
+    --wide-breakout: 0.1;
     --wide-content-width: min(
       100vw,
       calc(var(--container-width) * (1 + var(--wide-breakout)))
@@ -22,6 +22,10 @@
   --block-mb: 1.5rem;
 
   @apply max-w-container;
+
+  @media (max-width: 40rem) {
+    @apply max-w-full;
+  }
 
   & > :not(:last-child) {
     margin-bottom: var(--block-mb);

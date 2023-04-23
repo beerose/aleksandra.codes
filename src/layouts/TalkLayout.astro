@@ -41,12 +41,14 @@ const date = new Date(frontmatter.date);
       </p>
       <div class="space-x-2">
         {
-          frontmatter.video && (
+          (frontmatter.video || frontmatter.youtubeId) && (
             <a
               class={
                 "hover:translate-x-1 hover:underline underline-offset-4 decoration-wavy decoration-gray-500 decoration-1 duration-100 whitespace-nowrap rounded-sm text-sm text-gray-600 dark:text-gray-400 no-underline"
               }
-              href={frontmatter.video}
+              href={
+                frontmatter.video || `https://youtu.be/${frontmatter.youtubeId}`
+              }
             >
               <span>Recording ↗</span>
             </a>

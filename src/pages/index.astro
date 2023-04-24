@@ -128,10 +128,6 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
                         <div class="border-[4px] border-white border-solid rounded-full h-24 w-24 items-center flex justify-center p-5 pl-7 bg-gray-800 bg-opacity-60">
                           <svg
                             fill="#fff"
-                            height="800px"
-                            width="800px"
-                            version="1.1"
-                            id="Capa_1"
                             xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink"
                             viewBox="0 0 58.752 58.752"
@@ -155,7 +151,6 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
                 </li>
               );
             }
-            return null;
           })
         }
       </ul>
@@ -168,7 +163,7 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
     }
 
     .featured-talks:hover li:not(:hover) {
-      @apply opacity-50 transition-opacity duration-700;
+      @apply opacity-50 transition-opacity duration-500;
     }
   </style>
 </BaseLayout>

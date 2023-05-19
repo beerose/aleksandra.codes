@@ -113,7 +113,7 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
                   <a
                     href={frontmatter.video}
                     target="_blank"
-                    class="max-w-full sm:max-h-[180px] md:max-h-[230px] xl:max-h-[264px]"
+                    class="max-w-full sm:max-h-[180px] md:max-h-[230px] xl:max-h-[264px] zaduma-hover-before transition-colors hover:decoration-transparent dark:hover:decoration-transparent"
                   >
                     <div class="relative">
                       <Image

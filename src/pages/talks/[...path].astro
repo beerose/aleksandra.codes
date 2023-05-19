@@ -18,7 +18,7 @@ export const getStaticPaths = async () => {
   return talks.map((post) => {
     return {
       params: {
-        path: post.frontmatter.path.replace(/^\//, ""),
+        path: post.frontmatter.path.replace(/talks^\//, ""),
       },
       props: post,
     };

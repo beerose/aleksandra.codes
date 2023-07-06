@@ -63,6 +63,9 @@ const talksByYear = talks.reduce(
                             noUnderline
                           >
                             <div class="text-gray-800 dark:text-gray-300 font-sans font-bold text-base">
+                              {frontmatter.date > new Date().toISOString() && (
+                                <span class="dark:invert">🔜</span>
+                              )}
                               {frontmatter.title}
                             </div>
                           </Link>

@@ -2,6 +2,7 @@
 import type { MarkdownInstance } from "astro";
 
 import PostLayout from "../layouts/PostLayout.astro";
+import TalkLayout from "../layouts/TalkLayout.astro";
 import { Link } from "../lib/Link";
 import { Blockquote } from "../lib/prose/Blockquote";
 import { Code, Pre } from "../lib/prose/code-and-pre";
@@ -11,7 +12,7 @@ import { Ol } from "../lib/prose/Ol";
 import { Paragraph } from "../lib/prose/Paragraph";
 import { Table } from "../lib/prose/Table";
 import { Ul } from "../lib/prose/Ul";
-import type { PostFrontmatter } from "../types";
+import type { PostFrontmatter, TalkFrontmatter } from "../types";
 
 export const getStaticPaths = async () => {
   let posts = await Astro.glob<PostFrontmatter>("../../posts/**/*.mdx");
@@ -25,14 +26,25 @@ export const getStaticPaths = async () => {
       params: {
         path: post.frontmatter.path.replace(/^\//, ""),
       },
-      props: post,
+      props: {
+        ...post,
+        type: post.frontmatter.path.includes("/talks") ? "talk" : "post",
+      },
     };
   });
 };
 
-interface Props extends Omit<MarkdownInstance<{}>, "frontmatter"> {
-  frontmatter: PostFrontmatter;
-}
+type Props = Omit<MarkdownInstance<{}>, "frontmatter"> &
+  (
+    | {
+        frontmatter: PostFrontmatter;
+        type: "post";
+      }
+    | {
+        frontmatter: TalkFrontmatter;
+        type: "talk";
+      }
+  );
 const { Content } = Astro.props;
 
 const mdxComponents = {

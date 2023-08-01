@@ -427,8 +427,8 @@ Let's create a `src/supabase.ts` file. Inside, we'll initialize a new client:
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './types'
 
-const supabaseUrl = import.meta.env.SUPABASE_URL
-const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 ```
@@ -618,13 +618,13 @@ We'll cover them one by one.
 
 I put login in quotes because we won't be doing any authentication. We will only provide a way for group members to choose their names from a participants list before accessing a group page.
 
-We'll create a new page — `src/[groupId]/name.tsx`. Inside we will display a list of group members, and when a user picks their name, we'll redirect them to the group page:
+We'll create a new page — `src/[groupId]/name.astro`. Inside we will display a list of group members, and when a user picks their name, we'll redirect them to the group page:
 
 ```astro
 ---
-// src/[groupId]/name.tsx
+// src/[groupId]/name.astro
 
-import { Sheet } from "@everybody-gives/ui";
+import { Sheet, Card } from "@everybody-gives/ui";
 import Layout from "../../layouts/Layout.astro";
 
 const { groupId } = Astro.params;
@@ -661,8 +661,8 @@ Currently, the members are hardcoded, so let's retrieve them from Supabase:
 
 ```js
 ---
-// src/[groupId]/name.tsx
-import { Sheet } from "@everybody-gives/ui";
+// src/[groupId]/name.astro
+import { Sheet, Card } from "@everybody-gives/ui";
 import Layout from "../../layouts/Layout.astro";
 import { supabase } from "../../supabase";
 
@@ -751,7 +751,7 @@ const members = Array.isArray(group.members) ? group.members : [group.members];
 
 Now, after selecting your name, you should be able to see a group page with full info:
 
-![](/content/astro-supabase/name.png)
+![](/content/astro-supabase/group.png)
 
 Let's dive into the last item on our list!
 
@@ -771,7 +771,7 @@ Let's go to the Supabase dashboard and open an SQL editor. Inside we will create
 It uses the `group_id` argument to filter the rows in the `members` table, selecting only rows where the `group_id` matches the specified value. The `username` argument is used in the `UPDATE` statement to set the `selected_by` column to the specified username for the row with a name value selected randomly from the `members` table. Then, it also returns the name of the randomly selected row as the result of the function.
 
 ```sql
-CREATE FUNCTION draw_name11(groupid uuid, username text)
+CREATE FUNCTION draw_name(groupid uuid, username text)
 RETURNS text LANGUAGE plpgsql AS $$
   BEGIN
     UPDATE members

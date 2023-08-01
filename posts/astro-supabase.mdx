@@ -358,7 +358,7 @@ CREATE TABLE groups (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   created_by TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
 CREATE TABLE members (

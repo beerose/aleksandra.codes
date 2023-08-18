@@ -59,7 +59,7 @@ function makePublicURL() {
 
   if (!DEPLOYMENT_ALIAS) {
     // If there's no DEPLOYMENT_ALIAS nor VERCEL_URL, we assume we're building locally.
-    return "https://www.aleksandra.codes/";
+    return "https://aleksandra-codes-9iauoh5sg-aleksandrasikora.vercel.app/";
   }
 
   // Otherwise, we build on GitHub Actions (and get access to Git History).

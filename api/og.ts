@@ -9,7 +9,7 @@ import type * as React from "react";
 
 const author = {
   name: "Aleksandra Sikora",
-  avatarSrc: "https://www.instagram.com/p/CePvQIcNUmH/",
+  avatarSrc: "https://github.com/beerose.png",
 };
 
 type Author = typeof author;

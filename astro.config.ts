@@ -59,7 +59,7 @@ function makePublicURL() {
 
   if (!DEPLOYMENT_ALIAS) {
     // If there's no DEPLOYMENT_ALIAS nor VERCEL_URL, we assume we're building locally.
-    return "http://localhost:3000/";
+    return "http://aleksandra.codes/";
   }
 
   // Otherwise, we build on GitHub Actions (and get access to Git History).

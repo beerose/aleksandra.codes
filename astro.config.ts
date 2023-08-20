@@ -19,6 +19,7 @@ const site = `https://${hostname}/`;
 
 // https://astro.build/config
 export default defineConfig({
+  outDir: "dist",
   site,
   markdown: {
     // We'll highlight using Shiki Twoslash remark plugin

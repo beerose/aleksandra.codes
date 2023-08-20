@@ -2,6 +2,7 @@ import image from "@astrojs/image";
 import mdx from "@astrojs/mdx";
 import solidJs from "@astrojs/solid-js";
 import tailwind from "@astrojs/tailwind";
+import vercel from "@astrojs/vercel/static";
 import { defineConfig } from "astro/config";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Production URL
-const hostname = "zaduma.vercel.app";
+const hostname = "aleksandra-codes.vercel.app";
 const site = `https://${hostname}/`;
 
 // https://astro.build/config
@@ -48,6 +49,9 @@ export default defineConfig({
       "import.meta.env.PUBLIC_URL": JSON.stringify(makePublicURL()),
     },
   },
+  adapter: vercel({
+    analytics: true,
+  }),
 });
 
 function makePublicURL() {

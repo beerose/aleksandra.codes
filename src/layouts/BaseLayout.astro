@@ -52,6 +52,14 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
       type="module"
       src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1.4.0/lite-youtube.js"
     ></script>
+    <script>
+      window.va =
+        window.va ||
+        function () {
+          (window.vaq = window.vaq || []).push(arguments);
+        };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
     <meta name="viewport" content="width=device-width" />
 
     <SocialCardMetaTags ogImage={ogImage} />

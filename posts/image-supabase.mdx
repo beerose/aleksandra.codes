@@ -10,8 +10,9 @@ In this article, I will show you how to build a generic foundation for an image
 retrieval app that can later be fine-tuned to a specific use case.
 
 I will guide you through creating a Python backend with machine learning logic.
-We will be using the Supabase `vecs` Python library and a Storage Python Client.
-Afterward, we will integrate it into a frontend application.
+We will be using the [Supabase](https://supabase.com/) `vecs` Python library and
+[Supabase Storage](https://supabase.com/storage). Afterward, we will integrate
+it into a frontend application.
 
 I'll be using the following tech stack:
 
@@ -21,7 +22,8 @@ I'll be using the following tech stack:
   with to perform the search.
 - [Supabase's `vecs`](https://github.com/supabase/vecs): a Python client for
   managing and querying vector stores. We'll use it to query similar images.
-- Supabase Storage: used to store and retrieve images.
+- [Supabase Storage](https://supabase.com/storage): used to store and retrieve
+  images.
 - [Hugging Face's Model hub](https://huggingface.co/docs/hub/models-the-hub):
   think of it as an NPM but for pre-trained models. We'll obtain the model from
   there.
@@ -421,3 +423,11 @@ transform the current app into a less generic one is to use a specific dataset
 to train the model. As someone who is new to a lot of machine learning concepts,
 I am personally excited to learn how to train models and I hope to write about
 it soon!
+
+To learn more about the tools used in the guide, check out the following links:
+
+- [Supabase Storage](https://supabase.com/storage)
+- [Supabase `vecs`](https://github.com/supabase/vecs)
+- [Hugging Face](https://huggingface.co)
+- [timm](https://timm.fast.ai/)
+- [FastAPI](https://fastapi.tiangolo.com/)

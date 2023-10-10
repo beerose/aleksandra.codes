@@ -16,16 +16,17 @@ Afterward, we will integrate it into a frontend application.
 I'll be using the following tech stack:
 
 - Python: all the image retrieval logic will be implemented on the backend.
-- FastAPI: a Python web framework for building APIs. We'll use it to create a
-  minimal REST server that we'll later integrate with to perform the search.
-- Supabase's `vecs`: a Python client for managing and querying vector stores in
-  PostgreSQL with the
-  [pgvector extension](https://github.com/pgvector/pgvector). We'll use it to
-  query similar images.
+- [FastAPI](https://fastapi.tiangolo.com/): a Python web framework for building
+  APIs. We'll use it to create a minimal REST server that we'll later integrate
+  with to perform the search.
+- [Supabase's `vecs`](https://github.com/supabase/vecs): a Python client for
+  managing and querying vector stores. We'll use it to query similar images.
 - Supabase Storage: used to store and retrieve images.
-- Hugging Face's Model hub: think of it as an NPM but for pre-trained models.
-  We'll obtain the model from there.
-- timm: a deep-learning library for image classification.
+- [Hugging Face's Model hub](https://huggingface.co/docs/hub/models-the-hub):
+  think of it as an NPM but for pre-trained models. We'll obtain the model from
+  there.
+- [timm](https://timm.fast.ai/): a deep-learning library for image
+  classification.
 
 Let's get started!
 
@@ -342,7 +343,7 @@ The `Image` class represents an endpoint return type.
 @app.post("/search/")
 ```
 
-It establishes a POST endpoint at `"/search/"`.
+It establishes a POST endpoint at `/search/`.
 
 4. Search function
 

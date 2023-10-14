@@ -1,0 +1,190 @@
+---
+title: "Navigating TypeScript Performance for Better Developer Experience"
+tags: typescript, performance
+excerpt: ""
+date: 2023-11-08
+event: "JS Poland"
+type: "conference"
+duration: 25
+post: ""
+img: ""
+video: ""
+youtubeId: ""
+slides: ""
+place: "Warsaw 🇵🇱"
+---
+
+# Abstract
+
+We need our tooling to be set up like a well-oiled machine because the better
+our process is the more value we can deliver. In this talk we’re going to focus
+on the speed of the TypeScript compiler and I'm going to show you how to debug
+and optimise TypeScript performance. The less annoyance and fewer moments when
+you want to throw your computer out of the window, the better!
+
+# Talk Notes
+
+[Link to GitHub with examples.](https://github.com/beerose/ts-performance-talk/tree/main)
+
+## What compiler compiles
+
+<img
+  width="642"
+  alt="CleanShot 2023-05-11 at 06 30 15@2x"
+  src="https://github.com/ant-design/ant-design-icons/assets/9019397/540a0a00-087f-4d76-9afe-c1274d53757f"
+/>
+
+### TypeScript program
+
+An object that has all the compilation context.
+
+### Scanner
+
+Scans the source code and convert it into a list of tokens.
+
+<img
+  width="483"
+  alt="CleanShot 2023-05-11 at 06 31 20@2x"
+  src="https://github.com/ant-design/ant-design-icons/assets/9019397/e1790cf2-a2aa-4e10-8d02-8331286a74f4"
+/>
+
+### Parser
+
+Brings context to the scanner. For example: it sees a `FunctionKeyword` so it
+knows it’s gonna be a `FunctionDeclaration` and then if there’s an Identifier,
+it’s gonna be this function Identifier, its name, and then we’re gonna have
+parameters, and so on.
+
+In reality, there's some back and forth communication between parser and lexer.
+Parser is responsible for creating a correct AST, but it asks scanner to do some
+extra reading. Parser controls the scanner.
+
+<img
+  width="708"
+  alt="CleanShot 2023-05-11 at 06 31 40@2x"
+  src="https://github.com/ant-design/ant-design-icons/assets/9019397/041d8d9c-d68d-430c-b6c0-16592e471845"
+/>
+
+### Binder
+
+It results in errors about the whole context.
+
+Main responsibilities:
+
+- Creates a symbol table — additional metadata for each node. It will be used
+  for later phases. Has information on where identifiers are defined — scopes.
+  Keeps track of which scope you’re in (makes go to definition in IDE work).
+- Sets up parent on syntax noes. Later checker can go up if needed and
+  investigate the nodes above to get proper type.
+- Makes flow nodes — TS needs to keep track of scopes, what types occur where
+  and where possible mutations occur.
+- Validates script vs module conformance.
+
+It’s a single run through the entire tree.
+
+<img
+  width="758"
+  alt="CleanShot 2023-05-11 at 06 32 39@2x"
+  src="https://github.com/ant-design/ant-design-icons/assets/9019397/929574b5-81dc-48a7-b8fd-dca808a4e5f2"
+/>
+
+### Checker
+
+Includes most of the diagnostics. It’s huge. For everything in AST there are
+checking functions like `checkVariableStatement`,
+`checkGrammarVariableDeclarationList`, `isTypeRelatedTo`.
+
+Two major responsibilities:
+
+1. It checks if things are assignable to other things.
+2. Type inference — if there are “gaps”, it tries to fill them — this is why we
+   store so much information with a binder.
+
+### Transformer
+
+It takes the AST that we have and to get JavaScript code, it strips all the
+types and optionally applies some transformers to e.g. support modern syntax.
+
+When creating an AST, TS keeps track of all the transformers that’s gonna be
+needed. E.g. if it sees an ES2018 token and the target it older, it will know
+that an ES2018 transformer will be needed.
+
+And to get declaration files, it strips the code bit. DTS Transformer often asks
+the type checker about the types. Especially when some variables are not
+annotated.
+
+### Emitter
+
+We are getting the files that we requested.
+
+<img
+  width="742"
+  alt="CleanShot 2023-05-11 at 06 29 52@2x"
+  src="https://github.com/ant-design/ant-design-icons/assets/9019397/61ac117b-c118-455c-8b02-afbbe79061d1"
+/>
+
+## Debugging
+
+### --diagnostics/--extendedDiagnostics
+
+<img
+  width="741"
+  alt="CleanShot 2023-05-11 at 06 33 07@2x"
+  src="https://github.com/ant-design/ant-design-icons/assets/9019397/627bc9aa-2993-4733-8b77-b9c796c227ab"
+/>
+
+It’s quite useful to see what’s going on — what compiler steps are taking
+significant amount of time.
+
+The three most expensive steps are usually parsing, binding, and a checker.
+
+### --listFiles
+
+```
+$ tsc --noEmit --listFiles | xargs stat -f "%z %N" | npx webtreemap-cli
+```
+
+### --showConfig
+
+### ---generateTrace
+
+```
+$ tsc --generateTrace outDir
+```
+
+Tool to analyze trace:
+
+```
+$ npx @typescript/analyze-trace ./outDir
+```
+
+## Improving
+
+### 1. Check tsconfig — especially include/exclude settings
+
+### 2. Name complex types
+
+Examples:
+
+- [ANT Design PR](https://github.com/ant-design/ant-design-icons/pull/479)
+- [ZOD PR](https://github.com/colinhacks/zod/pull/2107)
+
+### 3. Make your types/code simpler
+
+### 4. Help TypeScript skip inference (if you really need to)
+
+- GraphQL Code Generator example
+
+### 5. Be reasonable
+
+So, my favourite thing — a traceResolution flag. It makes it easier to identify
+the parts of a program that are taking the most time to compile. It can tell you
+which of your files to examine more closely.
+
+- String literal templates example
+
+### Use --incremental flag
+
+### Still bad? Open an issue.
+
+Example of a nice issue: https://github.com/microsoft/TypeScript/issues/53761

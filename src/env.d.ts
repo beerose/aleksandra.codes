@@ -12,3 +12,9 @@ interface ImportMetaEnv {
    */
   readonly PUBLIC_URL: string;
 }
+
+interface Window {
+  // Vercel Analytics
+  va?: unknown;
+  vaq?: unknown[];
+}

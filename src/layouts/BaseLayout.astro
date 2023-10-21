@@ -131,7 +131,9 @@ const talks = (await Astro.glob<TalkFrontmatter>("../../posts/talks/*.mdx"))
       </div>
       <header class="flex justify-between mx-1 items-center">
         <slot name="header-content">
-          <Link class="text-sm" href="/">← back</Link>
+          <a class="text-sm" href="#" onclick="window.history.go(-1)">
+            ← back
+          </a>
         </slot>
         <Commands
           hide={activePage === "home"}

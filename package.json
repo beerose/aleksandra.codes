@@ -17,7 +17,7 @@
     "ci": "pnpm lint && prettier --check src"
   },
   "overrides": {
-    "esbuild": "0.16.17"
+    "esbuild": "0.17.19"
   },
   "dependencies": {
     "@astrojs/image": "0.13.0",

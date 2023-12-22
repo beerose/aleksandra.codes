@@ -1,6 +1,5 @@
 ---
-title: "Exploring Supabase Realtime Features By Building a Multiplayer Game"
-ogTitle: "Exploring Supabase Realtime By Building a Game"
+title: "Exploring Supabase Realtime By Building a Game"
 tags: supabase
 excerpt:
   "Supabase is an open-source Firebase alternative. In this article, we will
@@ -8,3 +7,302 @@ excerpt:
   with Next.js."
 date: 2023-12-22
 ---
+
+I just started a new project to explore the
+[real-time features of Supabase](https://supabase.com/docs/guides/realtime). My
+goal was to see how it works in a real application and play a bit with what
+Supabase offers. After jumping from one idea to another, I finally settled on
+creating a multiplayer math puzzle game. The idea is that players use numbered
+cards to match a target sum in input fields. You can play with your friends and
+see who’s the fastest at math (I also just learned that I’m VERY slow 🫠).
+
+![](/content/supabase-game/newgame.png)
+
+I won't discuss all the details of the game's development in this post. Instead,
+I'll focus on how I used Supabase's real-time features. I'll explain where these
+features are most effective in the game, allowing players to interact seamlessly
+and instantly.
+
+## Tech Stack
+
+- **Supabase** (obviously).
+- **Next.js**: I initially considered using Vite, but it's been a while since I
+  built an app in Next.js, and I always liked its DX.
+- **Tailwind**: Because nothing else compares in terms of CSS development speed
+  ❤️‍🔥
+- **TypeScript** (do I even need to mention that???)
+- **OpenAI**: Technically, I haven't used it yet, but there was an idea to
+  generate math puzzles with AI (PR coming!).
+
+## Setup
+
+To start the Next.js app, I used `create-next-app` and followed the
+instructions. I chose App Router, TypeScript, Tailwind, and other recommended
+options. It's nice that the new app initializer includes Tailwind from the
+beginning. Even though setting up Tailwind is not a lengthy process, having it
+pre-configured reduces manual setup and improves the framework experience.
+
+### New Supabase Project Setup
+
+I have created a new Supabase project and added two tables. If you want to learn
+more about creating projects, you can refer to the documentation.
+
+Here is my database schema:
+
+![](/content/supabase-game/db.png)
+
+After setting up the database, I needed to do two things:
+
+1. Disable RLS (Row Level Security) - My application won't have authentication,
+   so I deliberately want to allow unauthenticated access to the database.
+2. Enable realtime functionality.
+
+![](/content/supabase-game/rls.png)
+
+### Client Setup + TypeScript Support
+
+I have added the `@supabase/supabase-js` package to my project and used the
+`createClient` function to set up a Supabase client.
+
+Since I value good TypeScript support, when working with Supabase, I typically
+add a new script that generates types based on my database schema.
+
+```jsx
+"gen-types": "supabase gen types typescript --project-id $PROJECT_ID > supabase/database.types.ts"
+
+```
+
+The generated `database.types.ts` file exports a `Database` type that needs to
+be passed as a generic parameter to the `createClient` function:
+
+```ts
+import { createClient } from "@supabase/supabase-js";
+import { Database } from "./database.types";
+
+export const supabaseClient = createClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+```
+
+## Game
+
+Ok, let's discuss the game and its user interface!
+
+The index page offers two options: creating a new game or joining an existing
+game using a room code. I use the `rooms` table to track all open rooms and the
+`results` table to manage and synchronize the results. When you enter a room (by
+either creating a new one or joining an existing one), you'll see a leaderboard
+on the left and a game board on the right. The online players are displayed as
+well. Once all your friends have joined, you can click "Ready", and the game
+begins when everyone is _ready_.
+
+The main concept is to have 16 cards (originally, I wanted 25, but I struggled
+to work with that many, so I reduced it to 16 and may even decrease it to 9).
+You also have a specific number of inputs (2-4) and a target number that you
+need to "get" from the cards. If you guess correctly, you receive new numbers.
+Each correct guess earns you 100 points (1 seemed too dull as a score). The game
+continues until you run out of time. Simple, right? Well, the idea is, but not
+necessarily, the game itself.
+
+## Tracking Users Presence
+
+The first use case for Supabase is tracking player presence. We need an
+up-to-date list of all the people currently in the room.
+
+I have a local user state that I sync every time there's a change, either when a
+user leaves or joins a room.
+
+To do this, I create a new channel using `supabaseClient.channel(roomName)` and
+then listen for the events:
+
+- `REALTIME_PRESENCE_LISTEN_EVENTS.SYNC`,
+- `REALTIME_PRESENCE_LISTEN_EVENTS.JOIN`,
+- `REALTIME_PRESENCE_LISTEN_EVENTS.LEFT`.
+
+```ts
+const room = supabaseClient.channel(roomName);
+
+room
+  .on(
+    REALTIME_LISTEN_TYPES.PRESENCE,
+    { event: REALTIME_PRESENCE_LISTEN_EVENTS.JOIN },
+    ({ newPresences }) => {
+      setUsers((state) => {
+        const newUsers = newPresences.map((presence) => ({
+          name: presence.name,
+        }));
+        return [...state, ...newUsers];
+      });
+    }
+  )
+  .on(
+    REALTIME_LISTEN_TYPES.PRESENCE,
+    { event: REALTIME_PRESENCE_LISTEN_EVENTS.LEAVE },
+    ({ leftPresences }) => {
+      setUsers((state) =>
+        state.filter((user) => !leftPresences.some((p) => p.name === user.name))
+      );
+    }
+  )
+  .on(
+    REALTIME_LISTEN_TYPES.PRESENCE,
+    { event: REALTIME_PRESENCE_LISTEN_EVENTS.SYNC },
+    () => {
+      const state = room.presenceState<Presence>();
+      setUsers(
+        Object.values(state).map((presence) => ({
+          name: presence?.[0]?.name,
+        }))
+      );
+    }
+  );
+```
+
+<video autoplay loop muted playsinline>
+  <source src="/content/supabase-game/presence.mp4" type="video/mp4" />
+</video>
+
+## Sending Messages
+
+The next step is to keep track of whether users are _ready_. To do this, I must
+"inform" all clients whenever a specific player clicks "Ready". This is where
+Supabase's real-time feature, broadcasting, comes in.
+
+I can send a message to the room, passing any payload I need and providing an
+event type. In this case, I called the event "ready".
+
+```tsx
+<button
+  onClick={async () => {
+    const room = supabaseClient.channel(roomName);
+    await room.send({
+      type: "broadcast",
+      event: "ready",
+      payload: { username: currentUser },
+    });
+  }}
+>
+  Ready
+</button>
+```
+
+I also need to listen to the "ready" event. Here's how to do it:
+
+```ts
+room.on(
+  REALTIME_LISTEN_TYPES.BROADCAST,
+  { event: "ready" }, // <- my custom event type
+  ({ payload }) => {
+    setUsers((state) =>
+      state.map((user) => {
+        if (user.name === payload.username) {
+          return {
+            ...user,
+            ready: true,
+          };
+        }
+        return user;
+      })
+    );
+  }
+);
+```
+
+<video autoplay loop muted playsinline>
+  <source src="/content/supabase-game/ready.mp4" type="video/mp4" />
+</video>
+
+## Listening To Result Changes
+
+Now, let's consider how to display live results. One way to achieve this is by
+using broadcasting again, where you send a `result-update` event with a
+`{username, result}` payload. However, storing the results in a database may be
+beneficial so that they persist even if the page is refreshed. Note that as of
+writing this post, refreshing the page is not recommended since no database
+syncing is implemented yet, and doing so will mess up the game 🥲.
+
+Whenever the user guesses correctly, I update the information in the Supabase
+database:
+
+```ts
+await supabaseClient.from("results").upsert({
+  room_name: gameId,
+  name: name,
+  result: result,
+});
+```
+
+I also listen to the `UPDATE` events for the results table to sync the local
+user's state:
+
+```ts
+room.on(
+  REALTIME_LISTEN_TYPES.POSTGRES_CHANGES,
+  {
+    event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.UPDATE,
+    schema: "public",
+    table: "results",
+    filter: `room_name=eq.${roomName}`,
+  },
+  (e) => {
+    setUsers((state) =>
+      state.map((user) =>
+        user.name === e.new.name
+          ? {
+              ...user,
+              score: e.new.result,
+            }
+          : user
+      )
+    );
+  }
+);
+```
+
+You can also pass custom filters. In this case, I only care about the updates
+related to the particular room:
+
+```ts
+filter: `room_name=eq.${roomName}`;
+```
+
+<video autoplay loop muted playsinline>
+  <source src="/content/supabase-game/results.mp4" type="video/mp4" />
+</video>
+
+## Future Enhancements
+
+- **Getting it fully working**: Fix all the bugs to make the game run smoothly.
+- **Open game room**: Add a 'general' room for everyone, resetting it every day
+  using `pg_cron`.
+- **AI for creating puzzles**: Use AI to come up with new math puzzles.
+- **Levels of difficulty**: Introduce different levels for players with a
+  different amount of cards.
+- **Saving game progress**: Make sure the game saves progress, so if you refresh
+  the page, it doesn’t mess everything up.
+- **Play again option**: Add a button to start a new game easily.
+- **Time settings for games**: Let players set a game duration time when they
+  create a game.
+
+## Summary
+
+Working with Supabase real-time features: 🧘
+
+Solving those math puzzles: 🫠
+
+Integrating real-time features using Supabase's API was a smooth and enjoyable
+experience. For those interested, I recommend checking out their documentation
+for more information. Also, you can explore the project's GitHub repo and the
+game's repository for a closer look.
+
+- [Supabase Realtime docs](https://supabase.com/docs/guides/realtime)
+- [GitHub repo](https://github.com/supabase/realtime)
+- [Game repo](https://github.com/beerose/supabase-realtime-math-game)
+
+Also, a special shoutout to [Joshua Goldberg](twitter.com/joshuakgoldberg) for
+creating the [`emojisplosion`](https://www.npmjs.com/package/emojisplosion)
+package. I did not expect to find this gem when I googled "npm emoji explosion"
+🤯
+
+P.S. I may or may not finish building this game.

@@ -50,7 +50,7 @@ export default async function og(req: Request) {
         h(
           Illustration,
           { imageHref: post.img },
-          h(Title, { title: post.ogTitle || post.title })
+          h(Title, { title: (post as any).ogTitle || post.title })
         ),
         h(Footer, { author, post })
       ),

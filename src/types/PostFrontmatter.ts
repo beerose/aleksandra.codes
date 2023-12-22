@@ -37,4 +37,5 @@ export interface PostFrontmatter {
   featured?: boolean;
   excerpt?: string;
   draft?: boolean;
+  ogTitle?: string;
 }

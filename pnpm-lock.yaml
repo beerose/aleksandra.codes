@@ -55,7 +55,7 @@ specifiers:
   solid-js: ^1.6.0
   tailwindcss: ^3.2.4
   typescript: ^4.9.4
-  unified: ^10.1.2
+  unified: ^11.0.4
   unist-util-visit: ^4.1.1
   vercel: ^32.2.1
   yargs-parser: ^21.1.1
@@ -93,7 +93,7 @@ dependencies:
   sharp: 0.31.3
   solid-js: 1.6.11
   tailwindcss: 3.2.4_postcss@8.4.20
-  unified: 10.1.2
+  unified: 11.0.4
   unist-util-visit: 4.1.1
   vercel: 32.2.5
   yargs-parser: 21.1.1
@@ -1254,7 +1254,7 @@ packages:
   /@types/mdast/3.0.10:
     resolution: {integrity: sha512-W864tg/Osz1+9f4lrGTZpCSO5/z4608eUp19tbozkq2HJK6i3z1kT0H9tlADXuYIb1YYOBByU4Jsqkk75q48qA==}
     dependencies:
-      '@types/unist': 2.0.6
+      '@types/unist': 3.0.2
     dev: false
 
   /@types/mdx/2.0.3:
@@ -1268,7 +1268,7 @@ packages:
   /@types/nlcst/1.0.0:
     resolution: {integrity: sha512-3TGCfOcy8R8mMQ4CNSNOe3PG66HttvjcLzCoOpvXvDtfWOTi+uT/rxeOKm/qEwbM4SNe1O/PjdiBK2YcTjU4OQ==}
     dependencies:
-      '@types/unist': 2.0.6
+      '@types/unist': 3.0.2
     dev: false
 
   /@types/node/18.11.18:
@@ -1300,6 +1300,10 @@ packages:
 
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
+
+  /@types/unist/3.0.2:
+    resolution: {integrity: sha512-dqId9J8K/vGi5Zr7oo212BGii5m3q5Hxlkwy3WpYuKPklmBEvsbMYYyLxAQpSffdLl/gdW0XUpKWFvYmyoWCoQ==}
+    dev: false
 
   /@types/yargs-parser/21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -2671,6 +2675,12 @@ packages:
 
   /devalue/4.2.2:
     resolution: {integrity: sha512-Pkwd8qrI9O20VJ14fBNHu+on99toTNZFbgWRpZbC0zbDXpnE2WHYcrC1fHhMsF/3Ee+2yaW7vEujAT7fCYgqrA==}
+    dev: false
+
+  /devlop/1.1.0:
+    resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
+    dependencies:
+      dequal: 2.0.3
     dev: false
 
   /didyoumean/1.2.2:
@@ -6834,7 +6844,19 @@ packages:
       is-buffer: 2.0.5
       is-plain-obj: 4.1.0
       trough: 2.1.0
-      vfile: 5.3.5
+      vfile: 5.3.6
+    dev: false
+
+  /unified/11.0.4:
+    resolution: {integrity: sha512-apMPnyLjAX+ty4OrNap7yumyVAMlKx5IWU2wlzzUdYJO9A8f1p9m/gywF/GM2ZDFcjQPrx59Mc90KwmxsoklxQ==}
+    dependencies:
+      '@types/unist': 3.0.2
+      bail: 2.0.2
+      devlop: 1.1.0
+      extend: 3.0.2
+      is-plain-obj: 4.1.0
+      trough: 2.1.0
+      vfile: 6.0.1
     dev: false
 
   /unist-builder/3.0.0:
@@ -6890,6 +6912,12 @@ packages:
     resolution: {integrity: sha512-7A6eiDCs9UtjcwZOcCpM4aPII3bAAGv13E96IkawkOAW0OhH+yRxtY0lzo8KiHpzEMfH7Q+FizUmwp8Iqy5EWg==}
     dependencies:
       '@types/unist': 2.0.6
+    dev: false
+
+  /unist-util-stringify-position/4.0.0:
+    resolution: {integrity: sha512-0ASV06AAoKCDkS2+xw5RXJywruurpbC4JZSm7nr7MOt1ojAzvyyaO+UxZf18j8FCF6kmzCZKcAgN/yu2gm2XgQ==}
+    dependencies:
+      '@types/unist': 3.0.2
     dev: false
 
   /unist-util-visit-children/1.1.4:
@@ -6994,14 +7022,7 @@ packages:
     resolution: {integrity: sha512-JDxPlTbZrZCQXogGheBHjbRWjESSPEak770XwWPfw5mTc1v1nWGLB/apzZxsx8a0SJVfF8HK8ql8RD308vXRUw==}
     dependencies:
       '@types/unist': 2.0.6
-      vfile: 5.3.5
-    dev: false
-
-  /vfile-message/3.1.2:
-    resolution: {integrity: sha512-QjSNP6Yxzyycd4SVOtmKKyTsSvClqBPJcd00Z0zuPj3hOIjg0rUPG6DbFGPvUKRgYyaIWLPKpuEclcuvb3H8qA==}
-    dependencies:
-      '@types/unist': 2.0.6
-      unist-util-stringify-position: 3.0.2
+      vfile: 5.3.6
     dev: false
 
   /vfile-message/3.1.3:
@@ -7011,13 +7032,11 @@ packages:
       unist-util-stringify-position: 3.0.2
     dev: false
 
-  /vfile/5.3.5:
-    resolution: {integrity: sha512-U1ho2ga33eZ8y8pkbQLH54uKqGhFJ6GYIHnnG5AhRpAh3OWjkrRHKa/KogbmQn8We+c0KVV3rTOgR9V/WowbXQ==}
+  /vfile-message/4.0.2:
+    resolution: {integrity: sha512-jRDZ1IMLttGj41KcZvlrYAaI3CfqpLpfpf+Mfig13viT6NKvRzWZ+lXz0Y5D60w6uJIBAOGq9mSHf0gktF0duw==}
     dependencies:
-      '@types/unist': 2.0.6
-      is-buffer: 2.0.5
-      unist-util-stringify-position: 3.0.2
-      vfile-message: 3.1.2
+      '@types/unist': 3.0.2
+      unist-util-stringify-position: 4.0.0
     dev: false
 
   /vfile/5.3.6:
@@ -7027,6 +7046,14 @@ packages:
       is-buffer: 2.0.5
       unist-util-stringify-position: 3.0.2
       vfile-message: 3.1.3
+    dev: false
+
+  /vfile/6.0.1:
+    resolution: {integrity: sha512-1bYqc7pt6NIADBJ98UiG0Bn/CHIVOoZ/IyEkqIruLg0mE1BKzkOXY2D6CSqQIcKqgadppE5lrxgWXJmXd7zZJw==}
+    dependencies:
+      '@types/unist': 3.0.2
+      unist-util-stringify-position: 4.0.0
+      vfile-message: 4.0.2
     dev: false
 
   /vite/4.0.4_@types+node@18.11.18:

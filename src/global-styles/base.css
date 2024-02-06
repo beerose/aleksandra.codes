@@ -38,6 +38,6 @@ html {
 
 .description {
   p {
-    @apply mb-0 text-xs mt-[-18px];
+    @apply mb-5 text-xs mt-[-18px];
   }
 }

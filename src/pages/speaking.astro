@@ -30,7 +30,7 @@ const talksByYear = talks.reduce(
       <p
         class="font-semibold text-sm text-gray-500 dark:text-gray-400 uppercase"
       >
-        All talks
+        All speaking
       </p>
       <ul class="ml-10 flex flex-col space-y-1 mb-4">
         {
@@ -74,7 +74,9 @@ const talksByYear = talks.reduce(
                             <span> · </span>
                             {frontmatter.place}
                             <span> · </span>
-                            {frontmatter.duration} min
+                            {frontmatter.duration > 60
+                              ? `${frontmatter.duration / 60} h`
+                              : `${frontmatter.duration} min`}
                             <span> · </span>
                             {frontmatter.type}
                           </div>

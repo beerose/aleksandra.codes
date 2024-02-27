@@ -150,7 +150,7 @@ the computation?
 
 Effect.ts is designed to handle all of that. Easily. In a type-safe way.
 
-## What is Effect (or how to think about it)?
+## What is Effect?
 
 The main thing to know is that handling exceptions differs from managing errors.
 Every program can run into errors safely; it's about how you paint those errors.
@@ -209,13 +209,14 @@ issues arising within a unified framework.
 ## Using Effect
 
 Now, let's take a look at how we can use Effect to handle the restaurant
-scenario.
+scenario. I won't go into the details of the library, but I'll show you some
+basic building blocks.
 
-### Creating an effect
+#### Creating a simple effect
 
 The code below simulates fetching ingredients, which may fail if one of the
 ingredients is missing. Notice the return type of the function: it's an effect
-that can either
+that can either:
 
 - succeed with a list of strings,
 - fail with a specific error: `IngredientError`.
@@ -230,6 +231,8 @@ const fetchIngredients = (
     ? Effect.fail(new IngredientError("Missing saffron"))
     : Effect.succeed(ingredients);
 ```
+
+#### Custom errors
 
 You can use `Data.TaggedError` from the `effect` library to create a custom
 error:
@@ -259,8 +262,12 @@ const prepareDish = (ingredients: string[]) =>
   );
 ```
 
+#### Creating an effect with `pipe`
+
+Another way to create an effect is to use the `pipe` function, which lets you
+compose multiple effects:
+
 ```ts
-// Attempt to recover from a missing ingredient by substituting it
 const recoverMissingIngredient = (
   ingredient: string
 ): Effect.Effect<string, never> =>
@@ -269,6 +276,10 @@ const recoverMissingIngredient = (
     Effect.map(() => ingredient)
   );
 ```
+
+#### Running the effect
+
+Finally, you can run the effect using `Effect.runSync`:
 
 ```ts
 const main = pipe(
@@ -281,15 +292,54 @@ const main = pipe(
 Effect.runSync(main);
 ```
 
+Notice, that I've used `Effect.log` to log the steps of the computation. Effect
+has a built-in logging system! When I said it's powerful, I meant it.
+
 ```sh
 timestamp=2024-02-17T17:03:40.846Z level=ERROR fiber=#0 message="Ingredient \"saffron\" not found"
 timestamp=2024-02-17T17:03:40.847Z level=INFO fiber=#0 message="Substituting missing ingredient saffron with turmeric"
 timestamp=2024-02-17T17:03:40.847Z level=INFO fiber=#0 message="Using Missing saffron for the dish"
 ```
 
+#### Retrying
+
+Going back to the restaurant scenario, we can retry asking the customer for an
+order, which may fail if the customer is not ready or if the customer is ready
+but the dish is missing:
+
+I'm using the `Schedule` module to add a delay between retries, and a
+`retryOrElse` method to handle the retry logic. It takes three arguments:
+
+- the effect to retry,
+- a policy that specifies how to retry the effect,
+- a function to handle the error if the effect fails after all retries.
+
 ```ts
-// Ask the customer for an order, which may fail if the customer is not ready
-// or if the customer is ready but the dish is missing
+import { Effect, Schedule, pipe } from "effect";
+
+const policy = Schedule.addDelay(
+  Schedule.recurs(3), // Retry for a maximum of 3 times
+  () => "100 millis" // Add a delay of 100 milliseconds between retries
+);
+
+const getOrder = (
+  customerStatus: "ready" | "not ready"
+): Effect.Effect<string, CustomerNotReadyError | DishMissingError> =>
+  Effect.retryOrElse(
+    pipe(
+      Effect.log(
+        `Asking customer for an order. Customer status: ${customerStatus}`
+      ),
+      Effect.flatMap(() => askCustomer(customerStatus))
+    ),
+    policy,
+    (e) => Effect.fail(e)
+  );
+```
+
+Here's the `askCustomer` function:
+
+```ts
 const askCustomer = (
   customerStatus: "ready" | "not ready"
 ): Effect.Effect<string, CustomerNotReadyError | DishMissingError> =>
@@ -309,30 +359,16 @@ const askCustomer = (
   });
 ```
 
-```ts
-const policy = Schedule.addDelay(
-  Schedule.recurs(3), // Retry for a maximum of 3 times
-  () => "100 millis" // Add a delay of 100 milliseconds between retries
-);
+You can see that I'm using `Effect.async` to create an effect that can be used
+asynchronously. The `resume` function is used to resume the computation with the
+result of the effect.
 
-// Retries asking the customer for an order
-const getOrder = (
-  customerStatus: "ready" | "not ready"
-): Effect.Effect<string, CustomerNotReadyError | DishMissingError> =>
-  Effect.retryOrElse(
-    pipe(
-      Effect.log(
-        `Asking customer for an order. Customer status: ${customerStatus}`
-      ),
-      Effect.flatMap(() => askCustomer(customerStatus))
-    ),
-    policy,
-    (e) => Effect.fail(e)
-  );
-```
+#### Sample program
+
+Here's a sample program that uses the effects we've created and handles the
+errors:
 
 ```ts
-// Execute the dish preparation process
 const program = pipe(
   Effect.log("Let's prepare a dish"),
   Effect.flatMap(() => customerStatus),
@@ -357,9 +393,64 @@ const program = pipe(
 );
 ```
 
+#### Dependency injection
+
+Another powerful feature of Effect is dependency injection. You can use the
+`provideService` method to provide dependencies to an effect.
+
+In the restaurant scenario, you may operate on different sets of ingredients,
+depending on the time of day. You can use `provideService` to provide a service
+that returns the currently available ingredients.
+
+First, we define the service:
+
+```ts
+export class Kitchen extends Context.Tag("Kitchen")<
+  Kitchen,
+  { readonly ingredients: string[] }
+>() {}
+```
+
+Then, we provide the service to the effect:
+
+```ts
+Effect.runSync(
+  Effect.provideService(
+    pipe(
+      fetchIngredients(["agurula", "rice", "chicken"]),
+      Effect.catchAll((e) => {
+        // handle error
+      })
+    ),
+    Kitchen,
+    {
+      ingredients: ["corn salad", "rice", "chicken"],
+    }
+  )
+);
+```
+
+Finally, we use the dependecy in the effect:
+
+```ts
+const fetchIngredients = (
+  ingredients: string[]
+): Effect.Effect<string[], IngredientError, Kitchen> =>
+  Kitchen.pipe(
+    Effect.tap((kitchen) => {
+      return Effect.log(
+        `Available ingredients: ${JSON.stringify(
+          kitchen.ingredients
+        )} \n Needed ingredients: ${JSON.stringify(ingredients)}`
+      );
+    })
+    // ...
+  );
+```
+
 ## Summary
 
-Effect gives us a safer way to code without handling exceptions, model the
+Effect gives you a safer way to code without handling exceptions, model the
 absence of things, and compose functions in a type-safe way, compared to
 un-typed JavaScript Promises.
 

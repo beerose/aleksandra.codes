@@ -14,8 +14,9 @@ My path to Effect started with the [fp-ts](https://github.com/gcanti/fp-ts)
 library, which I had used in several projects before. That led me to Effect, and
 eventually to giving this talk. At first, I was all over the place with ideas,
 even considering a deep dive into the theory stuff I remembered from Uni. It was
-VERY tempting to go over it, but I quickly figured it wouldn't entertain anyone
-besides me 🫠 Another thing is that with Effect.ts, _you don't need that_.
+VERY tempting to go over it, but I quickly figured it probably wouldn't be that
+entertaining nor practical 🫠 Another thing is that with Effect.ts, _you don't
+need that_.
 
 So, instead, I zoomed in on the basics, focusing on introducing the "why" behind
 Effect.
@@ -29,19 +30,15 @@ complexity of our codebase and handling it becomes more difficult.
 
 ![](/content/effect/complexity-1.png)
 
-This isn't just a JavaScript issue. I learned a bit about algebraic effects in
-my CS studies, so the Effect library initially seemed familiar. But as I got
-into it, I found it was different. Sure, it solves some of the same problems but
-**bridges the gap between theoretical exploration and practical application**.
-
 Effect is meant to help you write all the complex stuff like async code,
-composability, concurrency, observability, and dependency injection easier than
-before and with great type safety out of the box.
+composability, concurrency, observability, and dependency injection _easier_
+than before while keeping it type-safe.
 
 But because it's so powerful and has a broad API, it might be tricky to get your
 head around it. One thing that resonated with me was comparing it to something
-like Next.js for React or Nuxt for Vue but for TypeScript: a meta-framework for
-TypeScript.
+like Next.js for React or Nuxt for Vue but for TypeScript:
+
+_a meta-framework for TypeScript_.
 
 Let's take a look at this code:
 
@@ -66,7 +63,7 @@ understand it.
 
 I like explaining stuff through metaphors, so here goes one:
 
-**imagine you're at a restaurant.**
+**Imagine you're at a restaurant.**
 
 Now, what if an ingredient is missing? Or what if they don't have your dish?
 Should they close the restaurant and say they don't work anymore? It's probably
@@ -140,12 +137,8 @@ async function prepareMeal() {
 }
 ```
 
-### What if?
-
-What if we could communicate, ask for guidance, offer alternatives, and continue
-the computation?
-
-Effect is designed to handle all of that. Easily. In a type-safe way.
+**What if we could communicate, offer alternatives, and continue the
+computation?** Effect is designed to handle that.
 
 ## What is Effect?
 
@@ -154,31 +147,8 @@ Every program can run into errors safely; it's about how you paint those errors.
 Throwing them as exceptions and potentially cancelling the computation is just
 one approach.
 
-One thing that some other languages like Golang popularized is returning errors
-as values and then handling them. It allows you to manage errors, but you must
-process them immediately.
-
-```go
-package main
-
-import "fmt"
-
-func Divide(a, b int) (int, error) {
-    if b == 0 {
-        return 0, fmt.Errorf("can't divide '%d' by zero", a)
-    }
-    return a / b, nil
-}
-
-func main() {
-    result, err := Divide(1, 0)
-    if err != nil {
-      // handle error
-    }
-
-    fmt.Println(result)
-}
-```
+One thing you could do is to return an error as a value, but that requires you
+to handle it immediately.
 
 What's cool about exceptions is that they separate a handling code from a place
 where an exception occurred at different application levels. We wouldn't want to
@@ -195,7 +165,7 @@ worlds?
 
 With Effect, we can have composable building blocks describing what job needs to
 be done. Still, you can specify how the system should handle any side effects or
-issues arising within a unified framework.
+errors within a unified framework.
 
 ![](/content/effect/with.png)
 
@@ -451,9 +421,47 @@ un-typed JavaScript Promises.
 
 ![](/content/effect/complexity-2.png)
 
-It does require some initial effort, though. Like with many complex tools, you
-can't simply dive into Effect and instantly master it. While it's incredibly
-powerful, getting to grips with how it works means you'll need to invest some
-time and energy at the start.
+It's true that it requires some initial effort. While it's incredibly powerful,
+getting to grips with how it works means you'll need to invest some time and
+energy at the start.
 
 Still worth it, though.
+
+---
+
+### Random thoughts
+
+#### Effect and algebraic effects
+
+I learned a bit about algebraic effects in my CS studies, so the Effect library
+initially seemed familiar. But as I got into it, I found it was different. Sure,
+it solves some of the same problems but **bridges the gap between theoretical
+exploration and practical application**.
+
+#### Errors as values
+
+One thing that some other languages like Golang popularized is returning errors
+as values and then handling them. It allows you to manage errors, but you must
+process them immediately.
+
+```go
+package main
+
+import "fmt"
+
+func Divide(a, b int) (int, error) {
+    if b == 0 {
+        return 0, fmt.Errorf("can't divide '%d' by zero", a)
+    }
+    return a / b, nil
+}
+
+func main() {
+    result, err := Divide(1, 0)
+    if err != nil {
+      // handle error
+    }
+
+    fmt.Println(result)
+}
+```

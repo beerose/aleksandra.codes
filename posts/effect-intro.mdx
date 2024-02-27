@@ -1,0 +1,467 @@
+---
+title: "Next-level type safety with Effect: an intro"
+tags: effect, typescript
+excerpt:
+date: 2024-02-28
+---
+
+I recently spoke at the [Effect Days](https://effect.website/events/effect-days)
+conference in Vienna, briefly introducing [Effect](https://effect.website/) and
+the mental model behind its concepts. This post expands on that talk, throwing
+in a few more thoughts.
+
+My path to Effect started with the [fp-ts](https://github.com/gcanti/fp-ts)
+library, which I had used in several projects before. That led me to Effect, and
+eventually to giving this talk. At first, I was all over the place with ideas,
+even considering a deep dive into the theory stuff I remembered from Uni. It was
+VERY tempting to go over it, but I quickly figured it probably wouldn't be that
+entertaining nor practical 🫠 Another thing is that with Effect.ts, _you don't
+need that_.
+
+So, instead, I zoomed in on the basics, focusing on introducing the "why" behind
+Effect.
+
+## The problem(s)
+
+In programming, we often deal with operations that can have side effects like
+calling 3rd-party APIs, mutating states, etc. Managing these side effects
+predictably and safely can be challenging. As our apps grow, so does the
+complexity of our codebase and handling it becomes more difficult.
+
+![](/content/effect/complexity-1.png)
+
+Effect is meant to help you write all the complex stuff like async code,
+composability, concurrency, observability, and dependency injection _easier_
+than before while keeping it type-safe.
+
+But because it's so powerful and has a broad API, it might be tricky to get your
+head around it. One thing that resonated with me was comparing it to something
+like Next.js for React or Nuxt for Vue but for TypeScript:
+
+_a meta-framework for TypeScript_.
+
+Let's take a look at this code:
+
+```ts
+async function prepareMeal() {
+  const baseIngredients = await fetchIngredients(/* . .*/);
+  const dish = await prepareDish(baseIngredients);
+
+  const moreIngredients = await fetchIngredients(/* . .*/);
+  const anotherDish = await prepareDish(moreIngredients);
+
+  const drink = await prepareDrink(/*..*/);
+
+  return deliverToTable(dish, anotherDish, drink);
+}
+```
+
+The code's short, but every line is a ticking bomb that could go off. Also, how
+might it go wrong? It might not have any issues, but to be sure, I'd need to go
+through the `fetchIngredients` and `prepareDish` functions, line by line, to
+understand it.
+
+I like explaining stuff through metaphors, so here goes one:
+
+**Imagine you're at a restaurant.**
+
+Now, what if an ingredient is missing? Or what if they don't have your dish?
+Should they close the restaurant and say they don't work anymore? It's probably
+not what you'd expect.
+
+One thing we can do is to recover from a failure and maybe somehow retry what we
+were doing, but with **this code**, we can't magically "go back" to where we
+were and do something different.
+
+```ts
+async function prepareMeal() {
+  const baseIngredients = await fetchIngredients(/* . .*/);
+  const dish = await prepareDish(baseIngredients);
+
+  const moreIngredients = await fetchIngredients(/* . .*/);
+  const anotherDish = await prepareDish(moreIngredients);
+
+  const drink = await prepareDrink(/*..*/);
+
+  return deliverToTable(dish, anotherDish, drink);
+}
+
+try {
+  await prepareMeal();
+} catch {
+  throw new Error("no food for you today");
+}
+```
+
+You would expect otherwise in a restaurant. You wouldn't expect the kitchen to
+start over when one ingredient is missing.
+
+Also, what if we want to retry with different options? Imagine handling this
+with pure TypeScript. It could end up with quite a mess.
+
+```ts
+async function prepareMeal() {
+  let dish;
+  try {
+    const ingredients = await fetchIngredients(/* .. */);
+
+    try {
+      dish = await prepareDish(baseIngredients);
+    } catch {
+      /* .. */
+    }
+  } catch {
+    /* .. */
+  }
+
+  let anotherDish;
+  try {
+    const ingredients = await fetchIngredients(/* .. */);
+    try {
+      anotherDish = await prepareDish(baseIngredients);
+    } catch {
+      /* .. */
+    }
+  } catch {
+    /* .. */
+  }
+
+  let drink;
+  try {
+    drink = await prepareDrink(/* .. */);
+  } catch {
+    /* .. */
+  }
+
+  return deliverToTable(dish, anotherDish, drink);
+}
+```
+
+**What if we could communicate, offer alternatives, and continue the
+computation?** Effect is designed to handle that.
+
+## What is Effect?
+
+The main thing to know is that handling exceptions differs from managing errors.
+Every program can run into errors safely; it's about how you paint those errors.
+Throwing them as exceptions and potentially cancelling the computation is just
+one approach.
+
+One thing you could do is to return an error as a value, but that requires you
+to handle it immediately.
+
+What's cool about exceptions is that they separate a handling code from a place
+where an exception occurred at different application levels. We wouldn't want to
+lose it.
+
+![](/content/effect/without.png)
+
+<i class="description">
+  <p>Managing errors without Effect</p>
+</i>
+
+What if we disconnect the two? And what if we can have the best of the two
+worlds?
+
+With Effect, we can have composable building blocks describing what job needs to
+be done. Still, you can specify how the system should handle any side effects or
+errors within a unified framework.
+
+![](/content/effect/with.png)
+
+<i class="description">
+  <p>Managing errors with Effect</p>
+</i>
+
+## Using Effect
+
+Now, let's take a look at how we can use Effect to handle the restaurant
+scenario. I won't go into the details of the library, but I'll show you some
+basic building blocks.
+
+#### Creating a simple effect
+
+The code below simulates fetching ingredients, which may fail if one of the
+ingredients is missing. Notice the return type of the function: it's an effect
+that can either:
+
+- succeed with a list of strings,
+- fail with a specific error: `IngredientError`.
+
+```ts
+import { Effect } from "effect";
+
+const fetchIngredients = (
+  ingredients: string[]
+): Effect.Effect<string[], IngredientError> =>
+  ingredients.some((i) => i === "saffron")
+    ? Effect.fail(new IngredientError("Missing saffron"))
+    : Effect.succeed(ingredients);
+```
+
+#### Custom errors
+
+You can use `Data.TaggedError` from the `effect` library to create a custom
+error:
+
+```ts
+import { Data } from "effect";
+
+class IngredientError extends Data.TaggedError("IngredientError")<{
+  readonly ingredient: string;
+}> {}
+```
+
+That lets us use the `catchTag` method to handle the error:
+
+_Note: there are also other utilities to handle errors._
+
+```ts
+const prepareDish = (ingredients: string[]) =>
+  pipe(
+    fetchIngredients(ingredients),
+    Effect.catchTag("IngredientError", (error) => {
+      if (error._tag === "IngredientError") {
+        // recover or ?
+      }
+      return Effect.fail(error);
+    })
+  );
+```
+
+#### Creating an effect with `pipe`
+
+Another way to create an effect is to use the `pipe` function, which lets you
+compose multiple effects:
+
+```ts
+const recoverMissingIngredient = (
+  ingredient: string
+): Effect.Effect<string, never> =>
+  pipe(
+    Effect.log(`Substituting missing ingredient ${ingredient} with turmeric`),
+    Effect.map(() => ingredient)
+  );
+```
+
+#### Running the effect
+
+Finally, you can run the effect using `Effect.runSync`:
+
+```ts
+const main = pipe(
+  prepareDish(["saffron", "rice", "chicken"]),
+  Effect.flatMap((ingredients) =>
+    Effect.log(`Using ${ingredients} for the dish`)
+  )
+);
+
+Effect.runSync(main);
+```
+
+Notice, that I've used `Effect.log` to log the steps of the computation. Effect
+has a built-in logging system! When I said it's powerful, I meant it.
+
+```sh
+timestamp=2024-02-17T17:03:40.846Z level=ERROR fiber=#0 message="Ingredient \"saffron\" not found"
+timestamp=2024-02-17T17:03:40.847Z level=INFO fiber=#0 message="Substituting missing ingredient saffron with turmeric"
+timestamp=2024-02-17T17:03:40.847Z level=INFO fiber=#0 message="Using Missing saffron for the dish"
+```
+
+#### Retrying
+
+Going back to the restaurant scenario, we can retry asking the customer for an
+order, which may fail if the customer is not ready or if the customer is ready
+but the dish is missing:
+
+I'm using the `Schedule` module to add a delay between retries, and a
+`retryOrElse` method to handle the retry logic. It takes three arguments:
+
+- the effect to retry,
+- a policy that specifies how to retry the effect,
+- a function to handle the error if the effect fails after all retries.
+
+```ts
+import { Effect, Schedule, pipe } from "effect";
+
+const policy = Schedule.addDelay(
+  Schedule.recurs(3), // Retry for a maximum of 3 times
+  () => "100 millis" // Add a delay of 100 milliseconds between retries
+);
+
+const getOrder = (
+  customerStatus: "ready" | "not ready"
+): Effect.Effect<string, CustomerNotReadyError | DishMissingError> =>
+  Effect.retryOrElse(
+    pipe(
+      Effect.log(
+        `Asking customer for an order. Customer status: ${customerStatus}`
+      ),
+      Effect.flatMap(() => askCustomer(customerStatus))
+    ),
+    policy,
+    (e) => Effect.fail(e)
+  );
+```
+
+Here's the `askCustomer` function:
+
+```ts
+const askCustomer = (
+  customerStatus: "ready" | "not ready"
+): Effect.Effect<string, CustomerNotReadyError | DishMissingError> =>
+  Effect.async<string, CustomerNotReadyError | DishMissingError>((resume) => {
+    if (customerStatus === "not ready") {
+      resume(Effect.fail(new CustomerNotReadyError("Customer not ready")));
+    }
+
+    const dishes = ["pasta", "pizza", "risotto", "missing"];
+    const dish = dishes[Math.floor(Math.random() * dishes.length)];
+
+    if (dish === "missing") {
+      resume(Effect.fail(new DishMissingError("Dish missing")));
+    }
+
+    resume(Effect.succeed(dish));
+  });
+```
+
+You can see that I'm using `Effect.async` to create an effect that can be used
+asynchronously. The `resume` function is used to resume the computation with the
+result of the effect.
+
+#### Sample program
+
+Here's a sample program that uses the effects we've created and handles the
+errors:
+
+```ts
+const program = pipe(
+  Effect.log("Let's prepare a dish"),
+  Effect.flatMap(() => customerStatus),
+  Effect.flatMap((customerStatus) => getOrder(customerStatus)),
+  Effect.catchTags({
+    CustomerNotReadyError: (error) =>
+      Effect.logError(`Customer still not ready. Exiting.`).pipe(
+        Effect.flatMap(() => Effect.fail(error))
+      ),
+    DishMissingError: () =>
+      Effect.log(`Dish missing. Falling back to a pizza.`).pipe(
+        Effect.map(() => "pizza")
+      ),
+  }),
+  Effect.flatMap((order) => Effect.log(`Order received: ${order}`)),
+  Effect.orDieWith((error) => error.message),
+  Effect.flatMap(() => prepareDish(["saffron", "rice", "chicken"])),
+  Effect.flatMap((ingredients) =>
+    Effect.log(`Using ${ingredients} for the dish`)
+  ),
+  Effect.withLogSpan("Dish preparation")
+);
+```
+
+#### Dependency injection
+
+Another powerful feature of Effect is dependency injection. You can use the
+`provideService` method to provide dependencies to an effect. In the restaurant
+scenario, you may operate on different sets of ingredients, depending on the
+time of the year.
+
+First, we define the service:
+
+```ts
+export class Kitchen extends Context.Tag("Kitchen")<
+  Kitchen,
+  { readonly ingredients: string[] }
+>() {}
+```
+
+Then, we provide the service to the effect:
+
+```ts
+Effect.runSync(
+  Effect.provideService(
+    pipe(
+      fetchIngredients(["agurula", "rice", "chicken"]),
+      Effect.catchAll((e) => {
+        // handle error
+      })
+    ),
+    Kitchen,
+    {
+      ingredients: ["corn salad", "rice", "chicken"],
+    }
+  )
+);
+```
+
+Finally, we use the dependecy in the effect:
+
+```ts
+const fetchIngredients = (
+  ingredients: string[]
+): Effect.Effect<string[], IngredientError, Kitchen> =>
+  Kitchen.pipe(
+    Effect.tap((kitchen) => {
+      return Effect.log(
+        `Available ingredients: ${JSON.stringify(
+          kitchen.ingredients
+        )} \n Needed ingredients: ${JSON.stringify(ingredients)}`
+      );
+    })
+    // ...
+  );
+```
+
+## Summary
+
+Effect gives you a safer way to code without handling exceptions, model the
+absence of things, and compose functions in a type-safe way, compared to
+un-typed JavaScript Promises.
+
+![](/content/effect/complexity-2.png)
+
+It's true that it requires some initial effort. While it's incredibly powerful,
+getting to grips with how it works means you'll need to invest some time and
+energy at the start.
+
+Still worth it, though.
+
+---
+
+### Random thoughts
+
+#### Effect and algebraic effects
+
+I learned a bit about algebraic effects in my CS studies, so the Effect library
+initially seemed familiar. But as I got into it, I found it was different. Sure,
+it solves some of the same problems but **bridges the gap between theoretical
+exploration and practical application**.
+
+#### Errors as values
+
+One thing that some other languages like Golang popularized is returning errors
+as values and then handling them. It allows you to manage errors, but you must
+process them immediately.
+
+```go
+package main
+
+import "fmt"
+
+func Divide(a, b int) (int, error) {
+    if b == 0 {
+        return 0, fmt.Errorf("can't divide '%d' by zero", a)
+    }
+    return a / b, nil
+}
+
+func main() {
+    result, err := Divide(1, 0)
+    if err != nil {
+      // handle error
+    }
+
+    fmt.Println(result)
+}
+```

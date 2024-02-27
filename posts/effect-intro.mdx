@@ -1,38 +1,38 @@
 ---
-title: "Next-level type safety with Effect.ts: an introduction"
+title: "Next-level type safety with Effect: an intro"
 tags: effect, typescript
 excerpt:
 date: 2024-02-28
 ---
 
-I recently spoke at the Effect Days conference in Vienna, briefly introducing
-Effect and the mental model behind its concepts. This post expands on that talk,
-throwing in a few more thoughts.
+I recently spoke at the [Effect Days](https://effect.website/events/effect-days)
+conference in Vienna, briefly introducing [Effect](https://effect.website/) and
+the mental model behind its concepts. This post expands on that talk, throwing
+in a few more thoughts.
 
-My path to Effect started with the fp-ts library, which I had used in several
-projects before. That experience led me to Effect, and eventually to the idea of
-giving this talk. At first, I was all over the place with ideas, even
-considering a deep dive into the theoretical aspects I remembered from Uni. It
-was VERY tempting to go over it, but I quickly figured it wouldn't entertain
-anyone besides me. Another thing is that with Effect.ts, you don't need that
-theory stuff.
+My path to Effect started with the [fp-ts](https://github.com/gcanti/fp-ts)
+library, which I had used in several projects before. That led me to Effect, and
+eventually to giving this talk. At first, I was all over the place with ideas,
+even considering a deep dive into the theory stuff I remembered from Uni. It was
+VERY tempting to go over it, but I quickly figured it wouldn't entertain anyone
+besides me 🫠 Another thing is that with Effect.ts, _you don't need that_.
 
 So, instead, I zoomed in on the basics, focusing on introducing the "why" behind
-the Effect.
+Effect.
 
 ## The problem(s)
 
 In programming, we often deal with operations that can have side effects like
-logging, calling 3rd-party APIs, or mutating states. Managing these side effects
+calling 3rd-party APIs, mutating states, etc. Managing these side effects
 predictably and safely can be challenging. As our apps grow, so does the
-complexity of our codebase and managing it becomes more difficult.
+complexity of our codebase and handling it becomes more difficult.
 
 ![](/content/effect/complexity-1.png)
 
 This isn't just a JavaScript issue. I learned a bit about algebraic effects in
 my CS studies, so the Effect library initially seemed familiar. But as I got
 into it, I found it was different. Sure, it solves some of the same problems but
-bridges the gap between theoretical exploration and practical application.
+**bridges the gap between theoretical exploration and practical application**.
 
 Effect is meant to help you write all the complex stuff like async code,
 composability, concurrency, observability, and dependency injection easier than
@@ -61,16 +61,16 @@ async function prepareMeal() {
 
 The code's short, but every line is a ticking bomb that could go off. Also, how
 might it go wrong? It might not have any issues, but to be sure, I'd need to go
-through the fetchIngredients and prepareDish functions, line by line, to
+through the `fetchIngredients` and `prepareDish` functions, line by line, to
 understand it.
 
 I like explaining stuff through metaphors, so here goes one:
 
 **imagine you're at a restaurant.**
 
-Now, what an ingredient is missing? Or what if they don't have your dish? Should
-they close the restaurant and say they don't work anymore? It's probably not
-what you'd expect.
+Now, what if an ingredient is missing? Or what if they don't have your dish?
+Should they close the restaurant and say they don't work anymore? It's probably
+not what you'd expect.
 
 One thing we can do is to recover from a failure and maybe somehow retry what we
 were doing, but with **this code**, we can't magically "go back" to where we
@@ -95,9 +95,6 @@ try {
   throw new Error("no food for you today");
 }
 ```
-
-You would expect otherwise in a restaurant. You wouldn't expect the kitchen to
-start over when one ingredient is missing.
 
 You would expect otherwise in a restaurant. You wouldn't expect the kitchen to
 start over when one ingredient is missing.
@@ -148,7 +145,7 @@ async function prepareMeal() {
 What if we could communicate, ask for guidance, offer alternatives, and continue
 the computation?
 
-Effect.ts is designed to handle all of that. Easily. In a type-safe way.
+Effect is designed to handle all of that. Easily. In a type-safe way.
 
 ## What is Effect?
 
@@ -183,9 +180,9 @@ func main() {
 }
 ```
 
-On the other hand, what's cool about exceptions is that they separate a handling
-code from a place where an exception occurred at different application levels.
-We wouldn't want to lose it.
+What's cool about exceptions is that they separate a handling code from a place
+where an exception occurred at different application levels. We wouldn't want to
+lose it.
 
 ![](/content/effect/without.png)
 
@@ -396,11 +393,9 @@ const program = pipe(
 #### Dependency injection
 
 Another powerful feature of Effect is dependency injection. You can use the
-`provideService` method to provide dependencies to an effect.
-
-In the restaurant scenario, you may operate on different sets of ingredients,
-depending on the time of day. You can use `provideService` to provide a service
-that returns the currently available ingredients.
+`provideService` method to provide dependencies to an effect. In the restaurant
+scenario, you may operate on different sets of ingredients, depending on the
+time of the year.
 
 First, we define the service:
 
